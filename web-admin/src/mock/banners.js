@@ -1,0 +1,32 @@
+export const mockBanners = [
+  {
+    id: 'b001',
+    title: '世界读书日特别活动',
+    image_url: 'https://picsum.photos/seed/bookday/750/340',
+    redirect_url: '/pages/event-detail/event-detail?id=e001',
+    sort_order: 1,
+    status: 'online',
+    created_at: '2026-04-01T10:00:00.000Z',
+    updated_at: '2026-04-01T10:00:00.000Z',
+  },
+  {
+    id: 'b002',
+    title: '新人积分翻倍周',
+    image_url: 'https://picsum.photos/seed/doublepoints/750/340',
+    redirect_url: '/pages/points/points',
+    sort_order: 2,
+    status: 'online',
+    created_at: '2026-04-05T09:00:00.000Z',
+    updated_at: '2026-04-05T09:00:00.000Z',
+  },
+  {
+    id: 'b003',
+    title: '三月读书月回顾',
+    image_url: 'https://picsum.photos/seed/marchreview/750/340',
+    redirect_url: '/pages/event/event',
+    sort_order: 3,
+    status: 'offline',
+    created_at: '2026-03-28T10:00:00.000Z',
+    updated_at: '2026-04-01T08:00:00.000Z',
+  },
+]
