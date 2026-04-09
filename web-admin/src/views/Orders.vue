@@ -17,13 +17,19 @@
       </el-select>
       <el-date-picker v-model="dateRange" type="daterange" start-placeholder="开始" end-placeholder="结束" style="width:240px;" value-format="YYYY-MM-DD" />
       <el-button type="primary">搜索</el-button>
-      <el-button style="margin-left:auto;">导出</el-button>
+      <el-button style="margin-left:auto;" @click="handleExport">导出</el-button>
     </div>
     <!-- 订单表格 -->
     <div class="card" style="padding:0;">
       <el-table :data="filteredOrders" stripe :row-class-name="rowClass">
+        <template #empty>
+          <div style="padding:20px;text-align:center;">
+            <div style="font-size:13px;color: var(--color-text-secondary);">暂无订单数据</div>
+            <div style="font-size:11px;color: var(--color-text-tertiary);margin-top:4px;">试试调整筛选条件</div>
+          </div>
+        </template>
         <el-table-column label="订单号" width="160">
-          <template #default="{ row }"><span style="color:#00897B;font-weight:500;font-size:11px;">{{ row.order_no }}</span></template>
+          <template #default="{ row }"><span style="color: var(--color-primary);font-weight:500;font-size: var(--fs-sm);">{{ row.order_no }}</span></template>
         </el-table-column>
         <el-table-column label="用户" prop="user_name" width="90" />
         <el-table-column label="活动" prop="event_title" min-width="160" />
@@ -36,7 +42,7 @@
           </template>
         </el-table-column>
         <el-table-column label="支付时间" width="120">
-          <template #default="{ row }"><span style="color:#9ca3af;">{{ formatDateTime(row.pay_time) }}</span></template>
+          <template #default="{ row }"><span style="color: var(--color-text-tertiary);">{{ formatDateTime(row.pay_time) }}</span></template>
         </el-table-column>
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
@@ -46,7 +52,7 @@
         </el-table-column>
       </el-table>
       <div class="pagination">
-        <span style="color:#6b7280;font-size:11px;">共 {{ filteredOrders.length }} 条</span>
+        <span style="color: var(--color-text-secondary);font-size: var(--fs-sm);">共 {{ filteredOrders.length }} 条</span>
         <el-pagination small layout="prev,pager,next" :total="filteredOrders.length" :page-size="20" />
       </div>
     </div>
@@ -57,6 +63,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import { mockOrders } from '../mock/orders'
 import { formatMoney, formatDateTime } from '../utils/format'
 import RefundDialog from '../components/RefundDialog.vue'
@@ -99,15 +106,13 @@ function rowClass({ row }) { return row.status === 'refund_pending' ? 'refund-ro
 function openRefund(order) { selectedOrder.value = order; refundVisible.value = true }
 function openDetail(order) { selectedOrder.value = order; detailVisible.value = true }
 function onRefundAction() {}
+function handleExport() { ElMessage.success('导出文件已生成') }
 </script>
 
 <style scoped>
-.tabs-row { display: flex; justify-content: space-between; margin-bottom: 16px; }
-.tab-btn { background: white; color: #374151; padding: 6px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; position: relative; }
-.tab-btn.active { background: #00897B; color: white; font-weight: 500; }
-.badge { position: absolute; top: -4px; right: -4px; background: #EF5350; color: white; border-radius: 10px; padding: 0 6px; font-size: 10px; }
-.filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
-.pagination { padding: 12px 16px; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
-:deep(.refund-row) { background: #FFF8E1 !important; }
+/* tab-btn, filter-bar, pagination inherited from theme.css */
+.tabs-row { display: flex; justify-content: space-between; margin-bottom: var(--sp-4); }
+.badge { position: absolute; top: -4px; right: -4px; background: var(--color-danger); color: white; border-radius: 10px; padding: 0 6px; font-size: var(--fs-xs); }
+:deep(.refund-row) { background: var(--color-warning-highlight) !important; }
 :deep(.refund-row td.el-table__cell) { background: inherit !important; }
 </style>

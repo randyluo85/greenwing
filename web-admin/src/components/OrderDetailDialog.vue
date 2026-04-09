@@ -2,7 +2,7 @@
   <el-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" title="订单详情" width="520px">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
       <el-tag :type="statusType(order?.status)">{{ statusLabel(order?.status) }}</el-tag>
-      <span style="color:#9ca3af;font-size:11px;">{{ order?.order_no }}</span>
+      <span style="color: var(--color-text-tertiary);font-size: var(--fs-sm);">{{ order?.order_no }}</span>
     </div>
     <el-descriptions :column="2" border size="small" style="margin-bottom:20px;">
       <el-descriptions-item label="用户">{{ order?.user_name }}</el-descriptions-item>
@@ -12,8 +12,8 @@
       <el-descriptions-item label="支付时间">{{ formatDateTime(order?.pay_time) }}</el-descriptions-item>
       <el-descriptions-item label="订单过期">{{ formatDateTime(order?.expire_at) }}</el-descriptions-item>
     </el-descriptions>
-    <div style="border-top:1px solid #f3f4f6;padding-top:16px;">
-      <div style="color:#374151;font-weight:500;font-size:12px;margin-bottom:12px;">操作记录</div>
+    <div style="border-top:1px solid var(--color-border-light);padding-top:16px;">
+      <div style="color: var(--color-text-primary);font-weight:500;font-size: var(--fs-base);margin-bottom:12px;">操作记录</div>
       <el-timeline>
         <el-timeline-item v-for="(log, i) in (order?.logs || [])" :key="i" color="#00897B" :timestamp="formatDateTime(log.time)" placement="top">
           {{ log.action }}

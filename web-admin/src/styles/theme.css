@@ -1,20 +1,73 @@
 :root {
+  /* Primary palette */
   --color-primary: #00897B;
   --color-primary-dark: #00695C;
+  --color-primary-darker: #00796B;
   --color-primary-light: #e0f2f1;
+  --color-primary-lighter: #f0f2f5;
+
+  /* Accent shades */
+  --color-teal-400: #80CBC4;
+  --color-teal-500: #4DB6AC;
+  --color-teal-600: #26A69A;
+
+  /* Semantic */
   --color-success: #2e7d32;
   --color-success-bg: #e8f5e9;
   --color-warning: #e65100;
   --color-warning-bg: #fff3e0;
-  --color-danger: #c62828;
+  --color-danger: #EF5350;
+  --color-danger-dark: #c62828;
   --color-danger-bg: #fce4ec;
+
+  /* Text */
   --color-text-primary: #1f2937;
   --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-text-link: #00897B;
+
+  /* Surface & layout */
   --color-bg: #f0f2f5;
+  --color-surface: #ffffff;
   --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  --color-border-medium: #d1d5db;
+  --color-fill-light: #f8f9fa;
+  --color-warning-highlight: #FFF8E1;
+
+  /* Member levels */
   --color-gold: #FFD700;
-  --color-silver: #C0C0C0;
+  --color-silver: #9E9E9E;
   --color-bronze: #CD7F32;
+
+  /* Spacing scale (4px base) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 50%;
+
+  /* Font sizes */
+  --fs-xs: 10px;
+  --fs-sm: 11px;
+  --fs-base: 12px;
+  --fs-md: 13px;
+  --fs-lg: 14px;
+  --fs-xl: 16px;
+  --fs-2xl: 20px;
+  --fs-stat: 28px;
+
+  /* Sidebar */
+  --sidebar-width: 190px;
+  --sidebar-bg: #00695C;
+  --topbar-height: 48px;
 }
 
 body {
@@ -24,25 +77,126 @@ body {
   background: var(--color-bg);
 }
 
+/* Element Plus theme override */
 .el-button--primary {
-  --el-button-bg-color: #00897B;
-  --el-button-border-color: #00897B;
-  --el-button-hover-bg-color: #00796B;
-  --el-button-hover-border-color: #00796B;
+  --el-button-bg-color: var(--color-primary);
+  --el-button-border-color: var(--color-primary);
+  --el-button-hover-bg-color: var(--color-primary-darker);
+  --el-button-hover-border-color: var(--color-primary-darker);
 }
 
 .el-menu {
   border-right: none !important;
 }
 
+/* Shared layout */
 .page-title {
-  font-size: 16px;
+  font-size: var(--fs-xl);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+}
+
+/* Shared components */
+.filter-bar {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pagination {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-label {
+  display: block;
+  color: var(--color-text-primary);
+  font-size: var(--fs-base);
+  margin-bottom: var(--sp-1);
+  font-weight: 500;
+}
+
+.action-link {
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  color: var(--color-text-primary);
+}
+
+.action-link.primary {
+  color: var(--color-text-link);
+}
+
+.action-link.danger {
+  color: var(--color-danger);
+}
+
+.tab-btn {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 6px var(--sp-4);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-base);
+  cursor: pointer;
+  position: relative;
+}
+
+.tab-btn.active {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 500;
+}
+
+.avatar-circle {
+  width: 28px;
+  height: 28px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+}
+
+/* Empty state */
+.empty-state {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 48px var(--sp-5);
+  text-align: center;
+}
+
+/* Transitions */
+.card {
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.action-link {
+  transition: opacity 0.15s ease;
+}
+
+.action-link:hover {
+  opacity: 0.7;
+}
+
+.tab-btn {
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover:not(.active) {
+  background: var(--color-fill-light);
 }

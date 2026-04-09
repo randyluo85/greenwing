@@ -108,12 +108,12 @@ function submit(status) {
 </script>
 
 <style scoped>
-.section-title { color: #00897B; font-weight: 600; font-size: 12px; margin: 20px 0 12px; }
+.section-title { color: var(--color-primary); font-weight: 600; font-size: var(--fs-base); margin: 20px 0 var(--sp-3); }
 .section-title:first-child { margin-top: 0; }
-.upload-placeholder { border: 2px dashed #d1d5db; border-radius: 6px; padding: 20px; text-align: center; color: #9ca3af; font-size: 11px; cursor: pointer; }
-.mode-cards { display: flex; gap: 8px; }
-.mode-card { flex: 1; padding: 10px; text-align: center; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-size: 12px; }
-.mode-card.active { border: 2px solid #00897B; background: #e0f2f1; }
-.mode-name { font-weight: 500; color: #00897B; }
-.mode-card:not(.active) .mode-name { color: #6b7280; }
+.upload-placeholder { border: 2px dashed var(--color-border-medium); border-radius: var(--radius-md); padding: var(--sp-5); text-align: center; color: var(--color-text-tertiary); font-size: var(--fs-sm); cursor: pointer; }
+.mode-cards { display: flex; gap: var(--sp-2); }
+.mode-card { flex: 1; padding: 10px; text-align: center; border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); cursor: pointer; font-size: var(--fs-base); }
+.mode-card.active { border: 2px solid var(--color-primary); background: var(--color-primary-light); }
+.mode-name { font-weight: 500; color: var(--color-primary); }
+.mode-card:not(.active) .mode-name { color: var(--color-text-secondary); }
 </style>

@@ -21,17 +21,17 @@ defineProps({
   border-left: 4px solid;
 }
 .stat-label {
-  color: #6b7280;
-  font-size: 11px;
-  margin-bottom: 4px;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--sp-1);
 }
 .stat-value {
-  font-size: 28px;
+  font-size: var(--fs-stat);
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text-primary);
 }
 .stat-change {
-  font-size: 11px;
-  margin-top: 4px;
+  font-size: var(--fs-sm);
+  margin-top: var(--sp-1);
 }
 </style>

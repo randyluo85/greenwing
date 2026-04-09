@@ -28,6 +28,7 @@
 
 <script setup>
 import { reactive } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -38,7 +39,16 @@ const emit = defineEmits(['update:modelValue', 'confirm'])
 const form = reactive({ type: 'add', amount: 1, reason: '' })
 
 function handleConfirm() {
+  if (!form.reason.trim()) {
+    ElMessage.warning('请填写调整原因')
+    return
+  }
+  if (form.amount > 10000) {
+    ElMessage.warning('单次调整不能超过 10000 积分')
+    return
+  }
   emit('confirm', { ...form })
+  ElMessage.success(form.type === 'add' ? `已增加 ${form.amount} 积分` : `已扣减 ${form.amount} 积分`)
   emit('update:modelValue', false)
   form.type = 'add'
   form.amount = 1
@@ -47,7 +57,7 @@ function handleConfirm() {
 </script>
 
 <style scoped>
-.current-points { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; }
-.points-value { color: #00897B; font-weight: 600; }
-.field-label { display: block; color: #374151; font-size: 12px; margin-bottom: 6px; font-weight: 500; }
+/* field-label inherited from theme.css */
+.current-points { background: var(--color-fill-light); border-radius: var(--radius-lg); padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-5); display: flex; justify-content: space-between; }
+.points-value { color: var(--color-primary); font-weight: 600; }
 </style>

@@ -2,8 +2,7 @@
   <div class="app-layout">
     <aside class="sidebar">
       <div class="sidebar-logo">
-        <span class="logo-icon">📖</span>
-        <span class="logo-text">青翼读书会</span>
+        <img src="/logo-box.png" alt="青翼读书会" class="logo-img" />
       </div>
       <el-menu
         :default-active="activeMenu"
@@ -12,12 +11,12 @@
         active-text-color="#ffffff"
         router
       >
-        <el-menu-item index="/dashboard"><span>📊 Dashboard</span></el-menu-item>
-        <el-menu-item index="/users"><span>👤 用户管理</span></el-menu-item>
-        <el-menu-item index="/events"><span>📅 活动管理</span></el-menu-item>
-        <el-menu-item index="/orders"><span>💰 订单管理</span></el-menu-item>
-        <el-menu-item index="/content"><span>🖼️ 内容管理</span></el-menu-item>
-        <el-menu-item index="/settings"><span>⚙️ 系统设置</span></el-menu-item>
+        <el-menu-item index="/dashboard"><i class="fas fa-chart-line"></i><span> Dashboard</span></el-menu-item>
+        <el-menu-item index="/users"><i class="fas fa-users"></i><span> 用户管理</span></el-menu-item>
+        <el-menu-item index="/events"><i class="far fa-calendar-alt"></i><span> 活动管理</span></el-menu-item>
+        <el-menu-item index="/orders"><i class="fas fa-receipt"></i><span> 订单管理</span></el-menu-item>
+        <el-menu-item index="/content"><i class="fas fa-images"></i><span> 内容管理</span></el-menu-item>
+        <el-menu-item index="/settings"><i class="fas fa-cog"></i><span> 系统设置</span></el-menu-item>
       </el-menu>
     </aside>
     <div class="main-area">
@@ -52,8 +51,8 @@ const today = formatDate(new Date())
   height: 100vh;
 }
 .sidebar {
-  width: 190px;
-  background: #00695C;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -61,32 +60,27 @@ const today = formatDate(new Date())
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
+  justify-content: center;
+  padding: var(--sp-3) var(--sp-4);
+  margin-bottom: var(--sp-3);
   border-bottom: 1px solid rgba(255,255,255,0.15);
 }
-.logo-icon {
-  width: 30px;
-  height: 30px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-.logo-text {
-  color: white;
-  font-weight: 600;
-  font-size: 13px;
+.logo-img {
+  height: 36px;
+  width: auto;
 }
 .sidebar .el-menu-item {
-  font-size: 13px;
+  font-size: var(--fs-md);
   height: 44px;
   line-height: 44px;
-  margin: 2px 8px;
-  border-radius: 6px;
+  margin: 2px var(--sp-2);
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease;
+}
+.sidebar .el-menu-item i {
+  width: 20px;
+  text-align: center;
+  margin-right: var(--sp-2);
 }
 .sidebar .el-menu-item.is-active {
   background: rgba(255,255,255,0.2) !important;
@@ -99,40 +93,40 @@ const today = formatDate(new Date())
   overflow: hidden;
 }
 .topbar {
-  height: 48px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  height: var(--topbar-height);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 var(--sp-5);
   flex-shrink: 0;
 }
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-3);
 }
 .topbar-date {
-  color: #6b7280;
-  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-base);
 }
 .topbar-avatar {
   width: 28px;
   height: 28px;
-  background: #e0f2f1;
-  border-radius: 50%;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #00897B;
-  font-size: 12px;
+  color: var(--color-primary);
+  font-size: var(--fs-base);
   font-weight: 600;
 }
 .content {
   flex: 1;
-  background: #f0f2f5;
-  padding: 20px;
+  background: var(--color-bg);
+  padding: var(--sp-5);
   overflow-y: auto;
 }
 </style>

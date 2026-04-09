@@ -20,9 +20,15 @@
     <!-- 用户表格 -->
     <div class="card" style="padding:0;">
       <el-table :data="filteredUsers" stripe>
+        <template #empty>
+          <div style="padding:20px;text-align:center;">
+            <div style="font-size:13px;color: var(--color-text-secondary);">暂无用户数据</div>
+            <div style="font-size:11px;color: var(--color-text-tertiary);margin-top:4px;">试试调整筛选条件</div>
+          </div>
+        </template>
         <el-table-column label="会员号" prop="member_no" width="100">
           <template #default="{ row }">
-            <span style="color:#00897B;font-weight:500;">{{ row.member_no }}</span>
+            <span style="color: var(--color-primary);font-weight:500;">{{ row.member_no }}</span>
           </template>
         </el-table-column>
         <el-table-column label="用户" min-width="120">
@@ -60,7 +66,7 @@
         </el-table-column>
       </el-table>
       <div class="pagination">
-        <span style="color:#6b7280;font-size:11px;">共 {{ filteredUsers.length }} 条</span>
+        <span style="color: var(--color-text-secondary);font-size: var(--fs-sm);">共 {{ filteredUsers.length }} 条</span>
         <el-pagination small layout="prev,pager,next" :total="filteredUsers.length" :page-size="20" />
       </div>
     </div>
@@ -108,7 +114,5 @@ function onEditConfirm() {}
 </script>
 
 <style scoped>
-.filter-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.avatar-circle { width: 28px; height: 28px; background: #e0f2f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #00897B; }
-.pagination { padding: 12px 16px; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
+/* filter-bar, avatar-circle, pagination inherited from theme.css */
 </style>

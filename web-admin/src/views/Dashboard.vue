@@ -6,7 +6,7 @@
       <StatCard label="本周签到" value="386" change="日均 55 人" color="#26A69A" />
       <StatCard label="本月活动参与" value="156" change="人次报名" color="#4DB6AC" />
       <!-- 收入卡片带切换 -->
-      <div class="stat-card card revenue-card" style="border-left:4px solid #80CBC4;">
+      <div class="stat-card card revenue-card" style="border-left-color: var(--color-teal-400);">
         <div class="revenue-header">
           <span class="stat-label">累计收入</span>
           <div class="period-toggle">
@@ -14,7 +14,7 @@
           </div>
         </div>
         <div class="stat-value">{{ revenueAmount }}</div>
-        <div class="stat-change" style="color:#80CBC4;">{{ revenueSubtitle }}</div>
+        <div class="stat-change" style="color: var(--color-teal-400);">{{ revenueSubtitle }}</div>
       </div>
     </div>
 
@@ -23,7 +23,7 @@
       <!-- 活跃趋势 -->
       <div class="card">
         <div class="card-header">
-          <span style="font-weight:600;color:#1f2937;">社区活跃趋势</span>
+          <span style="font-weight:600;color: var(--color-text-primary);">社区活跃趋势</span>
           <div class="period-toggle">
             <span class="period-btn active">周</span>
             <span class="period-btn">月</span>
@@ -37,12 +37,12 @@
         </div>
         <div class="chart-legend">
           <span>■ 签到人数</span>
-          <span style="color:#00897B;font-weight:500;">■ 活动参与</span>
+          <span style="color: var(--color-primary);font-weight:500;">■ 活动参与</span>
         </div>
       </div>
       <!-- 报名进度 -->
       <div class="card">
-        <div style="font-weight:600;color:#1f2937;margin-bottom:16px;">近期活动报名进度</div>
+        <div style="font-weight:600;color: var(--color-text-primary);margin-bottom:16px;">近期活动报名进度</div>
         <div v-for="evt in publishedEvents" :key="evt.id" class="progress-item">
           <div class="progress-info">
             <span>{{ evt.title }}</span>
@@ -57,7 +57,7 @@
     <div class="bottom-row">
       <!-- 最近动态 -->
       <div class="card">
-        <div style="font-weight:600;color:#1f2937;margin-bottom:16px;">最近动态</div>
+        <div style="font-weight:600;color: var(--color-text-primary);margin-bottom:16px;">最近动态</div>
         <el-timeline>
           <el-timeline-item v-for="(item, i) in activities" :key="i" :color="item.color" :timestamp="item.time" placement="top">
             <div v-html="item.text"></div>
@@ -66,7 +66,7 @@
       </div>
       <!-- 等级分布 -->
       <div class="card">
-        <div style="font-weight:600;color:#1f2937;margin-bottom:16px;">会员等级分布</div>
+        <div style="font-weight:600;color: var(--color-text-primary);margin-bottom:16px;">会员等级分布</div>
         <div v-for="lv in levelData" :key="lv.name" class="level-item">
           <div class="level-info">
             <div class="level-label">
@@ -134,26 +134,26 @@ const levelData = [
 
 <style scoped>
 .dashboard { max-width: 1200px; }
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-5); }
 .revenue-card { position: relative; }
 .revenue-header { display: flex; justify-content: space-between; align-items: center; }
-.period-toggle { display: flex; gap: 2px; background: #f3f4f6; border-radius: 4px; padding: 1px; }
-.period-btn { padding: 1px 6px; border-radius: 3px; font-size: 10px; color: #6b7280; cursor: pointer; }
-.period-btn.active { background: #00897B; color: white; }
-.mid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.bar-chart { height: 120px; background: linear-gradient(180deg, #e0f2f1, #f0f2f5); border-radius: 6px; display: flex; align-items: flex-end; padding: 8px; gap: 6px; }
-.bar { flex: 1; background: #00897B; border-radius: 3px 3px 0 0; }
-.bar-labels { display: flex; justify-content: space-between; margin-top: 6px; color: #9ca3af; font-size: 10px; }
-.chart-legend { margin-top: 10px; display: flex; gap: 12px; font-size: 11px; color: #6b7280; }
-.progress-item { margin-bottom: 12px; }
-.progress-info { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+.period-toggle { display: flex; gap: 2px; background: var(--color-border-light); border-radius: var(--radius-sm); padding: 1px; }
+.period-btn { padding: 1px 6px; border-radius: 3px; font-size: var(--fs-xs); color: var(--color-text-secondary); cursor: pointer; }
+.period-btn.active { background: var(--color-primary); color: white; }
+.mid-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); margin-bottom: var(--sp-5); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); }
+.bar-chart { height: 120px; background: linear-gradient(180deg, var(--color-primary-light), var(--color-bg)); border-radius: var(--radius-md); display: flex; align-items: flex-end; padding: var(--sp-2); gap: 6px; }
+.bar { flex: 1; background: var(--color-primary); border-radius: 3px 3px 0 0; }
+.bar-labels { display: flex; justify-content: space-between; margin-top: 6px; color: var(--color-text-tertiary); font-size: var(--fs-xs); }
+.chart-legend { margin-top: 10px; display: flex; gap: var(--sp-3); font-size: var(--fs-sm); color: var(--color-text-secondary); }
+.progress-item { margin-bottom: var(--sp-3); }
+.progress-info { display: flex; justify-content: space-between; margin-bottom: var(--sp-1); font-size: var(--fs-base); }
 .progress-count { font-weight: 600; }
-.bottom-row { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
-.level-item { margin-bottom: 16px; }
+.bottom-row { display: grid; grid-template-columns: 3fr 2fr; gap: var(--sp-4); }
+.level-item { margin-bottom: var(--sp-4); }
 .level-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .level-label { display: flex; align-items: center; gap: 6px; }
 .level-dot { width: 12px; height: 12px; border-radius: 3px; }
-.level-count { color: #6b7280; font-size: 11px; }
-.level-stats { margin-top: 16px; padding-top: 12px; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; }
+.level-count { color: var(--color-text-secondary); font-size: var(--fs-sm); }
+.level-stats { margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--color-border-light); display: flex; justify-content: space-between; font-size: var(--fs-sm); color: var(--color-text-secondary); }
 </style>

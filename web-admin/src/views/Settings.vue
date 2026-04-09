@@ -4,8 +4,8 @@
     <div class="card" style="margin-bottom:16px;">
       <div class="card-header">
         <div>
-          <div style="font-weight:600;color:#1f2937;font-size:13px;">签到积分规则</div>
-          <div style="color:#6b7280;font-size:11px;margin-top:2px;">用户每日签到获得的积分</div>
+          <div style="font-weight:600;color: var(--color-text-primary);font-size: var(--fs-md);">签到积分规则</div>
+          <div style="color: var(--color-text-secondary);font-size: var(--fs-sm);margin-top:2px;">用户每日签到获得的积分</div>
         </div>
         <span class="reset-btn" @click="resetSign">重置默认</span>
       </div>
@@ -29,8 +29,8 @@
 
     <!-- 会员等级配置 -->
     <div class="card" style="margin-bottom:16px;">
-      <div style="font-weight:600;color:#1f2937;font-size:13px;">会员等级配置</div>
-      <div style="color:#6b7280;font-size:11px;margin-top:2px;margin-bottom:16px;">根据累计积分自动升级</div>
+      <div style="font-weight:600;color: var(--color-text-primary);font-size: var(--fs-md);">会员等级配置</div>
+      <div style="color: var(--color-text-secondary);font-size: var(--fs-sm);margin-top:2px;margin-bottom:16px;">根据累计积分自动升级</div>
       <div class="level-row" v-for="lv in levels" :key="lv.key" :style="{ background: lv.bg }">
         <span class="level-dot" :style="{ background: lv.color }"></span>
         <span class="level-name">{{ lv.name }}</span>
@@ -44,8 +44,8 @@
 
     <!-- 订单设置 -->
     <div class="card" style="margin-bottom:16px;">
-      <div style="font-weight:600;color:#1f2937;font-size:13px;">订单设置</div>
-      <div style="color:#6b7280;font-size:11px;margin-top:2px;margin-bottom:16px;">付费活动的订单过期时间</div>
+      <div style="font-weight:600;color: var(--color-text-primary);font-size: var(--fs-md);">订单设置</div>
+      <div style="color: var(--color-text-secondary);font-size: var(--fs-sm);margin-top:2px;margin-bottom:16px;">付费活动的订单过期时间</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <label class="field-label" style="margin:0;">订单支付超时</label>
         <el-input-number v-model="form.order_expire_minutes" :min="1" />
@@ -88,15 +88,15 @@ function save() {
 </script>
 
 <style scoped>
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.reset-btn { color: #00897B; font-size: 11px; cursor: pointer; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.field-label { display: block; color: #374151; font-size: 11px; margin-bottom: 4px; font-weight: 500; }
-.unit { color: #6b7280; font-size: 11px; }
-.level-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 6px; margin-bottom: 12px; }
+/* field-label inherited from theme.css */
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); }
+.reset-btn { color: var(--color-primary); font-size: var(--fs-sm); cursor: pointer; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
+.unit { color: var(--color-text-secondary); font-size: var(--fs-sm); }
+.level-row { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3); border-radius: var(--radius-md); margin-bottom: var(--sp-3); }
 .level-dot { width: 12px; height: 12px; border-radius: 3px; }
 .level-name { font-weight: 500; width: 60px; }
-.level-min { color: #6b7280; font-size: 11px; }
-.level-dash { color: #9ca3af; }
-.level-unlimited { color: #6b7280; font-size: 11px; }
+.level-min { color: var(--color-text-secondary); font-size: var(--fs-sm); }
+.level-dash { color: var(--color-text-tertiary); }
+.level-unlimited { color: var(--color-text-secondary); font-size: var(--fs-sm); }
 </style>

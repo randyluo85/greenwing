@@ -29,6 +29,7 @@
 
 <script setup>
 import { reactive, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -47,7 +48,12 @@ watch(() => props.user, (u) => {
 }, { immediate: true })
 
 function handleSave() {
+  if (!form.nickname.trim()) {
+    ElMessage.warning('昵称不能为空')
+    return
+  }
   emit('confirm', { ...form })
+  ElMessage.success('用户信息已更新')
   emit('update:modelValue', false)
 }
 </script>

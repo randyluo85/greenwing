@@ -8,7 +8,7 @@
       </div>
       <el-button type="primary" @click="openCreate">+ 创建活动</el-button>
     </div>
-    <div class="event-list">
+    <div class="event-list" v-if="filteredEvents.length">
       <div v-for="evt in filteredEvents" :key="evt.id" :class="['event-card', { draft: evt.status === 'draft' }]" :style="{ borderLeftColor: borderColor(evt) }">
         <div class="event-cover">封面图</div>
         <div class="event-info">
@@ -21,7 +21,11 @@
             <div class="event-actions">
               <span class="action-link primary" @click="openRegistration(evt)">报名名单</span>
               <span class="action-link" @click="openEdit(evt)">编辑</span>
-              <span v-if="evt.status === 'draft'" class="action-link danger" @click="onDelete(evt)">删除</span>
+              <el-popconfirm v-if="evt.status === 'draft'" :title="'确认删除活动「' + evt.title + '」？'" @confirm="onDelete(evt)">
+                <template #reference>
+                  <span class="action-link danger">删除</span>
+                </template>
+              </el-popconfirm>
             </div>
           </div>
           <div class="event-meta">
@@ -34,6 +38,10 @@
         </div>
       </div>
     </div>
+    <div v-else class="empty-state">
+      <div style="font-size:13px;color: var(--color-text-secondary);">暂无活动</div>
+      <div style="font-size:11px;color: var(--color-text-tertiary);margin-top:4px;">点击「创建活动」添加新活动</div>
+    </div>
     <EventDrawer v-model="drawerVisible" :event="selectedEvent" @submit="onDrawerSubmit" />
     <RegistrationDrawer v-model="regVisible" :event="selectedEvent" />
   </div>
@@ -41,6 +49,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import { mockEvents } from '../mock/events'
 import { formatDateTime, formatMoney } from '../utils/format'
 import EventDrawer from '../components/EventDrawer.vue'
@@ -82,24 +91,21 @@ function modeLabel(evt) {
 function openCreate() { selectedEvent.value = null; drawerVisible.value = true }
 function openEdit(evt) { selectedEvent.value = evt; drawerVisible.value = true }
 function openRegistration(evt) { selectedEvent.value = evt; regVisible.value = true }
-function onDrawerSubmit() {}
-function onDelete() {}
+function onDrawerSubmit() { ElMessage.success('活动已保存') }
+function onDelete() { ElMessage.success('活动已删除') }
 </script>
 
 <style scoped>
-.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.tab-btn { background: white; color: #374151; padding: 6px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; }
-.tab-btn.active { background: #00897B; color: white; font-weight: 500; }
-.event-list { display: flex; flex-direction: column; gap: 12px; }
-.event-card { background: white; border-radius: 8px; padding: 16px; display: flex; gap: 16px; border-left: 4px solid; }
+/* tab-btn, action-link inherited from theme.css */
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); }
+.event-list { display: flex; flex-direction: column; gap: var(--sp-3); }
+.event-card { background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--sp-4); display: flex; gap: var(--sp-4); border-left: 4px solid; transition: box-shadow 0.2s ease; }
+.event-card:not(.draft):hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
 .event-card.draft { opacity: 0.7; }
-.event-cover { width: 100px; height: 70px; background: #e0f2f1; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #00897B; font-size: 11px; flex-shrink: 0; }
+.event-cover { width: 100px; height: 70px; background: var(--color-primary-light); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-size: var(--fs-sm); flex-shrink: 0; }
 .event-info { flex: 1; min-width: 0; }
-.event-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
-.event-title { font-weight: 600; color: #1f2937; font-size: 13px; }
-.event-actions { display: flex; gap: 8px; }
-.action-link { font-size: 11px; cursor: pointer; color: #374151; }
-.action-link.primary { color: #00897B; }
-.action-link.danger { color: #EF5350; }
-.event-meta { display: flex; gap: 16px; color: #6b7280; font-size: 11px; flex-wrap: wrap; }
+.event-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: var(--sp-2); }
+.event-title { font-weight: 600; color: var(--color-text-primary); font-size: var(--fs-md); }
+.event-actions { display: flex; gap: var(--sp-2); }
+.event-meta { display: flex; gap: var(--sp-4); color: var(--color-text-secondary); font-size: var(--fs-sm); flex-wrap: wrap; }
 </style>

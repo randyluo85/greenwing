@@ -1,8 +1,8 @@
 <template>
   <el-drawer :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" :title="'报名名单 - ' + (event?.title || '')" size="520px" direction="rtl">
     <template #header>
-      <span style="font-weight:600;color:#1f2937;font-size:14px;">报名名单 - {{ event?.title }}</span>
-      <span style="color:#00897B;font-size:11px;cursor:pointer;margin-left:auto;">导出 Excel</span>
+      <span style="font-weight:600;color: var(--color-text-primary);font-size: var(--fs-lg);">报名名单 - {{ event?.title }}</span>
+      <span style="color: var(--color-primary);font-size: var(--fs-sm);cursor:pointer;margin-left:auto;">导出 Excel</span>
     </template>
     <div class="stats-row">
       <div class="stat-item"><div class="stat-num green">{{ stats.enrolled }}</div><div class="stat-lbl">已报名</div></div>
@@ -23,7 +23,7 @@
         <template #default>{{ modeLabel }}</template>
       </el-table-column>
       <el-table-column label="报名时间" width="110">
-        <template #default="{ row }"><span style="color:#9ca3af;">{{ formatDateTime(row.enrolled_at) }}</span></template>
+        <template #default="{ row }"><span style="color: var(--color-text-tertiary);">{{ formatDateTime(row.enrolled_at) }}</span></template>
       </el-table-column>
       <el-table-column label="核销状态" width="80">
         <template #default="{ row }">
@@ -66,13 +66,13 @@ const modeLabel = computed(() => {
 </script>
 
 <style scoped>
-.stats-row { display: flex; gap: 16px; background: #f8f9fa; border-radius: 8px; padding: 16px; }
+.stats-row { display: flex; gap: var(--sp-4); background: var(--color-fill-light); border-radius: var(--radius-lg); padding: var(--sp-4); }
 .stat-item { flex: 1; text-align: center; }
 .stat-num { font-size: 18px; font-weight: 700; }
-.stat-num.green { color: #00897B; }
-.stat-num.teal { color: #4DB6AC; }
-.stat-num.red { color: #EF5350; }
-.stat-num.gray { color: #9ca3af; }
-.stat-lbl { color: #6b7280; font-size: 10px; }
-.mini-avatar { width: 24px; height: 24px; background: #e0f2f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #00897B; }
+.stat-num.green { color: var(--color-primary); }
+.stat-num.teal { color: var(--color-teal-500); }
+.stat-num.red { color: var(--color-danger); }
+.stat-num.gray { color: var(--color-text-tertiary); }
+.stat-lbl { color: var(--color-text-secondary); font-size: var(--fs-xs); }
+.mini-avatar { width: 24px; height: 24px; background: var(--color-primary-light); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: var(--fs-xs); color: var(--color-primary); }
 </style>
