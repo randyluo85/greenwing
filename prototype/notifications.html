@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>消息通知 | 青翼读书会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="tailwind-config.js"></script>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body class="pb-20">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md px-4 h-12 flex items-center justify-between sticky top-0 z-50 border-b border-gray-100">
+        <div class="flex items-center">
+            <button onclick="history.back()" class="w-8 h-8 flex items-center justify-center -ml-2">
+                <i class="fas fa-chevron-left text-gray-800 text-lg"></i>
+            </button>
+        </div>
+        <h1 class="text-lg font-bold text-gray-800 flex-grow text-center">消息通知</h1>
+        <div class="w-8 h-8 flex items-center justify-center -mr-2 cursor-pointer" onclick="clearAll()">
+            <i class="fas fa-check-double text-gray-400 text-sm"></i>
+        </div>
+    </header>
+
+    <!-- Message List -->
+    <main class="divide-y divide-gray-50 bg-white">
+        
+        <!-- Official Notification / System -->
+        <div class="p-4 flex items-start space-x-4 bg-primary/[0.02] relative">
+            <div class="absolute left-2 top-6 w-1.5 h-1.5 bg-primary rounded-full"></div>
+            <div class="w-10 h-10 rounded bg-[#E0F2F1] flex items-center justify-center text-primary flex-shrink-0">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <div class="flex-grow space-y-1">
+                <div class="flex justify-between items-baseline">
+                    <h4 class="text-sm font-bold text-gray-800">官方公告</h4>
+                    <span class="text-[10px] text-gray-400">10分钟前</span>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">青翼读书会“春季研讨会”现已开启报名，点击查看详情。</p>
+            </div>
+        </div>
+
+        <!-- Interaction Reminder -->
+        <div id="interactionItem" class="p-4 flex items-start space-x-4 relative">
+            <div id="interactionBadge" class="absolute left-2 top-6 w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+            <div class="w-10 h-10 rounded bg-red-50 flex items-center justify-center text-red-400 flex-shrink-0">
+                <i class="fas fa-comments"></i>
+            </div>
+            <div class="flex-grow space-y-1">
+                <div class="flex justify-between items-baseline">
+                    <h4 class="text-sm font-bold text-gray-800">评论互动</h4>
+                    <span class="text-[10px] text-gray-400">刚刚</span>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">陆景言 在您的读书随笔下发表了新评论。</p>
+            </div>
+        </div>
+
+        <!-- Event Reminder -->
+        <a href="event-detail.html" class="p-4 flex items-start space-x-4 btn-active">
+            <div class="w-10 h-10 rounded bg-blue-50 flex items-center justify-center text-blue-400 flex-shrink-0">
+                <i class="far fa-calendar-alt"></i>
+            </div>
+            <div class="flex-grow space-y-1">
+                <div class="flex justify-between items-baseline">
+                    <h4 class="text-sm font-bold text-gray-800">活动提醒</h4>
+                    <span class="text-[10px] text-gray-400">1小时前</span>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">您预约的《周末读诗》将在 3 小时后开始。</p>
+            </div>
+            <i class="fas fa-chevron-right text-[8px] text-gray-300 mt-1"></i>
+        </a>
+
+        <!-- Points Notification -->
+        <a href="points.html" class="p-4 flex items-start space-x-4 btn-active">
+            <div class="w-10 h-10 rounded bg-amber-50 flex items-center justify-center text-amber-500 flex-shrink-0">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="flex-grow space-y-1">
+                <div class="flex justify-between items-baseline">
+                    <h4 class="text-sm font-bold text-gray-800">积分变动</h4>
+                    <span class="text-[10px] text-gray-400">10:42</span>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">今日签到成功，获得 <span class="text-primary font-bold">5</span> 积分。</p>
+            </div>
+            <i class="fas fa-chevron-right text-[8px] text-gray-300 mt-1"></i>
+        </a>
+
+        <!-- Social Like -->
+        <div class="p-4 flex items-start space-x-4 opacity-80">
+            <div class="w-10 h-10 rounded overflow-hidden flex-shrink-0 border border-gray-100">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150" alt="Avatar" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-grow space-y-1">
+                <div class="flex justify-between items-baseline">
+                    <h4 class="text-sm font-bold text-gray-800">苏轻语</h4>
+                    <span class="text-[10px] text-gray-400">昨天</span>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">赞了您的读书随笔：“很有启发，感谢分享。”</p>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="py-12 flex flex-col items-center justify-center opacity-20">
+        <i class="fas fa-envelope-open text-4xl mb-3"></i>
+        <p class="text-xs font-bold tracking-widest">NO MORE MESSAGES</p>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-6 flex items-center justify-between z-50">
+        <a href="index.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a href="events.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-compass text-xl"></i>
+            <span class="text-[10px] font-medium">活动</span>
+        </a>
+        <a href="placeholder.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-shopping-cart text-xl"></i>
+            <span class="text-[10px] font-medium">商城</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </nav>
+
+    <script>
+        function clearAll() {
+            localStorage.setItem('has_new_interaction', 'false');
+            const badges = document.querySelectorAll('[id$="Badge"]');
+            badges.forEach(badge => badge.style.display = 'none');
+            
+            // Highlight the items that were "new"
+            const newItems = document.querySelectorAll('.bg-primary\/\\[0\\.02\\]');
+            newItems.forEach(item => {
+                item.style.backgroundColor = 'transparent';
+                item.style.opacity = '0.8';
+            });
+        }
+    </script>
+</body>
+</html>
