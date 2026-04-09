@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>青翼读书会 | 我的</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="tailwind-config.js"></script>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body class="pb-24">
+
+    <!-- Header -->
+    <header class="glass-surface px-4 h-14 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex-none w-14"></div>
+        <h1 class="text-lg font-bold text-gray-800 flex-grow text-center">个人中心</h1>
+        <div class="flex items-center space-x-3 bg-gray-50/50 rounded-full px-2 py-1 border border-gray-100">
+            <i class="fas fa-ellipsis-h text-gray-500 text-xs"></i>
+            <div class="w-[1px] h-3 bg-gray-200"></div>
+            <div class="w-3.5 h-3.5 rounded-full border-2 border-gray-500 flex items-center justify-center">
+                <div class="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-4 space-y-5">
+        
+        <!-- User Header Section -->
+        <section class="flex items-center justify-between py-4">
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-primary/10">
+                        <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=150" alt="Avatar" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <h2 class="text-xl font-bold text-gray-900">林晚舟</h2>
+                        <i class="fas fa-edit text-gray-300 text-xs"></i>
+                    </div>
+                    <p class="text-xs text-gray-400">心如工画师，能画诸世间。</p>
+                </div>
+            </div>
+            <a href="profile-edit.html" class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-400">
+                <i class="fas fa-chevron-right text-[10px]"></i>
+            </a>
+        </section>
+
+        <!-- Stats Row -->
+        <section class="bg-white rounded p-5 border border-slate-50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] flex justify-between relative overflow-hidden">
+            <div class="text-center flex-1">
+                <p class="text-[20px] font-bold text-primary mb-0.5">24</p>
+                <p class="text-[11px] text-gray-400 font-medium tracking-wide">累计签到</p>
+            </div>
+            <div class="w-[1px] h-8 bg-slate-100 self-center"></div>
+            <div class="text-center flex-1">
+                <p class="text-[20px] font-bold text-primary mb-0.5">8</p>
+                <p class="text-[11px] text-gray-400 font-medium tracking-wide">参与活动</p>
+            </div>
+            <div class="w-[1px] h-8 bg-slate-100 self-center"></div>
+            <div class="text-center flex-1">
+                <p class="text-[20px] font-bold text-primary mb-0.5">750</p>
+                <p class="text-[11px] text-gray-400 font-medium tracking-wide">当前积分</p>
+            </div>
+        </section>
+
+        <!-- Member Level Card -->
+        <section class="bg-white rounded p-5 border border-slate-50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] space-y-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-3.5 bg-primary rounded-full"></div>
+                    <h3 class="text-[14px] font-bold text-gray-800">会员成长</h3>
+                </div>
+                <span class="text-[12px] font-bold text-primary tracking-tight">LV.2 <span class="text-gray-300 font-normal">翡翠会员</span></span>
+            </div>
+            <div class="space-y-2">
+                <div class="w-full h-2.5 bg-slate-50 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 75%;"></div>
+                </div>
+                <div class="flex justify-between items-center text-[10px] text-gray-400">
+                    <span>当前值: 750</span>
+                    <span>下一等级: 1000</span>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Menu Groups -->
+        <div class="space-y-3">
+            <!-- Group 1 -->
+            <section class="bg-white rounded overflow-hidden border border-slate-50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] divide-y divide-slate-50">
+                <a href="my-events.html" class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xs">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <span class="text-[14px] text-gray-700 font-medium">我的活动</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-[10px] text-gray-200"></i>
+                </a>
+                <a href="points.html" class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 text-xs">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <span class="text-[14px] text-gray-700 font-medium">我的积分</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-[10px] text-gray-200"></i>
+                </a>
+            </section>
+
+            <!-- Group 2 -->
+            <section class="bg-white rounded overflow-hidden border border-slate-50 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] divide-y divide-slate-50">
+                <a href="profile-edit.html" class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <span class="text-[14px] text-gray-700 font-medium">账号设置</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-[10px] text-gray-200"></i>
+                </a>
+                <a href="#" class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <span class="text-[14px] text-gray-700 font-medium">帮助与反馈</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-[10px] text-gray-200"></i>
+                </a>
+            </section>
+        </div>
+
+        <!-- Logout Button -->
+        <button onclick="window.location.href='login.html'" class="w-full py-4 text-[14px] font-bold text-rose-400 bg-white rounded border border-slate-50 btn-active shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)]">
+            退出登录
+        </button>
+
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-6 flex items-center justify-between z-50">
+        <a href="index.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a href="events.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-compass text-xl"></i>
+            <span class="text-[10px] font-medium">活动</span>
+        </a>
+        <a href="placeholder.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-shopping-cart text-xl"></i>
+            <span class="text-[10px] font-medium">商城</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center space-y-1 text-primary">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-[10px] font-bold">我的</span>
+        </a>
+    </nav>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>青翼读书会 | 我的积分</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="tailwind-config.js"></script>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body class="bg-bg">
+
+    <!-- Header -->
+    <header class="bg-white px-4 h-16 flex items-center justify-between sticky top-0 z-50 border-b border-gray-100">
+        <button onclick="history.back()" class="flex-none w-14 flex items-center text-gray-400">
+            <i class="fas fa-chevron-left text-lg"></i>
+        </button>
+        <h1 class="text-lg font-bold text-gray-800 flex-grow text-center">我的积分</h1>
+        <div class="flex items-center space-x-3 bg-gray-50 rounded-full px-2 py-1 border border-gray-100 flex-none ml-4">
+            <i class="fas fa-ellipsis-h text-gray-400 text-[10px]"></i>
+            <div class="w-[1px] h-3 bg-gray-200"></div>
+            <div class="w-3.5 h-3.5 rounded-full border-2 border-gray-400 flex items-center justify-center">
+                <div class="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-4 space-y-6">
+        
+        <!-- Score Overview Card -->
+        <section class="relative bg-primary rounded p-6 text-white overflow-hidden shadow-sm">
+            <!-- Background Decorative Circles -->
+            <div class="absolute top-[-20px] right-[-20px] w-32 h-32 rounded-full bg-white/10"></div>
+            <div class="absolute bottom-[-10px] left-[-10px] w-20 h-20 rounded-full bg-white/5"></div>
+            
+            <div class="relative z-10 flex flex-col items-center py-2">
+                <p class="text-white/80 text-[10px] font-bold tracking-[0.2em] uppercase mb-1">Available Points</p>
+                <h2 class="text-[56px] font-bold leading-none mb-6">750</h2>
+                <div class="flex space-x-3">
+                    <button class="bg-white/20 backdrop-blur-md rounded-full px-6 py-2 text-[12px] font-bold border border-white/30 btn-active">
+                        积分说明
+                    </button>
+                    <button onclick="window.location.href='placeholder.html'" class="bg-white text-primary rounded-full px-6 py-2 text-[12px] font-bold btn-active">
+                        去兑换
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Member Level Card (Synced with Profile) -->
+        <section class="bg-white rounded p-5 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] space-y-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-3.5 bg-primary rounded-full"></div>
+                    <h3 class="text-[14px] font-bold text-gray-800">会员成长</h3>
+                </div>
+                <span class="text-[12px] font-bold text-primary tracking-tight">LV.2 <span class="text-gray-300 font-normal">翡翠会员</span></span>
+            </div>
+            <div class="space-y-2">
+                <div class="w-full h-2.5 bg-slate-50 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 75%;"></div>
+                </div>
+                <div class="flex justify-between items-center text-[10px] text-gray-400">
+                    <span>当前值: 750</span>
+                    <span>下一等级: 1000</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Points History -->
+        <section class="space-y-4">
+            <div class="flex justify-between items-center px-1">
+                <h3 class="text-[15px] font-bold text-gray-800">积分明细</h3>
+                <div class="flex items-center text-[11px] text-gray-400 font-medium">
+                    <span>最近 30 天</span>
+                    <i class="fas fa-chevron-down ml-1 text-[8px]"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded border border-gray-100 divide-y divide-gray-50 overflow-hidden shadow-[0_2px_8px_-4px_rgba(38,166,154,0.05)]">
+                <!-- Points Item 1 -->
+                <div class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded bg-surface flex items-center justify-center text-primary border border-emerald-50">
+                            <i class="fas fa-calendar-check text-base"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-[14px] font-bold text-gray-800">每日签到奖励</p>
+                            <p class="text-[11px] text-gray-400">2026-04-08 08:30</p>
+                        </div>
+                    </div>
+                    <span class="text-[17px] font-bold text-primary">+10</span>
+                </div>
+
+                <!-- Points Item 2 -->
+                <div class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded bg-surface flex items-center justify-center text-primary border border-emerald-50">
+                            <i class="fas fa-book-open text-base"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-[14px] font-bold text-gray-800">参与读书分享会</p>
+                            <p class="text-[11px] text-gray-400">2026-04-05 15:45</p>
+                        </div>
+                    </div>
+                    <span class="text-[17px] font-bold text-primary">+50</span>
+                </div>
+
+                <!-- Points Item 3 -->
+                <div class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded bg-rose-50 flex items-center justify-center text-rose-500 border border-rose-100">
+                            <i class="fas fa-gift text-base"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-[14px] font-bold text-gray-800">兑换周边礼包 (马克杯)</p>
+                            <p class="text-[11px] text-gray-400">2026-04-01 11:20</p>
+                        </div>
+                    </div>
+                    <span class="text-[17px] font-bold text-rose-500">-200</span>
+                </div>
+
+                <!-- Points Item 4 -->
+                <div class="flex items-center justify-between p-4 btn-active">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded bg-surface flex items-center justify-center text-primary border border-emerald-50">
+                            <i class="fas fa-calendar-check text-base"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-[14px] font-bold text-gray-800">连续签到 7 天奖励</p>
+                            <p class="text-[11px] text-gray-400">2026-03-31 09:12</p>
+                        </div>
+                    </div>
+                    <span class="text-[17px] font-bold text-primary">+20</span>
+                </div>
+            </div>
+            
+            <p class="text-center text-[11px] text-gray-300 py-6 tracking-wide">到底啦，仅展示最近 30 天记录</p>
+        </section>
+
+    </main>
+
+</body>
+</html>

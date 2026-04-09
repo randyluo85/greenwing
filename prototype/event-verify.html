@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>青翼读书会 | 活动核销</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00897B',
+                        secondary: '#26A69A',
+                        bg: '#000000',
+                    },
+                    borderRadius: {
+                        'xl': '12px',
+                        '2xl': '16px',
+                        '3xl': '24px',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'PingFang SC', system-ui, -apple-system, sans-serif; background-color: #000000; color: white; }
+        .scanner-frame {
+            border: 2px solid #00897B;
+            box-shadow: 0 0 20px rgba(0,137,123,0.5);
+        }
+        .scanner-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #00897B, transparent);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 3s infinite ease-in-out;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .btn-active:active { transform: scale(0.98); transition: transform 0.1s; }
+    </style>
+</head>
+<body class="pb-10 h-screen flex flex-col">
+
+    <!-- Header Overlay -->
+    <header class="fixed top-0 left-0 right-0 h-11 flex items-center justify-between px-4 z-50">
+        <button onclick="history.back()" class="w-10">
+            <i class="fas fa-chevron-left text-white/70"></i>
+        </button>
+        <h1 class="text-lg font-bold text-white flex-grow text-center">扫码核销</h1>
+        <div class="w-10"></div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center px-8 text-center space-y-10">
+        
+        <!-- Scanner Area -->
+        <div class="relative w-64 h-64">
+            <!-- Corners -->
+            <div class="absolute -top-2 -left-2 w-6 h-6 border-t-4 border-l-4 border-primary rounded-tl-lg"></div>
+            <div class="absolute -top-2 -right-2 w-6 h-6 border-t-4 border-r-4 border-primary rounded-tr-lg"></div>
+            <div class="absolute -bottom-2 -left-2 w-6 h-6 border-b-4 border-l-4 border-primary rounded-bl-lg"></div>
+            <div class="absolute -bottom-2 -right-2 w-6 h-6 border-b-4 border-r-4 border-primary rounded-br-lg"></div>
+            
+            <div class="scanner-frame w-full h-full rounded-2xl overflow-hidden bg-white/5 backdrop-blur-[2px]">
+                <div class="scanner-line"></div>
+                <!-- Message inner -->
+                <div class="flex flex-col items-center justify-center h-full space-y-3 opacity-30">
+                    <i class="fas fa-camera text-4xl"></i>
+                    <p class="text-[10px] font-bold tracking-widest">请对准核销二维码</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <h2 class="text-xl font-bold tracking-tight">将二维码置于框内</h2>
+            <p class="text-xs text-white/40 max-w-[200px] mx-auto">用于“青翼读书会”线下活动签到与礼品核销</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="w-full space-y-4">
+            <div class="flex items-center space-x-6 justify-center">
+                <div class="flex flex-col items-center space-y-2">
+                    <div class="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white text-xl btn-active">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <span class="text-[10px] text-white/50 font-bold uppercase tracking-widest">相册</span>
+                </div>
+                <div class="flex flex-col items-center space-y-2">
+                    <div class="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white text-xl btn-active">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <span class="text-[10px] text-white/50 font-bold uppercase tracking-widest">手电筒</span>
+                </div>
+            </div>
+
+            <div class="pt-6">
+                <button onclick="toggleManual()" class="text-primary font-bold text-sm tracking-wide">
+                    手动输入核销码
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Manual Input Modal (Hidden initially) -->
+    <div id="manualInput" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden flex-col items-center pt-20 px-8 space-y-8">
+        <button onclick="toggleManual()" class="absolute top-4 right-4 text-white/30 p-2">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        <div class="text-center space-y-2">
+            <h3 class="text-2xl font-bold">输入核销码</h3>
+            <p class="text-[11px] text-white/30 uppercase tracking-widest font-bold">请向用户索取8位数字代码</p>
+        </div>
+        <div class="w-full flex justify-between space-x-2">
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+            <div class="w-2 flex items-center justify-center text-white/20">-</div>
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+            <input type="number" maxlength="1" class="w-10 h-14 bg-white/5 border border-white/10 rounded-lg text-center font-bold text-xl outline-none focus:border-primary transition-colors">
+        </div>
+        <button class="w-full h-14 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20 btn-active mt-4">
+            确认核销
+        </button>
+    </div>
+
+    <script>
+        function toggleManual() {
+            const modal = document.getElementById('manualInput');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+
+</body>
+</html>

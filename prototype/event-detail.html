@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>活动详情 | 青翼读书会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="tailwind-config.js"></script>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(30, 41, 59, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md px-4 h-12 flex items-center justify-between fixed top-0 left-0 right-0 z-50 border-b border-gray-100">
+        <div class="flex items-center">
+            <button onclick="history.back()" class="w-8 h-8 flex items-center justify-center -ml-2">
+                <i class="fas fa-chevron-left text-gray-800 text-lg"></i>
+            </button>
+        </div>
+        <h1 class="text-lg font-bold text-gray-800 flex-grow text-center">活动详情</h1>
+        <div class="flex items-center space-x-3 bg-gray-50/50 rounded-full px-2 py-1 border border-gray-100">
+            <i class="fas fa-share-alt text-gray-500 text-xs"></i>
+            <div class="w-[1px] h-3 bg-gray-200"></div>
+            <i class="fas fa-ellipsis-h text-gray-500 text-xs"></i>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="mt-12">
+        <!-- Banner Image -->
+        <div class="aspect-[16/10] w-full relative">
+            <img src="https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&q=80&w=1200" alt="Banner" class="w-full h-full object-cover">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                <div class="bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-sm inline-block uppercase tracking-widest mb-2">报名中</div>
+                <h2 class="text-white text-xl font-bold leading-tight uppercase tracking-tight">《周末读诗》· 暮春特辑：让远方的草木入诗</h2>
+            </div>
+        </div>
+
+        <div class="p-4 space-y-6">
+            <!-- Stats -->
+            <div class="flex divide-x divide-gray-100 bg-white border border-gray-100 rounded p-4 shadow-sm">
+                <div class="flex-1 text-center">
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">剩余名额</p>
+                    <p class="text-lg font-black text-gray-800">12 / 30</p>
+                </div>
+                <div class="flex-1 text-center">
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">需积分</p>
+                    <p class="text-lg font-black text-primary italic">100 积分</p>
+                </div>
+                <div class="flex-1 text-center font-serif flex flex-col items-center justify-center">
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1">截止日期</p>
+                    <p class="text-sm font-bold text-orange-500">还剩 2 天</p>
+                </div>
+            </div>
+
+            <!-- Details List -->
+            <section class="space-y-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">活动信息</h3>
+                <div class="space-y-4 bg-white border border-gray-100 rounded p-4 shadow-sm">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded bg-[#E0F2F1] flex items-center justify-center text-primary flex-shrink-0">
+                            <i class="far fa-clock"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-xs font-bold text-gray-800">活动时间</p>
+                            <p class="text-[11px] text-gray-400">2026年04月12日 (周六) 14:00 - 17:00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded bg-[#E0F2F1] flex items-center justify-center text-primary flex-shrink-0">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-xs font-bold text-gray-800">活动地点</p>
+                            <p class="text-[11px] text-gray-400">青翼读书会 · 主茶室（科技园区三号楼）</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded bg-[#E0F2F1] flex items-center justify-center text-primary flex-shrink-0">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-xs font-bold text-gray-800">主讲导师</p>
+                            <p class="text-[11px] text-gray-400">知名诗人、文学博士 · 沈逸飞</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Description -->
+            <section class="space-y-3">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">活动详情</h3>
+                <div class="bg-white border border-gray-100 rounded p-5 shadow-sm space-y-4">
+                    <p class="text-sm text-gray-600 leading-7">暮春者，春服既成，冠者五六人，童子六七人，浴乎沂，风乎舞雩，咏而归。</p>
+                    <p class="text-sm text-gray-600 leading-7">在这个草木生长的季节，文字也应有它的回响。本次读诗会，我们将从海子的《面朝大海，春暖花开》开始，走进那些关于自然、季节与生命的诗意。我们将现场分组研读，并邀请沈老师进行深度点评。</p>
+                    <div class="aspect-video w-full rounded overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1510172951991-856a654063f9?auto=format&fit=crop&q=80&w=800" alt="Sub Image" class="w-full h-full object-cover">
+                    </div>
+                    <p class="text-sm text-gray-600 leading-7">不论你是诗歌爱好者，还是初次接触文学的寻找者，这里都有为你留存的一盏香茗。欢迎大家自带诗集分享。</p>
+                </div>
+            </section>
+
+
+            <!-- Discussion Area (visible after registration) -->
+            <section id="discussionArea" class="hidden space-y-3 pb-8">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">活动讨论 (3)</h3>
+                    <span class="text-[10px] text-primary font-bold">查看全部</span>
+                </div>
+                <div class="bg-white border border-gray-100 rounded shadow-sm divide-y divide-gray-50">
+                    <!-- Comment Input -->
+                    <div class="p-4 flex space-x-3 items-center">
+                        <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=150" alt="Me" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-grow relative">
+                            <input type="text" placeholder="加入讨论..." class="w-full bg-gray-50 border-none rounded-sm px-3 py-2 text-xs placeholder:text-gray-300 focus:ring-1 focus:ring-primary/20">
+                            <button class="absolute right-2 top-1.5 text-primary">
+                                <i class="fas fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Comments List -->
+                    <div class="p-4 space-y-4">
+                        <div class="flex space-x-3">
+                            <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150" alt="User" class="w-full h-full object-cover">
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-bold text-gray-800">陆景言</span>
+                                    <span class="text-[9px] text-gray-300">2小时前</span>
+                                </div>
+                                <p class="text-xs text-gray-600 leading-relaxed">非常期待这次的诗歌分享，已经准备好了要带去的小众诗集！</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150" alt="User" class="w-full h-full object-cover">
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-bold text-gray-800">周舒意</span>
+                                    <span class="text-[9px] text-gray-300">5小时前</span>
+                                </div>
+                                <p class="text-xs text-gray-600 leading-relaxed">请问现场会有诗歌朗诵环节吗？</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Fixed Bottom Bar -->
+    <footer class="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-gray-100 flex items-center justify-between z-50">
+        <button id="bookBtn" onclick="bookNow()" class="w-full bg-primary text-white h-12 rounded flex items-center justify-center font-black uppercase tracking-[0.2em] shadow-[0_4px_12px_rgba(0,137,123,0.3)] btn-active">
+            立即报名 · 100 积分
+        </button>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span>报名成功，请前往“我的-参与记录”查看</span>
+    </div>
+
+    <script>
+        // Check registration status on load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('event_registered_poet')) {
+                showRegisteredState();
+            }
+        });
+
+        function bookNow() {
+            const btn = document.getElementById('bookBtn');
+            if (btn.classList.contains('opacity-50')) return;
+            
+            localStorage.setItem('event_registered_poet', 'true');
+            showRegisteredState();
+            
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        function showRegisteredState() {
+            const btn = document.getElementById('bookBtn');
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>已报名成功';
+            btn.classList.add('opacity-50');
+            btn.classList.remove('shadow-[0_4px_12px_rgba(0,137,123,0.3)]');
+            
+            // Show discussion area
+            const discussionArea = document.getElementById('discussionArea');
+            discussionArea.classList.remove('hidden');
+            
+            // Scroll to discussion area after a short delay
+            setTimeout(() => {
+                discussionArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        }
+    </script>
+</body>
+</html>
