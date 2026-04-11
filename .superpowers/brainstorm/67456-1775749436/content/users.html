@@ -1,0 +1,239 @@
+<h2>模块 2/6: 用户管理</h2>
+<p class="subtitle">用户列表 + 搜索筛选 + 积分调整 + 角色管理</p>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 用户管理 - 列表页</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:500px;font-size:12px;display:flex;flex-direction:column;">
+      <!-- 顶部工具栏 -->
+      <div style="height:48px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;flex-shrink:0;">
+        <span style="color:#374151;font-weight:600;">用户管理</span>
+      </div>
+      <div style="flex:1;display:flex;">
+        <!-- 左侧导航 -->
+        <div style="width:190px;background:#00695C;color:white;padding:16px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.15);">
+            <div style="width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📖</div>
+            <span style="font-weight:600;font-size:13px;">青翼读书会</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div style="padding:10px 12px;opacity:0.7;">📊 Dashboard</div>
+            <div style="background:rgba(255,255,255,0.2);padding:10px 12px;border-radius:6px;font-weight:500;">👤 用户管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">📅 活动管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">💰 订单管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">🖼️ 内容管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">⚙️ 系统设置</div>
+          </div>
+        </div>
+        <!-- 内容区 -->
+        <div style="flex:1;background:#f0f2f5;padding:20px;overflow-y:auto;">
+          <!-- 搜索筛选栏 -->
+          <div style="background:white;border-radius:8px;padding:16px;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <input style="border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;font-size:12px;width:180px;outline:none;" placeholder="搜索会员号 / 昵称 / 手机号">
+            <select style="border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;font-size:12px;color:#374151;">
+              <option>全部等级</option>
+              <option>青铜</option>
+              <option>白银</option>
+              <option>黄金</option>
+            </select>
+            <select style="border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;font-size:12px;color:#374151;">
+              <option>全部角色</option>
+              <option>普通用户</option>
+              <option>管理员</option>
+              <option>核销员</option>
+            </select>
+            <input style="border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;font-size:12px;width:140px;" type="date" value="2026-04-01">
+            <span style="color:#9ca3af;">至</span>
+            <input style="border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;font-size:12px;width:140px;" type="date" value="2026-04-09">
+            <button style="background:#00897B;color:white;border:none;padding:6px 16px;border-radius:6px;font-size:12px;margin-left:auto;">搜索</button>
+            <button style="background:white;color:#374151;border:1px solid #d1d5db;padding:6px 16px;border-radius:6px;font-size:12px;">重置</button>
+          </div>
+          <!-- 用户表格 -->
+          <div style="background:white;border-radius:8px;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead>
+                <tr style="background:#f8f9fa;border-bottom:2px solid #e5e7eb;text-align:left;">
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">会员号</th>
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">用户</th>
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">手机号</th>
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">等级</th>
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">积分</th>
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">角色</th>
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">注册时间</th>
+                  <th style="padding:12px 16px;color:#6b7280;font-weight:500;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:12px 16px;color:#00897B;font-weight:500;">QY001</td>
+                  <td style="padding:12px 16px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:28px;height:28px;background:#e0f2f1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">张</div>
+                      <span style="color:#374151;">张三</span>
+                    </div>
+                  </td>
+                  <td style="padding:12px 16px;color:#6b7280;">138****5678</td>
+                  <td style="padding:12px 16px;"><span style="background:#FFF8E1;color:#F9A825;padding:2px 8px;border-radius:4px;font-size:11px;">黄金</span></td>
+                  <td style="padding:12px 16px;color:#374151;font-weight:500;">1,520</td>
+                  <td style="padding:12px 16px;"><span style="background:#e0f2f1;color:#00897B;padding:2px 8px;border-radius:4px;font-size:11px;">管理员</span></td>
+                  <td style="padding:12px 16px;color:#9ca3af;">2025-12-01</td>
+                  <td style="padding:12px 16px;">
+                    <div style="display:flex;gap:8px;">
+                      <span style="color:#00897B;cursor:pointer;font-size:11px;">调整积分</span>
+                      <span style="color:#374151;cursor:pointer;font-size:11px;">编辑</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:12px 16px;color:#00897B;font-weight:500;">QY002</td>
+                  <td style="padding:12px 16px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:28px;height:28px;background:#fff3e0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">李</div>
+                      <span style="color:#374151;">李四</span>
+                    </div>
+                  </td>
+                  <td style="padding:12px 16px;color:#6b7280;">139****1234</td>
+                  <td style="padding:12px 16px;"><span style="background:#f0f0f0;color:#757575;padding:2px 8px;border-radius:4px;font-size:11px;">白银</span></td>
+                  <td style="padding:12px 16px;color:#374151;font-weight:500;">680</td>
+                  <td style="padding:12px 16px;"><span style="background:#fce4ec;color:#c62828;padding:2px 8px;border-radius:4px;font-size:11px;">核销员</span></td>
+                  <td style="padding:12px 16px;color:#9ca3af;">2026-01-15</td>
+                  <td style="padding:12px 16px;">
+                    <div style="display:flex;gap:8px;">
+                      <span style="color:#00897B;cursor:pointer;font-size:11px;">调整积分</span>
+                      <span style="color:#374151;cursor:pointer;font-size:11px;">编辑</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:12px 16px;color:#00897B;font-weight:500;">QY003</td>
+                  <td style="padding:12px 16px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:28px;height:28px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">王</div>
+                      <span style="color:#374151;">王五</span>
+                    </div>
+                  </td>
+                  <td style="padding:12px 16px;color:#6b7280;">137****9876</td>
+                  <td style="padding:12px 16px;"><span style="background:#FFF3E0;color:#E65100;padding:2px 8px;border-radius:4px;font-size:11px;">青铜</span></td>
+                  <td style="padding:12px 16px;color:#374151;font-weight:500;">120</td>
+                  <td style="padding:12px 16px;"><span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:4px;font-size:11px;">普通用户</span></td>
+                  <td style="padding:12px 16px;color:#9ca3af;">2026-03-20</td>
+                  <td style="padding:12px 16px;">
+                    <div style="display:flex;gap:8px;">
+                      <span style="color:#00897B;cursor:pointer;font-size:11px;">调整积分</span>
+                      <span style="color:#374151;cursor:pointer;font-size:11px;">编辑</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- 分页 -->
+            <div style="padding:12px 16px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;">
+              <span style="color:#6b7280;font-size:11px;">共 1,234 条</span>
+              <div style="display:flex;gap:4px;">
+                <span style="padding:4px 10px;background:#f3f4f6;border-radius:4px;color:#9ca3af;font-size:11px;">上一页</span>
+                <span style="padding:4px 10px;background:#00897B;color:white;border-radius:4px;font-size:11px;">1</span>
+                <span style="padding:4px 10px;background:#f3f4f6;border-radius:4px;color:#374151;font-size:11px;">2</span>
+                <span style="padding:4px 10px;background:#f3f4f6;border-radius:4px;color:#374151;font-size:11px;">3</span>
+                <span style="padding:4px 10px;background:#f3f4f6;border-radius:4px;color:#9ca3af;font-size:11px;">...</span>
+                <span style="padding:4px 10px;background:#f3f4f6;border-radius:4px;color:#374151;font-size:11px;">62</span>
+                <span style="padding:4px 10px;background:#f3f4f6;border-radius:4px;color:#374151;font-size:11px;">下一页</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;">
+  <h3 style="color:#1f2937;">操作交互: 调整积分弹窗</h3>
+  <p class="subtitle">点击「调整积分」触发</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 积分调整弹窗</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="background:rgba(0,0,0,0.3);padding:40px;display:flex;justify-content:center;align-items:flex-start;">
+      <div style="background:white;border-radius:12px;width:420px;overflow:hidden;">
+        <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:600;color:#1f2937;font-size:14px;">调整积分 - 张三</span>
+          <span style="color:#9ca3af;cursor:pointer;font-size:16px;">x</span>
+        </div>
+        <div style="padding:24px;">
+          <div style="background:#f8f9fa;border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;">
+            <span style="color:#6b7280;">当前积分</span>
+            <span style="color:#00897B;font-weight:600;">1,520</span>
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;color:#374151;font-size:12px;margin-bottom:6px;font-weight:500;">调整类型</label>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;padding:8px;text-align:center;border:2px solid #00897B;border-radius:6px;background:#e0f2f1;color:#00897B;font-weight:500;font-size:12px;">增加积分</div>
+              <div style="flex:1;padding:8px;text-align:center;border:1px solid #d1d5db;border-radius:6px;color:#6b7280;font-size:12px;">扣减积分</div>
+            </div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;color:#374151;font-size:12px;margin-bottom:6px;font-weight:500;">积分数额</label>
+            <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;box-sizing:border-box;" placeholder="请输入积分数额" value="50">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;color:#374151;font-size:12px;margin-bottom:6px;font-weight:500;">调整原因</label>
+            <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;box-sizing:border-box;" placeholder="请输入调整原因">
+          </div>
+        </div>
+        <div style="padding:16px 24px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;gap:8px;">
+          <button style="background:white;color:#374151;border:1px solid #d1d5db;padding:8px 20px;border-radius:6px;font-size:12px;">取消</button>
+          <button style="background:#00897B;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;">确认调整</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;">
+  <h3 style="color:#1f2937;">操作交互: 编辑用户弹窗</h3>
+  <p class="subtitle">点击「编辑」触发 - 修改角色和等级</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 编辑用户弹窗</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="background:rgba(0,0,0,0.3);padding:40px;display:flex;justify-content:center;align-items:flex-start;">
+      <div style="background:white;border-radius:12px;width:420px;overflow:hidden;">
+        <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:600;color:#1f2937;font-size:14px;">编辑用户 - 李四</span>
+          <span style="color:#9ca3af;cursor:pointer;font-size:16px;">x</span>
+        </div>
+        <div style="padding:24px;">
+          <div style="margin-bottom:16px;">
+            <label style="display:block;color:#374151;font-size:12px;margin-bottom:6px;font-weight:500;">昵称</label>
+            <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;box-sizing:border-box;" value="李四">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;color:#374151;font-size:12px;margin-bottom:6px;font-weight:500;">角色</label>
+            <select style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;color:#374151;box-sizing:border-box;">
+              <option>普通用户</option>
+              <option>核销员</option>
+              <option selected>管理员</option>
+            </select>
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;color:#374151;font-size:12px;margin-bottom:6px;font-weight:500;">会员等级</label>
+            <select style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;color:#374151;box-sizing:border-box;">
+              <option>青铜</option>
+              <option selected>白银</option>
+              <option>黄金</option>
+            </select>
+          </div>
+          <div style="background:#FFF8E1;border-radius:6px;padding:10px 12px;font-size:11px;color:#F57F17;">
+            注意：修改角色和等级会立即生效，请谨慎操作
+          </div>
+        </div>
+        <div style="padding:16px 24px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;gap:8px;">
+          <button style="background:white;color:#374151;border:1px solid #d1d5db;padding:8px 20px;border-radius:6px;font-size:12px;">取消</button>
+          <button style="background:#00897B;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

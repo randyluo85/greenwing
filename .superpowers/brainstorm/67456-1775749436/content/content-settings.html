@@ -1,0 +1,255 @@
+<h2>模块 5/6: 内容管理</h2>
+<p class="subtitle">首页轮播管理 + 推荐图书管理</p>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 内容管理 - 双 Tab 切换</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:440px;font-size:12px;display:flex;flex-direction:column;">
+      <div style="height:48px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;flex-shrink:0;">
+        <span style="color:#374151;font-weight:600;">内容管理</span>
+      </div>
+      <div style="flex:1;display:flex;">
+        <div style="width:190px;background:#00695C;color:white;padding:16px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.15);">
+            <div style="width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📖</div>
+            <span style="font-weight:600;font-size:13px;">青翼读书会</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div style="padding:10px 12px;opacity:0.7;">📊 Dashboard</div>
+            <div style="padding:10px 12px;opacity:0.7;">👤 用户管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">📅 活动管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">💰 订单管理</div>
+            <div style="background:rgba(255,255,255,0.2);padding:10px 12px;border-radius:6px;font-weight:500;">🖼️ 内容管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">⚙️ 系统设置</div>
+          </div>
+        </div>
+        <div style="flex:1;background:#f0f2f5;padding:20px;overflow-y:auto;">
+          <!-- 子 Tab -->
+          <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #e5e7eb;">
+            <div style="padding:8px 20px;color:#00897B;font-weight:500;border-bottom:2px solid #00897B;margin-bottom:-2px;font-size:13px;">轮播管理</div>
+            <div style="padding:8px 20px;color:#6b7280;font-size:13px;">推荐图书</div>
+          </div>
+          <!-- 轮播列表 -->
+          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+            <button style="background:#00897B;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;">+ 添加轮播</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <!-- 轮播1 -->
+            <div style="background:white;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;">
+              <div style="color:#9ca3af;font-size:14px;font-weight:600;width:20px;text-align:center;">1</div>
+              <div style="width:120px;height:48px;background:linear-gradient(135deg,#00897B,#26A69A);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">轮播图片</div>
+              <div style="flex:1;">
+                <div style="color:#1f2937;font-weight:500;margin-bottom:2px;">世界读书日特别活动</div>
+                <div style="color:#6b7280;font-size:11px;">跳转: /pages/event-detail?id=xxx</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:4px;font-size:10px;">已上线</span>
+                <span style="color:#9ca3af;font-size:14px;cursor:pointer;">↑</span>
+                <span style="color:#9ca3af;font-size:14px;cursor:pointer;">↓</span>
+                <span style="color:#374151;font-size:11px;cursor:pointer;">编辑</span>
+                <span style="color:#EF5350;font-size:11px;cursor:pointer;">下线</span>
+              </div>
+            </div>
+            <!-- 轮播2 -->
+            <div style="background:white;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;">
+              <div style="color:#9ca3af;font-size:14px;font-weight:600;width:20px;text-align:center;">2</div>
+              <div style="width:120px;height:48px;background:linear-gradient(135deg,#4DB6AC,#80CBC4);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">轮播图片</div>
+              <div style="flex:1;">
+                <div style="color:#1f2937;font-weight:500;margin-bottom:2px;">新人积分翻倍周</div>
+                <div style="color:#6b7280;font-size:11px;">跳转: /pages/points</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:4px;font-size:10px;">已上线</span>
+                <span style="color:#9ca3af;font-size:14px;cursor:pointer;">↑</span>
+                <span style="color:#9ca3af;font-size:14px;cursor:pointer;">↓</span>
+                <span style="color:#374151;font-size:11px;cursor:pointer;">编辑</span>
+                <span style="color:#EF5350;font-size:11px;cursor:pointer;">下线</span>
+              </div>
+            </div>
+            <!-- 轮播3 - 已下线 -->
+            <div style="background:white;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;opacity:0.6;">
+              <div style="color:#9ca3af;font-size:14px;font-weight:600;width:20px;text-align:center;">3</div>
+              <div style="width:120px;height:48px;background:#e5e7eb;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px;">轮播图片</div>
+              <div style="flex:1;">
+                <div style="color:#6b7280;font-weight:500;margin-bottom:2px;">三月读书月回顾</div>
+                <div style="color:#9ca3af;font-size:11px;">跳转: 无</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:4px;font-size:10px;">已下线</span>
+                <span style="color:#00897B;font-size:11px;cursor:pointer;">上线</span>
+                <span style="color:#EF5350;font-size:11px;cursor:pointer;">删除</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;">
+  <h3 style="color:#1f2937;">推荐图书 Tab</h3>
+  <p class="subtitle">切换到「推荐图书」Tab 后的视图</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 推荐图书管理</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:300px;font-size:12px;background:#f0f2f5;padding:20px;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button style="background:#00897B;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;">+ 添加图书</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <!-- 图书1 -->
+        <div style="background:white;border-radius:8px;padding:14px;display:flex;gap:12px;">
+          <div style="width:50px;height:66px;background:#e0f2f1;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#00897B;font-size:9px;">封面</div>
+          <div style="flex:1;">
+            <div style="color:#1f2937;font-weight:500;font-size:12px;margin-bottom:2px;">活着</div>
+            <div style="color:#6b7280;font-size:10px;margin-bottom:6px;">余华 著</div>
+            <div style="color:#9ca3af;font-size:10px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">讲述了一个人历经苦难仍然坚强生活的故事</div>
+            <div style="margin-top:6px;display:flex;gap:6px;">
+              <span style="color:#374151;font-size:10px;cursor:pointer;">编辑</span>
+              <span style="color:#EF5350;font-size:10px;cursor:pointer;">删除</span>
+            </div>
+          </div>
+        </div>
+        <!-- 图书2 -->
+        <div style="background:white;border-radius:8px;padding:14px;display:flex;gap:12px;">
+          <div style="width:50px;height:66px;background:#fff3e0;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#e65100;font-size:9px;">封面</div>
+          <div style="flex:1;">
+            <div style="color:#1f2937;font-weight:500;font-size:12px;margin-bottom:2px;">三体</div>
+            <div style="color:#6b7280;font-size:10px;margin-bottom:6px;">刘慈欣 著</div>
+            <div style="color:#9ca3af;font-size:10px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">地球文明向宇宙发出的第一声啼鸣</div>
+            <div style="margin-top:6px;display:flex;gap:6px;">
+              <span style="color:#374151;font-size:10px;cursor:pointer;">编辑</span>
+              <span style="color:#EF5350;font-size:10px;cursor:pointer;">删除</span>
+            </div>
+          </div>
+        </div>
+        <!-- 图书3 -->
+        <div style="background:white;border-radius:8px;padding:14px;display:flex;gap:12px;">
+          <div style="width:50px;height:66px;background:#e8f5e9;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#2e7d32;font-size:9px;">封面</div>
+          <div style="flex:1;">
+            <div style="color:#1f2937;font-weight:500;font-size:12px;margin-bottom:2px;">小王子</div>
+            <div style="color:#6b7280;font-size:10px;margin-bottom:6px;">圣埃克苏佩里 著</div>
+            <div style="color:#9ca3af;font-size:10px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">用孩子的眼光看透大人的世界</div>
+            <div style="margin-top:6px;display:flex;gap:6px;">
+              <span style="color:#374151;font-size:10px;cursor:pointer;">编辑</span>
+              <span style="color:#EF5350;font-size:10px;cursor:pointer;">删除</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:32px;">
+  <h2 style="color:#1f2937;">模块 6/6: 系统设置</h2>
+  <p class="subtitle">积分规则 + 等级配置 + 订单设置</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 系统设置</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:460px;font-size:12px;display:flex;flex-direction:column;">
+      <div style="height:48px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;flex-shrink:0;">
+        <span style="color:#374151;font-weight:600;">系统设置</span>
+      </div>
+      <div style="flex:1;display:flex;">
+        <div style="width:190px;background:#00695C;color:white;padding:16px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.15);">
+            <div style="width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📖</div>
+            <span style="font-weight:600;font-size:13px;">青翼读书会</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div style="padding:10px 12px;opacity:0.7;">📊 Dashboard</div>
+            <div style="padding:10px 12px;opacity:0.7;">👤 用户管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">📅 活动管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">💰 订单管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">🖼️ 内容管理</div>
+            <div style="background:rgba(255,255,255,0.2);padding:10px 12px;border-radius:6px;font-weight:500;">⚙️ 系统设置</div>
+          </div>
+        </div>
+        <div style="flex:1;background:#f0f2f5;padding:20px;overflow-y:auto;">
+          <!-- 签到积分 -->
+          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-weight:600;color:#1f2937;font-size:13px;">签到积分规则</div>
+                <div style="color:#6b7280;font-size:11px;margin-top:2px;">用户每日签到获得的积分</div>
+              </div>
+              <span style="color:#00897B;font-size:11px;cursor:pointer;">重置默认</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div>
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">每日签到基础积分</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input style="width:100px;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;text-align:center;" value="10">
+                  <span style="color:#6b7280;font-size:11px;">分/天</span>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">连续签到额外奖励</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input style="width:100px;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;text-align:center;" value="5">
+                  <span style="color:#6b7280;font-size:11px;">分/连续天</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 等级配置 -->
+          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-weight:600;color:#1f2937;font-size:13px;">会员等级配置</div>
+                <div style="color:#6b7280;font-size:11px;margin-top:2px;">根据累计积分自动升级</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#FFF3E0;border-radius:6px;">
+                <div style="width:12px;height:12px;background:#CD7F32;border-radius:3px;flex-shrink:0;"></div>
+                <span style="color:#374151;font-weight:500;width:60px;">青铜会员</span>
+                <span style="color:#6b7280;font-size:11px;">0</span>
+                <span style="color:#9ca3af;">-</span>
+                <input style="width:80px;border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:12px;text-align:center;" value="499">
+                <span style="color:#6b7280;font-size:11px;">积分</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f5f5f5;border-radius:6px;">
+                <div style="width:12px;height:12px;background:#C0C0C0;border-radius:3px;flex-shrink:0;"></div>
+                <span style="color:#374151;font-weight:500;width:60px;">白银会员</span>
+                <span style="color:#6b7280;font-size:11px;">500</span>
+                <span style="color:#9ca3af;">-</span>
+                <input style="width:80px;border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:12px;text-align:center;" value="999">
+                <span style="color:#6b7280;font-size:11px;">积分</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#FFF8E1;border-radius:6px;">
+                <div style="width:12px;height:12px;background:#FFD700;border-radius:3px;flex-shrink:0;"></div>
+                <span style="color:#374151;font-weight:500;width:60px;">黄金会员</span>
+                <span style="color:#6b7280;font-size:11px;">1000</span>
+                <span style="color:#9ca3af;">-</span>
+                <span style="color:#6b7280;font-size:11px;">不限</span>
+              </div>
+            </div>
+          </div>
+          <!-- 订单设置 -->
+          <div style="background:white;border-radius:8px;padding:20px;">
+            <div style="margin-bottom:16px;">
+              <div style="font-weight:600;color:#1f2937;font-size:13px;">订单设置</div>
+              <div style="color:#6b7280;font-size:11px;margin-top:2px;">付费活动的订单过期时间</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="color:#374151;font-size:11px;font-weight:500;">订单支付超时</label>
+              <input style="width:80px;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;text-align:center;" value="15">
+              <span style="color:#6b7280;font-size:11px;">分钟</span>
+            </div>
+          </div>
+          <!-- 保存 -->
+          <div style="margin-top:16px;display:flex;justify-content:flex-end;">
+            <button style="background:#00897B;color:white;border:none;padding:10px 32px;border-radius:6px;font-size:13px;font-weight:500;">保存设置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
