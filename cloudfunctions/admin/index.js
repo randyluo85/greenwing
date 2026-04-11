@@ -1,4 +1,5 @@
 const cloud = require('wx-server-sdk')
+const crypto = require('crypto')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
@@ -17,25 +18,33 @@ const ADMIN_ACCOUNTS = JSON.parse(process.env.ADMIN_ACCOUNTS || '{"admin":"qingy
 // Token 过期时间: 2小时
 const TOKEN_TTL = 2 * 60 * 60 * 1000
 
-// 简易 token 生成
-function generateToken() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let token = ''
-  for (let i = 0; i < 32; i++) token += chars.charAt(Math.floor(Math.random() * chars.length))
-  return token
+// HMAC 签名密钥（无状态 token，不依赖内存或数据库）
+const TOKEN_SECRET = 'qingyi-admin-token-secret-2026'
+
+// 无状态 token 生成: Base64(username:loginTime:hmac)
+function generateToken(username, loginTime) {
+  const payload = `${username}:${loginTime}`
+  const sig = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex').substring(0, 16)
+  return Buffer.from(`${payload}:${sig}`).toString('base64')
 }
 
-// 有效 token 缓存（内存级别，云函数冷启动会清空）
-const validTokens = {}
-
-// 验证 token 是否有效且未过期
+// 无状态 token 验证: 解码 + 验签 + 检查过期
 function validateToken(token) {
-  if (!token || !validTokens[token]) return false
-  if (Date.now() - validTokens[token].loginTime > TOKEN_TTL) {
-    delete validTokens[token]
+  try {
+    const decoded = Buffer.from(token, 'base64').toString()
+    const parts = decoded.split(':')
+    if (parts.length !== 3) return false
+    const [username, loginTimeStr, sig] = parts
+    const expectedSig = crypto.createHmac('sha256', TOKEN_SECRET).update(`${username}:${loginTimeStr}`).digest('hex').substring(0, 16)
+    if (sig !== expectedSig) return false
+    const loginTime = parseInt(loginTimeStr, 10)
+    if (Date.now() - loginTime > TOKEN_TTL) return false
+    // 验证用户名是否在管理员列表中
+    if (!ADMIN_ACCOUNTS[username]) return false
+    return true
+  } catch (e) {
     return false
   }
-  return true
 }
 
 exports.main = async (event, context) => {
@@ -96,8 +105,8 @@ async function handleLogin(event) {
       return { success: false, message: '账号或密码错误' }
     }
 
-    const token = generateToken()
-    validTokens[token] = { username, loginTime: Date.now() }
+    const loginTime = Date.now()
+    const token = generateToken(username, loginTime)
 
     return { success: true, data: { token, username } }
   } catch (err) {
