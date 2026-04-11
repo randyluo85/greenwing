@@ -351,6 +351,33 @@
 
 ---
 
+### 1.11 admin_sessions (管理员会话)
+
+```json
+{
+  "_id": "自动生成",
+  "token": "随机32位字符串",
+  "username": "admin",
+  "loginTime": "2026-04-12T10:00:00.000Z",
+  "expireAt": "2026-04-12T12:00:00.000Z",
+  "created_at": "2026-04-12T10:00:00.000Z"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| token | string | Y | 会话 token，唯一 |
+| username | string | Y | 管理员用户名 |
+| loginTime | date | Y | 登录时间 |
+| expireAt | date | Y | 过期时间 (loginTime + 2h) |
+| created_at | date | Y | 记录创建时间 |
+
+**索引**: `token`(唯一), `expireAt`
+
+**安全规则**: 仅云函数读写（admin 云函数内部操作，不暴露给客户端）
+
+---
+
 ## 2. 云数据库安全规则要点
 
 | 集合 | 权限类型 | 规则 | 说明 |
@@ -365,6 +392,7 @@
 | settings | READONLY | - | 公开只读 |
 | books | READONLY | - | 公开只读 |
 | notifications | CUSTOM | `read/write: "doc.open_id == auth.openid"` | 用户可读写自己的通知 |
+| admin_sessions | 仅云函数 | - | 管理员会话 token，仅云函数内部读写 |
 
 ---
 
