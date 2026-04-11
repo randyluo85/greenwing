@@ -9,10 +9,16 @@
   <view class="login-actions">
     <button class="wx-login-btn btn-active" bindtap="onWxLogin" loading="{{loading}}">
       <view class="wx-icon-wrap">
-        <text class="wx-icon-text">W</text>
+        <image src="/images/icons/wechat.svg" class="wx-icon-img" wx:if="{{!loading}}" />
+        <text class="wx-icon-text" wx:else>W</text>
       </view>
       <text>微信授权登录</text>
     </button>
-    <text class="terms-text">登录即代表同意《用户协议》和《隐私政策》</text>
+    <view class="security-divider">
+      <view class="line"></view>
+      <text class="security-text">安全可靠</text>
+      <view class="line"></view>
+    </view>
+    <text class="terms-text">登录即代表您同意\n《用户协议》与《隐私保护指引》</text>
   </view>
 </view>

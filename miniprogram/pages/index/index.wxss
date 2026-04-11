@@ -15,8 +15,8 @@
 }
 
 .toolbar-logo {
-  width: 128rpx;
-  height: 128rpx;
+  width: 64rpx;
+  height: 64rpx;
   flex-shrink: 0;
 }
 
@@ -24,7 +24,7 @@
   flex: 1;
   margin: 0 20rpx;
   height: 64rpx;
-  background: #f5f6f8;
+  background: rgba(243, 244, 246, 0.8);
   border-radius: 999rpx;
   display: flex;
   align-items: center;
@@ -132,11 +132,11 @@
 
 .banner-dots {
   position: absolute;
-  bottom: 28rpx;
-  right: 40rpx;
+  bottom: 24rpx;
+  right: 32rpx;
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: 12rpx;
   z-index: 3;
 }
 
@@ -187,9 +187,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 16rpx;
+  gap: 24rpx;
   height: 340rpx;
-  margin: 24rpx 0 32rpx;
+  margin: 32rpx 0 40rpx;
 }
 
 .action-card {
@@ -351,6 +351,7 @@
   font-size: 34rpx;
   font-weight: bold;
   color: var(--text-main);
+  letter-spacing: 1rpx;
 }
 
 .section-icon {
@@ -442,7 +443,7 @@
 .book-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20rpx;
+  gap: 24rpx;
 }
 
 .book-item {

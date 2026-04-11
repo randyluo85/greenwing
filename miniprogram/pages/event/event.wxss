@@ -20,7 +20,7 @@
   text-align: center;
   padding: 24rpx 0 20rpx;
   font-size: 30rpx;
-  color: #64748B;
+  color: #94A3B8;
   border-bottom: 4rpx solid transparent;
 }
 
@@ -54,7 +54,7 @@
   font-size: 32rpx;
   font-weight: bold;
   color: #1E293B;
-  letter-spacing: 4rpx;
+  letter-spacing: 2rpx;
 }
 
 .section-count {
@@ -93,7 +93,7 @@
 .card-past, .card-history { opacity: 0.9; }
 
 /* 卡片头部 */
-.card-header { padding: 28rpx; color: #ffffff; }
+.card-header { padding: 32rpx; color: #ffffff; }
 
 .bg-teal { background: #1ab6a2; }
 .bg-gray { background: #9ca3af; }
@@ -110,7 +110,7 @@
 .date-text {
   font-size: 34rpx;
   font-weight: 500;
-  letter-spacing: 4rpx;
+  letter-spacing: 2rpx;
 }
 
 .time-text {
@@ -134,11 +134,11 @@
 .badge-ended { background: #e5e7eb; color: #4b5563; }
 
 .card-title {
-  font-size: 36rpx;
+  font-size: 38rpx;
   font-weight: 500;
   line-height: 1.4;
   margin-bottom: 24rpx;
-  letter-spacing: 4rpx;
+  letter-spacing: 2rpx;
 }
 
 .card-divider {
