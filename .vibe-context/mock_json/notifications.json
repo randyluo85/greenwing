@@ -1,0 +1,4 @@
+{"open_id":"MOCK_OPEN_ID","type":"event_enroll","icon_color":"#5c8deb","title":"活动报名成功","body":"您已成功报名「古典主义回响：维吉尔《埃涅阿斯纪》精读营」，活动时间为2026年4月18日 15:30，请准时参加。","is_read":false,"created_at":{"$date":"2026-04-10T16:30:00.000Z"}}
+{"open_id":"MOCK_OPEN_ID","type":"points_reward","icon_color":"#fb923c","title":"积分奖励发放","body":"您已连续签到7天，系统已发放50额外积分奖励，当前可用积分1200。","is_read":false,"created_at":{"$date":"2026-04-10T15:30:00.000Z"}}
+{"open_id":"MOCK_OPEN_ID","type":"system","icon_color":"#f05232","title":"系统维护公告","body":"服务器将于本周六凌晨2:00-4:00进行例行维护，届时服务可能暂时不可用。","is_read":true,"created_at":{"$date":"2026-04-09T10:00:00.000Z"}}
+{"open_id":"MOCK_OPEN_ID","type":"system","icon_color":"#14b8a6","title":"欢迎加入青翼读书会","body":"欢迎注册青翼读书会会员！这里有丰富的社群活动与读书资源，期待与您一起开启阅读之旅。","is_read":true,"created_at":{"$date":"2026-02-21T10:00:00.000Z"}}

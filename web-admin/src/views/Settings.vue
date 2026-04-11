@@ -36,7 +36,7 @@
         <span class="level-name">{{ lv.name }}</span>
         <span class="level-min">{{ form.level_thresholds[lv.key].min }}</span>
         <span class="level-dash">-</span>
-        <el-input v-if="lv.key !== 'gold'" v-model.number="form.level_thresholds[lv.key].max" style="width:80px;" />
+        <el-input v-if="lv.key !== 'gold'" v-model.number="form.level_thresholds[lv.key].max" :aria-label="lv.name + '积分上限'" style="width:80px;" />
         <span v-else class="level-unlimited">不限</span>
         <span class="unit">积分</span>
       </div>
@@ -54,21 +54,30 @@
     </div>
 
     <div style="display:flex;justify-content:flex-end;">
-      <el-button type="primary" @click="save">保存设置</el-button>
+      <el-button type="primary" :loading="saving" @click="save">保存设置</el-button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { mockSettings } from '../mock/settings'
+import { callFunction } from '../utils/cloud'
+
+const saving = ref(false)
+
+const defaults = {
+  daily_sign_base: 10,
+  daily_sign_bonus: 5,
+  level_thresholds: { bronze: { min: 0, max: 499 }, silver: { min: 500, max: 999 }, gold: { min: 1000, max: Infinity } },
+  order_expire_minutes: 15
+}
 
 const form = reactive({
-  daily_sign_base: mockSettings.daily_sign_base,
-  daily_sign_bonus: mockSettings.daily_sign_bonus,
-  level_thresholds: JSON.parse(JSON.stringify(mockSettings.level_thresholds)),
-  order_expire_minutes: mockSettings.order_expire_minutes
+  daily_sign_base: defaults.daily_sign_base,
+  daily_sign_bonus: defaults.daily_sign_bonus,
+  level_thresholds: JSON.parse(JSON.stringify(defaults.level_thresholds)),
+  order_expire_minutes: defaults.order_expire_minutes
 })
 
 const levels = [
@@ -77,18 +86,56 @@ const levels = [
   { key: 'gold', name: '黄金会员', color: '#FFD700', bg: '#FFF8E1' }
 ]
 
-function resetSign() {
-  form.daily_sign_base = mockSettings.daily_sign_base
-  form.daily_sign_bonus = mockSettings.daily_sign_bonus
+async function loadSettings() {
+  try {
+    const res = await callFunction('admin', { action: 'getSettings' })
+    const data = res.data
+    if (data) {
+      form.daily_sign_base = data.daily_sign_base || defaults.daily_sign_base
+      form.daily_sign_bonus = data.daily_sign_bonus || defaults.daily_sign_bonus
+      form.order_expire_minutes = data.order_expire_minutes || defaults.order_expire_minutes
+      if (data.level_thresholds) {
+        // Map from flat thresholds {bronze: 0, silver: 500, gold: 1000} to {bronze: {min,max}, ...}
+        const t = data.level_thresholds
+        if (typeof t.bronze === 'number') {
+          form.level_thresholds = { bronze: { min: 0, max: t.silver - 1 }, silver: { min: t.silver, max: t.gold - 1 }, gold: { min: t.gold, max: Infinity } }
+        } else {
+          form.level_thresholds = t
+        }
+      }
+    }
+  } catch (e) { /* use defaults */ }
 }
 
-function save() {
-  ElMessage.success('设置已保存')
+function resetSign() {
+  form.daily_sign_base = defaults.daily_sign_base
+  form.daily_sign_bonus = defaults.daily_sign_bonus
 }
+
+async function save() {
+  saving.value = true
+  try {
+    await callFunction('admin', {
+      action: 'updateSettings',
+      data: {
+        daily_sign_base: form.daily_sign_base,
+        daily_sign_bonus: form.daily_sign_bonus,
+        level_thresholds: { bronze: 0, silver: form.level_thresholds.silver.max, gold: form.level_thresholds.gold.min },
+        order_expire_minutes: form.order_expire_minutes
+      }
+    })
+    ElMessage.success('设置已保存')
+  } catch (err) {
+    ElMessage.error(err.message || '保存失败')
+  } finally {
+    saving.value = false
+  }
+}
+
+onMounted(loadSettings)
 </script>
 
 <style scoped>
-/* field-label inherited from theme.css */
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); }
 .reset-btn { color: var(--color-primary); font-size: var(--fs-sm); cursor: pointer; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }

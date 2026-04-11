@@ -1,0 +1,18 @@
+<view class="login-page">
+  <view class="login-content">
+    <image src="/images/logo.png" mode="aspectFit" class="logo" />
+    <text class="title">青翼读书会</text>
+    <view class="deco-line"></view>
+    <text class="subtitle">赋能你的知识</text>
+  </view>
+
+  <view class="login-actions">
+    <button class="wx-login-btn btn-active" bindtap="onWxLogin" loading="{{loading}}">
+      <view class="wx-icon-wrap">
+        <text class="wx-icon-text">W</text>
+      </view>
+      <text>微信授权登录</text>
+    </button>
+    <text class="terms-text">登录即代表同意《用户协议》和《隐私政策》</text>
+  </view>
+</view>

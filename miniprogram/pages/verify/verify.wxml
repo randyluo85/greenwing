@@ -1,0 +1,38 @@
+<!--pages/verify/verify.wxml-->
+<view class="page">
+
+  <view class="scan-area" wx:if="{{!result}}">
+    <view class="scan-card card">
+      <text class="scan-title">扫码核销</text>
+      <text class="scan-desc">点击下方按钮扫描用户的核销码</text>
+      <view class="scan-btn btn-primary" bindtap="startScan">
+        <text>扫描核销码</text>
+      </view>
+    </view>
+
+    <view class="manual-card card">
+      <text class="manual-title">手动输入核销码</text>
+      <view class="manual-input-wrap">
+        <input class="manual-input" placeholder="请输入核销码，如 QY-0411-A8K3M" bindinput="onCodeInput" value="{{manualCode}}" />
+        <view class="btn-primary manual-btn" bindtap="manualVerify">
+          <text>核销</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 核销结果 -->
+  <view class="result-area" wx:if="{{result}}">
+    <view class="result-card card {{result.success ? 'success' : 'fail'}}">
+      <view class="result-icon">
+        <text>{{result.success ? 'OK' : '!'}}</text>
+      </view>
+      <text class="result-title">{{result.success ? '核销成功' : '核销失败'}}</text>
+      <text class="result-desc">{{result.message}}</text>
+    </view>
+    <view class="btn-primary retry-btn" bindtap="resetVerify">
+      <text>继续核销</text>
+    </view>
+  </view>
+
+</view>

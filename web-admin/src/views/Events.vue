@@ -2,14 +2,14 @@
   <div>
     <div class="top-bar">
       <div style="display:flex;gap:8px;">
-        <div v-for="tab in tabs" :key="tab.key" :class="['tab-btn', { active: activeTab === tab.key }]" @click="activeTab = tab.key">
+        <div v-for="tab in tabs" :key="tab.key" :class="['tab-btn', { active: activeTab === tab.key }]" @click="switchTab(tab.key)">
           {{ tab.label }} ({{ tab.count }})
         </div>
       </div>
       <el-button type="primary" @click="openCreate">+ 创建活动</el-button>
     </div>
     <div class="event-list" v-if="filteredEvents.length">
-      <div v-for="evt in filteredEvents" :key="evt.id" :class="['event-card', { draft: evt.status === 'draft' }]" :style="{ borderLeftColor: borderColor(evt) }">
+      <div v-for="evt in filteredEvents" :key="evt._id" :class="['event-card', { draft: evt.status === 'draft' }]" :style="{ borderLeftColor: borderColor(evt) }">
         <div class="event-cover">封面图</div>
         <div class="event-info">
           <div class="event-header">
@@ -21,7 +21,7 @@
             <div class="event-actions">
               <span class="action-link primary" @click="openRegistration(evt)">报名名单</span>
               <span class="action-link" @click="openEdit(evt)">编辑</span>
-              <el-popconfirm v-if="evt.status === 'draft'" :title="'确认删除活动「' + evt.title + '」？'" @confirm="onDelete(evt)">
+              <el-popconfirm :title="'确认删除活动「' + evt.title + '」？'" @confirm="onDelete(evt)">
                 <template #reference>
                   <span class="action-link danger">删除</span>
                 </template>
@@ -32,13 +32,13 @@
             <span v-if="evt.event_time">{{ formatDateTime(evt.event_time) }}</span>
             <span v-if="evt.location">{{ evt.location }}</span>
             <span v-if="evt.speaker">主讲: {{ evt.speaker }}</span>
-            <span>报名: <b :style="{ color: evt.enrolled_count > evt.quota ? '#EF5350' : '#00897B' }">{{ evt.enrolled_count }}/{{ evt.quota }}</b></span>
-            <span v-if="evt.registration_mode === 'paid'">收入: <b>{{ formatMoney(evt.price * evt.enrolled_count) }}</b></span>
+            <span>报名: <b :style="{ color: (evt.enrolled_count||0) > (evt.quota||0) ? '#EF5350' : '#00897B' }">{{ evt.enrolled_count || 0 }}/{{ evt.quota || '-' }}</b></span>
+            <span v-if="evt.registration_mode === 'paid'">收入: <b>{{ formatMoney((evt.price || 0) * (evt.enrolled_count || 0)) }}</b></span>
           </div>
         </div>
       </div>
     </div>
-    <div v-else class="empty-state">
+    <div v-else-if="!loading" class="empty-state">
       <div style="font-size:13px;color: var(--color-text-secondary);">暂无活动</div>
       <div style="font-size:11px;color: var(--color-text-tertiary);margin-top:4px;">点击「创建活动」添加新活动</div>
     </div>
@@ -48,23 +48,25 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { mockEvents } from '../mock/events'
+import { callFunction } from '../utils/cloud'
 import { formatDateTime, formatMoney } from '../utils/format'
 import EventDrawer from '../components/EventDrawer.vue'
 import RegistrationDrawer from '../components/RegistrationDrawer.vue'
 
+const loading = ref(false)
+const allEvents = ref([])
 const activeTab = ref('all')
 const drawerVisible = ref(false)
 const regVisible = ref(false)
 const selectedEvent = ref(null)
 
 const tabs = computed(() => {
-  const all = mockEvents.length
-  const p = mockEvents.filter(e => e.status === 'published').length
-  const d = mockEvents.filter(e => e.status === 'draft').length
-  const e = mockEvents.filter(ev => ev.status === 'ended').length
+  const all = allEvents.value.length
+  const p = allEvents.value.filter(e => e.status === 'published').length
+  const d = allEvents.value.filter(e => e.status === 'draft').length
+  const e = allEvents.value.filter(ev => ev.status === 'ended').length
   return [
     { key: 'all', label: '全部', count: all },
     { key: 'published', label: '已发布', count: p },
@@ -74,9 +76,11 @@ const tabs = computed(() => {
 })
 
 const filteredEvents = computed(() => {
-  if (activeTab.value === 'all') return mockEvents
-  return mockEvents.filter(e => e.status === activeTab.value)
+  if (activeTab.value === 'all') return allEvents.value
+  return allEvents.value.filter(e => e.status === activeTab.value)
 })
+
+function switchTab(key) { activeTab.value = key }
 
 function borderColor(evt) { return evt.status === 'published' ? '#00897B' : evt.status === 'draft' ? '#d1d5db' : '#9ca3af' }
 function statusType(s) { return s === 'published' ? 'success' : s === 'draft' ? 'info' : 'info' }
@@ -88,15 +92,50 @@ function modeLabel(evt) {
   return '免费'
 }
 
+async function loadEvents() {
+  loading.value = true
+  try {
+    const res = await callFunction('admin', { action: 'getEvents', pageSize: 100 })
+    allEvents.value = res.data.list || []
+  } catch (err) {
+    ElMessage.error(err.message || '加载活动失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 function openCreate() { selectedEvent.value = null; drawerVisible.value = true }
 function openEdit(evt) { selectedEvent.value = evt; drawerVisible.value = true }
 function openRegistration(evt) { selectedEvent.value = evt; regVisible.value = true }
-function onDrawerSubmit() { ElMessage.success('活动已保存') }
-function onDelete() { ElMessage.success('活动已删除') }
+
+async function onDrawerSubmit(data) {
+  try {
+    const method = data._id ? 'update' : 'create'
+    const params = { action: 'manageEvent', method, data }
+    if (data._id) params.eventId = data._id
+    await callFunction('admin', params)
+    ElMessage.success('活动已保存')
+    drawerVisible.value = false
+    loadEvents()
+  } catch (err) {
+    ElMessage.error(err.message || '保存失败')
+  }
+}
+
+async function onDelete(evt) {
+  try {
+    await callFunction('admin', { action: 'manageEvent', method: 'delete', eventId: evt._id })
+    ElMessage.success('活动已删除')
+    loadEvents()
+  } catch (err) {
+    ElMessage.error(err.message || '删除失败')
+  }
+}
+
+onMounted(loadEvents)
 </script>
 
 <style scoped>
-/* tab-btn, action-link inherited from theme.css */
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); }
 .event-list { display: flex; flex-direction: column; gap: var(--sp-3); }
 .event-card { background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--sp-4); display: flex; gap: var(--sp-4); border-left: 4px solid; transition: box-shadow 0.2s ease; }

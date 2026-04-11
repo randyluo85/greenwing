@@ -2,7 +2,7 @@
   <div>
     <!-- 筛选栏 -->
     <div class="card filter-bar">
-      <el-input v-model="search" placeholder="搜索会员号 / 昵称 / 手机号" style="width:180px;" clearable />
+      <el-input v-model="search" label="搜索会员号" placeholder="搜索会员号 / 昵称 / 手机号" style="width:180px;" clearable @clear="loadUsers" />
       <el-select v-model="levelFilter" placeholder="全部等级" clearable style="width:120px;">
         <el-option label="青铜" value="bronze" />
         <el-option label="白银" value="silver" />
@@ -13,20 +13,18 @@
         <el-option label="管理员" value="admin" />
         <el-option label="核销员" value="verifier" />
       </el-select>
-      <el-date-picker v-model="dateRange" type="daterange" start-placeholder="注册开始" end-placeholder="注册结束" style="width:240px;" value-format="YYYY-MM-DD" />
-      <el-button type="primary" style="margin-left:auto;">搜索</el-button>
-      <el-button @click="search='';levelFilter='';roleFilter='';dateRange=null">重置</el-button>
+      <el-button type="primary" @click="loadUsers">搜索</el-button>
+      <el-button @click="search='';levelFilter='';roleFilter='';loadUsers()">重置</el-button>
     </div>
     <!-- 用户表格 -->
-    <div class="card" style="padding:0;">
-      <el-table :data="filteredUsers" stripe>
+    <div class="card" style="padding:0;" v-loading="loading">
+      <el-table :data="users" stripe>
         <template #empty>
           <div style="padding:20px;text-align:center;">
             <div style="font-size:13px;color: var(--color-text-secondary);">暂无用户数据</div>
-            <div style="font-size:11px;color: var(--color-text-tertiary);margin-top:4px;">试试调整筛选条件</div>
           </div>
         </template>
-        <el-table-column label="会员号" prop="member_no" width="100">
+        <el-table-column label="会员号" prop="member_no" width="120">
           <template #default="{ row }">
             <span style="color: var(--color-primary);font-weight:500;">{{ row.member_no }}</span>
           </template>
@@ -66,8 +64,8 @@
         </el-table-column>
       </el-table>
       <div class="pagination">
-        <span style="color: var(--color-text-secondary);font-size: var(--fs-sm);">共 {{ filteredUsers.length }} 条</span>
-        <el-pagination small layout="prev,pager,next" :total="filteredUsers.length" :page-size="20" />
+        <span style="color: var(--color-text-secondary);font-size: var(--fs-sm);">共 {{ total }} 条</span>
+        <el-pagination size="small" layout="prev,pager,next" :total="total" :page-size="pageSize" v-model:current-page="page" @current-change="loadUsers" />
       </div>
     </div>
     <PointsDialog v-model="pointsVisible" :user="selectedUser" @confirm="onPointsConfirm" />
@@ -76,31 +74,42 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { mockUsers } from '../mock/users'
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { callFunction } from '../utils/cloud'
 import { maskPhone, formatDate } from '../utils/format'
 import PointsDialog from '../components/PointsDialog.vue'
 import UserEditDialog from '../components/UserEditDialog.vue'
 
+const loading = ref(false)
+const users = ref([])
+const total = ref(0)
+const page = ref(1)
+const pageSize = 20
+
 const search = ref('')
 const levelFilter = ref('')
 const roleFilter = ref('')
-const dateRange = ref(null)
 const pointsVisible = ref(false)
 const editVisible = ref(false)
 const selectedUser = ref(null)
 
-const filteredUsers = computed(() => {
-  return mockUsers.filter(u => {
-    if (search.value) {
-      const s = search.value.toLowerCase()
-      if (!u.member_no.toLowerCase().includes(s) && !u.nickname.includes(s) && !u.phone.includes(s)) return false
-    }
-    if (levelFilter.value && u.level !== levelFilter.value) return false
-    if (roleFilter.value && u.role !== roleFilter.value) return false
-    return true
-  })
-})
+async function loadUsers() {
+  loading.value = true
+  try {
+    const params = { action: 'getUsers', page: page.value, pageSize }
+    if (search.value) params.keyword = search.value
+    if (levelFilter.value) params.level = levelFilter.value
+    if (roleFilter.value) params.role = roleFilter.value
+    const res = await callFunction('admin', params)
+    users.value = res.data.list || []
+    total.value = res.data.total || 0
+  } catch (err) {
+    ElMessage.error(err.message || '加载用户失败')
+  } finally {
+    loading.value = false
+  }
+}
 
 function levelType(l) { return { bronze: 'warning', silver: 'info', gold: 'success' }[l] || 'info' }
 function levelLabel(l) { return { bronze: '青铜', silver: '白银', gold: '黄金' }[l] || l }
@@ -109,10 +118,31 @@ function roleLabel(r) { return { admin: '管理员', verifier: '核销员', user
 
 function openPoints(user) { selectedUser.value = user; pointsVisible.value = true }
 function openEdit(user) { selectedUser.value = user; editVisible.value = true }
-function onPointsConfirm() {}
-function onEditConfirm() {}
+
+async function onPointsConfirm({ userId, amount, reason }) {
+  try {
+    await callFunction('admin', { action: 'adjustPoints', userId, amount, reason })
+    ElMessage.success('积分调整成功')
+    pointsVisible.value = false
+    loadUsers()
+  } catch (err) {
+    ElMessage.error(err.message || '积分调整失败')
+  }
+}
+
+async function onEditConfirm({ userId, data }) {
+  try {
+    await callFunction('admin', { action: 'updateUser', userId, data })
+    ElMessage.success('用户信息已更新')
+    editVisible.value = false
+    loadUsers()
+  } catch (err) {
+    ElMessage.error(err.message || '更新失败')
+  }
+}
+
+onMounted(loadUsers)
 </script>
 
 <style scoped>
-/* filter-bar, avatar-circle, pagination inherited from theme.css */
 </style>

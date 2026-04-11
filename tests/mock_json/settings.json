@@ -1,0 +1,1 @@
+{"_id":"points_config","daily_sign_base":10,"daily_sign_bonus":5,"continuous_sign_bonus_days":7,"continuous_sign_bonus_points":50,"level_thresholds":{"bronze":0,"silver":500,"gold":1000},"order_expire_minutes":15}

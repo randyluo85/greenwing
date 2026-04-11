@@ -1,0 +1,173 @@
+<!--pages/index/index.wxml-->
+<view class="page">
+
+  <!-- 工具栏: Logo + 搜索 + 消息 -->
+  <view class="toolbar">
+    <image src="/images/logo.png" mode="aspectFit" class="toolbar-logo" />
+    <view class="toolbar-search" bindtap="goEventList">
+      <image src="/images/icons/search.svg" class="toolbar-search-icon" />
+      <text class="toolbar-search-text">活动搜索</text>
+    </view>
+    <view class="toolbar-bell" bindtap="goNotifications">
+      <image src="/images/icons/bell.svg" class="toolbar-bell-icon" />
+      <view class="toolbar-dot"></view>
+    </view>
+  </view>
+
+  <!-- Banner 轮播 -->
+  <view class="banner-wrap">
+    <swiper class="banner" autoplay circular current="{{bannerCurrent}}" bindchange="onBannerChange">
+      <swiper-item wx:for="{{banners}}" wx:key="_id" bindtap="onBannerTap" data-item="{{item}}">
+        <view class="banner-slide">
+          <image src="{{item.image_url}}" mode="aspectFill" class="banner-img" />
+          <view class="banner-overlay"></view>
+          <view class="banner-text" wx:if="{{item.title || item.subtitle}}">
+            <text class="banner-title ellipsis-2" wx:if="{{item.title}}">{{item.title}}</text>
+            <text class="banner-subtitle ellipsis" wx:if="{{item.subtitle}}">{{item.subtitle}}</text>
+          </view>
+        </view>
+      </swiper-item>
+      <swiper-item wx:if="{{banners.length === 0}}">
+        <view class="banner-placeholder">
+          <image src="/images/logo.png" mode="aspectFit" class="banner-logo" />
+          <text class="banner-ph-title">青翼读书会</text>
+        </view>
+      </swiper-item>
+    </swiper>
+    <!-- 自定义指示点 -->
+    <view class="banner-dots" wx:if="{{banners.length > 1}}">
+      <view wx:for="{{banners}}" wx:key="_id"
+        class="banner-dot {{bannerCurrent === index ? 'active' : ''}}">
+      </view>
+    </view>
+  </view>
+
+  <view class="content">
+
+    <!-- 快捷操作 -->
+    <view class="action-grid">
+      <!-- 签到卡 -->
+      <view class="action-card action-card-main btn-active" bindtap="onSignIn">
+        <view class="action-main-inner">
+          <view class="action-main-top">
+            <text class="action-main-title">每日签到</text>
+          </view>
+          <view class="action-main-bottom">
+            <view class="sign-info">
+              <text class="sign-label">已累计</text>
+              <view class="sign-count-row">
+                <text class="sign-number">{{userInfo.continuous_sign_days || 0}}</text>
+                <text class="sign-unit">天</text>
+              </view>
+            </view>
+            <view class="sign-btn {{signedToday ? 'signed' : ''}}">
+              <text>{{signedToday ? '已签到' : '去签到'}}</text>
+            </view>
+          </view>
+        </view>
+        <image src="/images/signin.png" mode="aspectFit" class="action-deco" />
+      </view>
+
+      <!-- 积分查询 -->
+      <view class="action-card action-card-amber btn-active" bindtap="goPoints">
+        <view class="action-sub-inner">
+          <text class="action-sub-title action-amber-text">积分查询</text>
+          <view class="action-arrow action-amber-arrow">></view>
+        </view>
+        <image src="/images/point.png" mode="aspectFit" class="action-deco-sm" />
+      </view>
+
+      <!-- 我的活动 -->
+      <view class="action-card action-card-blue btn-active" bindtap="goMyEvents">
+        <view class="action-sub-inner">
+          <text class="action-sub-title action-blue-text">我的活动</text>
+          <view class="action-arrow action-blue-arrow">></view>
+        </view>
+        <image src="/images/scan.png" mode="aspectFit" class="action-deco-sm" />
+      </view>
+    </view>
+
+    <!-- 近期活动 -->
+    <view class="section">
+      <view class="section-header">
+        <view class="section-title-row">
+          <text class="section-title">热门活动</text>
+          <image src="/images/fire.png" mode="aspectFit" class="section-icon" />
+        </view>
+        <text class="section-more" bindtap="goEventList">更多 ></text>
+      </view>
+
+      <view wx:if="{{events.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-text">暂无活动</text>
+      </view>
+
+      <view class="event-list">
+        <view class="event-item animate-fade-up {{index < 5 ? 'stagger-' + (index + 1) : ''}}"
+          wx:for="{{events}}" wx:key="_id"
+          bindtap="goEventDetail" data-id="{{item._id}}">
+          <view class="event-cover-wrap">
+            <image src="{{item.cover_image || '/images/event-default.png'}}" mode="aspectFill" class="event-cover" />
+          </view>
+          <view class="event-info">
+            <text class="event-title ellipsis-2">{{item.title}}</text>
+            <view class="event-tags">
+              <text class="event-tag tag-status">{{item.status === 'ended' ? '已结束' : '报名中'}}</text>
+              <text class="event-tag tag-points" wx:if="{{item.registration_mode === 'points_only'}}">{{item.points_cost || 100}}积分</text>
+              <text class="event-tag tag-paid" wx:if="{{item.registration_mode === 'paid'}}">付费</text>
+            </view>
+            <view class="event-meta-list">
+              <text class="event-meta-text">{{item._formattedTime}}</text>
+              <text class="event-meta-text">{{item.location || '线上'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 好书推荐 -->
+    <view class="section" wx:if="{{books.length > 0}}">
+      <view class="section-header">
+        <view class="section-title-row">
+          <text class="section-title">好书推荐</text>
+          <image src="/images/thumb.png" mode="aspectFit" class="section-icon" />
+        </view>
+        <text class="section-more" bindtap="goBooks">更多 ></text>
+      </view>
+
+      <view class="book-grid">
+        <view class="book-item" wx:for="{{books}}" wx:key="_id" bindtap="onBookTap" data-id="{{item._id}}">
+          <view class="book-cover-wrap">
+            <image src="{{item.cover_image}}" mode="aspectFill" class="book-cover" />
+            <view class="book-rating" wx:if="{{item.rating}}">
+              <text>{{item.rating}}</text>
+            </view>
+          </view>
+          <text class="book-title ellipsis">{{item.title}}</text>
+          <text class="book-author ellipsis">{{item.author}}</text>
+        </view>
+      </view>
+    </view>
+
+  </view>
+</view>
+
+<!-- 签到成功弹窗 -->
+<view class="modal-mask {{showSignModal ? '' : 'hidden'}}" bindtap="closeSignModal">
+  <view class="modal-card animate-fade-scale" catchtap>
+    <view class="modal-top">
+      <image src="/images/sign.png" mode="aspectFill" class="modal-top-img" />
+    </view>
+    <view class="modal-bottom">
+      <text class="modal-title">签到成功</text>
+      <view class="modal-points">
+        <text class="points-plus">+</text>
+        <text class="points-num">{{signResult.earned || 0}}</text>
+        <text class="points-unit">积分</text>
+      </view>
+      <text class="modal-sub">已连续签到 {{signResult.continuousDays || 1}} 天</text>
+    </view>
+  </view>
+  <view class="modal-close" bindtap="closeSignModal">
+    <text class="modal-close-text">x</text>
+  </view>
+</view>

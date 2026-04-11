@@ -1,0 +1,24 @@
+[
+  {
+    "title": "世界读书日特别活动",
+    "subtitle": "4月23日 诚邀书友共赴文学盛宴",
+    "image_url": "cloud://cloud1-8gax523s60b70149/banner-bookday.jpg",
+    "redirect_type": "event",
+    "redirect_url": "/pages/event-detail/event-detail?id=这里替换为实际活动ID",
+    "sort_order": 1,
+    "status": "online",
+    "created_at": "2026-04-11T10:00:00.000Z",
+    "updated_at": "2026-04-11T10:00:00.000Z"
+  },
+  {
+    "title": "青翼读书月好书推荐",
+    "subtitle": "本月精选书单，与万千书友共读",
+    "image_url": "cloud://cloud1-8gax523s60b70149/banner-books.jpg",
+    "redirect_type": "article",
+    "redirect_url": "/pages/article-detail/article-detail?id=这里替换为实际文章ID",
+    "sort_order": 2,
+    "status": "online",
+    "created_at": "2026-04-11T10:00:00.000Z",
+    "updated_at": "2026-04-11T10:00:00.000Z"
+  }
+]

@@ -1,0 +1,61 @@
+<view class="page">
+  <!-- Avatar Section -->
+  <view class="avatar-section">
+    <view class="avatar-wrap" bindtap="onChangeAvatar">
+      <image src="{{userInfo.avatar_url || '/images/default-avatar.png'}}" mode="aspectFill" class="avatar" />
+      <view class="avatar-camera">
+        <text class="camera-text">+</text>
+      </view>
+    </view>
+    <text class="avatar-hint">点击更换头像</text>
+  </view>
+
+  <!-- Form -->
+  <view class="form-section">
+    <view class="form-field">
+      <text class="field-label">昵称</text>
+      <input class="field-input" placeholder="输入昵称" value="{{nickname}}" bindinput="onNicknameInput" />
+    </view>
+
+    <view class="form-field">
+      <text class="field-label">个人签名</text>
+      <textarea class="field-textarea" placeholder="写点什么..." value="{{bio}}" bindinput="onBioInput" maxlength="100" auto-height />
+    </view>
+
+    <view class="form-row">
+      <view class="form-field form-field-half">
+        <text class="field-label">性别</text>
+        <picker range="{{genderOptions}}" value="{{genderIndex}}" bindchange="onGenderChange">
+          <view class="field-input picker-input">
+            <text>{{genderOptions[genderIndex]}}</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-field form-field-half">
+        <text class="field-label">生日</text>
+        <picker mode="date" value="{{birthday}}" start="1950-01-01" end="2020-12-31" bindchange="onBirthdayChange">
+          <view class="field-input picker-input">
+            <text>{{birthday || '选择日期'}}</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-field">
+      <text class="field-label">联系电话</text>
+      <input class="field-input field-input-disabled" value="{{maskedPhone}}" disabled />
+      <text class="field-help">手机号用于活动签到，修改请联系管理员</text>
+    </view>
+  </view>
+
+  <!-- Footer -->
+  <view class="footer" wx:if="{{joinDays > 0}}">
+    <text class="footer-text">加入青翼读书会已 {{joinDays}} 天</text>
+  </view>
+
+  <!-- Save Button -->
+  <view class="save-bar">
+    <button class="save-btn btn-active" bindtap="onSave" loading="{{saving}}">保存</button>
+  </view>
+</view>

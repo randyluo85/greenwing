@@ -1,0 +1,148 @@
+/* pages/order-confirm/order-confirm.wxss */
+
+.page {
+  background: var(--bg);
+  min-height: 100vh;
+  padding-bottom: 140rpx;
+}
+
+.summary-card {
+  padding: 28rpx;
+}
+
+.summary-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #1E293B;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.summary-label {
+  font-size: 26rpx;
+  color: #94A3B8;
+}
+
+.summary-value {
+  font-size: 26rpx;
+  color: #64748B;
+}
+
+.price-card {
+  padding: 28rpx;
+}
+
+.card-label {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #1E293B;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.price-label {
+  font-size: 28rpx;
+  color: #64748B;
+}
+
+.price-value {
+  font-size: 28rpx;
+  color: #1E293B;
+}
+
+.price-row.total {
+  padding-top: 16rpx;
+}
+
+.price-total {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.divider {
+  height: 1rpx;
+  background: #F1F5F9;
+  margin: 16rpx 0;
+}
+
+.countdown-wrap {
+  text-align: center;
+  padding: 20rpx;
+  background: #FFFBEB;
+  margin: 0 24rpx 20rpx;
+  border-radius: 16rpx;
+}
+
+.countdown-text {
+  font-size: 26rpx;
+  color: #D97706;
+}
+
+.status-card {
+  text-align: center;
+  padding: 32rpx;
+}
+
+.status-text {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+.status-paid { color: #059669; }
+.status-failed { color: #EF4444; }
+.status-closed { color: #94A3B8; }
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -2rpx 12rpx rgba(0,0,0,0.04);
+}
+
+.price-summary {
+  display: flex;
+  align-items: baseline;
+}
+
+.summary-price {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.summary-unit {
+  font-size: 24rpx;
+  color: #64748B;
+  margin-left: 4rpx;
+}
+
+.pay-btn {
+  padding: 20rpx 56rpx;
+  font-size: 30rpx;
+}
+
+.pay-btn.disabled {
+  background: var(--surface);
+  color: #94A3B8;
+}

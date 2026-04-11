@@ -1,20 +1,20 @@
 | 版本 | 创建时间 | 更新时间 | 文档主题 | 创建人 |
 | :--- | :--- | :--- | :--- | :--- |
-| v1.0 | 2026-04-08 | 2026-04-08 | Emerald-Modern 设计标准 | Randy Luo |
+| v1.1 | 2026-04-11 | 2026-04-11 | Tehran (Emerald-Modern) 设计标准更新 | Antigravity |
 
-# Emerald-Modern 设计系统标准 (Design Standards)
+# Tehran (Emerald-Modern) 设计系统标准 (Design Standards)
 
-本文档总结了 `emerald-modern` 系列界面的核心设计规范，旨在确保后续页面开发的一致性和高品质视觉效果。
+本文档总结了 `tehran` 系列界面的核心设计规范，旨在确保后续页面开发的一致性和高品质视觉效果。
 
 ## 1. 设计令牌 (Design Tokens)
 
 ### 颜色系统 (Colors)
 | Token | Hex | 用途 |
 | :--- | :--- | :--- |
-| `primary` | `#00897B` | 主色词，用于核心按钮、激活状态、重要标识 |
-| `secondary` | `#26A69A` | 次要色，用于辅助图标装饰、背景色块 |
-| `accent` | `#FF9800` | 强调色，用于通知点、促销标识 |
-| `bg` | `#F8FAFC` | 页面全局背景色 |
+| `primary` | `#14b8a6` | 主色调，Teal色，用于核心按钮、激活状态、重要标识 |
+| `secondary` | `#2dd4bf` | 次要色，用于辅助图标装饰、背景色块 |
+| `accent` | `#f59e0b` | 强调色，橘黄色，用于积分高亮、通知点、促销标识 |
+| `bg` | `#f5f6f8` | 页面全局背景色 |
 | `surface` | `#E0F2F1` | 浅色容器背景、轻微边框颜色 |
 | `text-main` | `#1E293B` | 主要标题和正文文本 |
 | `text-gray-500` | `#64748B` | 辅助文字、静止图标 |
@@ -76,7 +76,7 @@
 
 ## 4. 设计原则 (Principles)
 
-1.  **Strict 4px Radius**: 除极少数场景使用 2px 外，所有容器角弧度必须为 4px。
-2.  **Harmonious Greens**: 以 `#00897B` 为核心的翡翠色系，配合 `#F8FAFC` 冷色调背景。
+1.  **Strict 4px Radius**: 除极少数场景使用极细圆角外，容器如卡片等常规圆角使用 4px 到 10px。
+2.  **Harmonious Teal**: 以 `#14b8a6` (Teal) 为核心的青水色系，配合 `#f5f6f8` 冷色调背景。
 3.  **Visual Hierarchy**: 使用加粗字体 (`font-bold`) 区分信息层级，小字保持高对比度。
-4.  **Premium Microcopy**: 使用优雅、专业的文案 (如 "古典主义回响" 等)。
+4.  **Premium Space**: 在弹窗顶部使用带有氛围感且和容器无缝贴合的精美插图，营造高级品牌调性。

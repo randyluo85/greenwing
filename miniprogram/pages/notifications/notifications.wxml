@@ -1,0 +1,58 @@
+<view class="page">
+  <!-- New Messages -->
+  <view class="section-label">
+    <text>新消息</text>
+  </view>
+
+  <view wx:if="{{newMessages.length === 0 && !loading}}" class="empty-state">
+    <text class="empty-text">暂无新消息</text>
+  </view>
+
+  <view class="msg-list" wx:else>
+    <view class="msg-item animate-fade-up {{index < 5 ? 'stagger-' + (index + 1) : ''}}"
+      wx:for="{{newMessages}}" wx:key="_id"
+      bindtap="onMsgTap" data-id="{{item._id}}" data-index="{{index}}">
+      <view class="msg-icon" style="background: {{item.icon_bg_color || '#14b8a6'}}">
+        <text class="msg-icon-text">{{item.icon_text || '!'}}</text>
+      </view>
+      <view class="msg-body">
+        <view class="msg-header">
+          <text class="msg-title">{{item.title}}</text>
+          <text class="msg-time">{{item._timeAgo}}</text>
+        </view>
+        <view class="msg-preview-row">
+          <text class="msg-preview">{{item.body}}</text>
+          <view class="unread-dot" wx:if="{{!item.is_read}}"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Earlier Messages -->
+  <view class="section-label" wx:if="{{oldMessages.length > 0}}">
+    <text>更早消息</text>
+  </view>
+
+  <view class="msg-list" wx:if="{{oldMessages.length > 0}}">
+    <view class="msg-item animate-fade-up {{index < 5 ? 'stagger-' + (index + 1) : ''}}"
+      wx:for="{{oldMessages}}" wx:key="_id"
+      bindtap="onMsgTap" data-id="{{item._id}}" data-index="{{index}}">
+      <view class="msg-icon" style="background: {{item.icon_bg_color || '#14b8a6'}}">
+        <text class="msg-icon-text">{{item.icon_text || '!'}}</text>
+      </view>
+      <view class="msg-body">
+        <view class="msg-header">
+          <text class="msg-title">{{item.title}}</text>
+          <text class="msg-time">{{item._timeAgo}}</text>
+        </view>
+        <view class="msg-preview-row">
+          <text class="msg-preview">{{item.body}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <text>加载中...</text>
+  </view>
+</view>

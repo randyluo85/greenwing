@@ -1,0 +1,2 @@
+{"image_url":"/images/banner.jpg","redirect_url":"/pages/event-detail/event-detail?id=EVENT_ID_1","sort_order":1,"status":"online","created_at":{"$date":"2026-04-01T10:00:00.000Z"},"updated_at":{"$date":"2026-04-01T10:00:00.000Z"}}
+{"image_url":"/images/book2.jpg","redirect_url":"/pages/book-detail/book-detail?id=BOOK_ID_2","sort_order":2,"status":"online","created_at":{"$date":"2026-04-05T10:00:00.000Z"},"updated_at":{"$date":"2026-04-05T10:00:00.000Z"}}

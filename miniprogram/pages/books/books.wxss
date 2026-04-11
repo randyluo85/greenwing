@@ -1,0 +1,165 @@
+.page {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 48rpx 0;
+}
+
+.text-muted {
+  font-size: 24rpx;
+  color: var(--text-muted);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 48rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+/* Book List */
+.book-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.book-item {
+  display: flex;
+  padding-bottom: 40rpx;
+  margin-bottom: 40rpx;
+  border-bottom: 1rpx solid #f3f4f6;
+  transition: transform 0.2s;
+}
+
+.book-item:active {
+  transform: scale(0.98);
+}
+
+.book-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.book-cover-wrap {
+  position: relative;
+  width: 232rpx;
+  height: 320rpx;
+  flex-shrink: 0;
+  border-radius: 8rpx;
+  overflow: hidden;
+  background: #f1f5f9;
+  box-shadow: 0 2rpx 8rpx -2rpx rgba(0,0,0,0.1);
+}
+
+.book-cover {
+  width: 100%;
+  height: 100%;
+}
+
+.book-rating-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: bold;
+  padding: 4rpx 12rpx;
+  border-bottom-right-radius: 12rpx;
+}
+
+.book-info {
+  flex: 1;
+  margin-left: 28rpx;
+  display: flex;
+  flex-direction: column;
+  padding-top: 4rpx;
+}
+
+.book-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.book-rating-row {
+  display: flex;
+  align-items: center;
+  margin-top: 12rpx;
+}
+
+.rating-label {
+  font-size: 22rpx;
+  color: var(--text-muted);
+}
+
+.rating-value {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: var(--primary);
+  margin-left: 8rpx;
+}
+
+/* 星级评分 */
+.book-stars {
+  margin-top: 4rpx;
+  margin-bottom: 8rpx;
+  display: flex;
+  gap: 2rpx;
+}
+
+.star {
+  font-size: 22rpx;
+}
+
+.star-full {
+  color: #f59e0b;
+}
+
+.star-half {
+  color: #f59e0b;
+}
+
+.star-empty {
+  color: #d1d5db;
+}
+
+.book-meta {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.meta-text {
+  font-size: 22rpx;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.book-tag {
+  margin-top: auto;
+  padding-top: 16rpx;
+}
+
+.book-tag text {
+  background: #f3f4f6;
+  color: var(--text-secondary);
+  font-size: 20rpx;
+  font-weight: 500;
+  padding: 4rpx 16rpx;
+  border-radius: 4rpx;
+}

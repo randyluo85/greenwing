@@ -1,45 +1,52 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>编辑资料 | 青翼</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { primary: '#00897B' }
-                }
-            }
-        }
-    </script>
+    <script src="tailwind-config.js"></script>
+    <link rel="stylesheet" href="base.css">
     <style>
-        body { font-family: 'PingFang SC', system-ui, sans-serif; background-color: #F8FAFC; }
-        .input-box { background: #FFFFFF; border: 1px solid #F1F5F9; border-radius: 12px; padding: 14px 16px; font-size: 14px; outline: none; transition: border-color 0.2s; }
-        .input-box:focus { border-color: #00897B; }
+        .input-box {
+            background: #FFFFFF;
+            border: 1px solid #F1F5F9;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-box:focus {
+            border-color: #14b8a6;
+        }
     </style>
 </head>
-<body class="pb-10">
-    <header class="fixed top-0 left-0 right-0 h-11 flex items-center justify-between px-4 bg-white/80 backdrop-blur-md z-50 border-b border-gray-50">
-        <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center text-gray-400">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <h1 class="text-lg font-bold text-gray-800 flex-grow text-center">个人资料</h1>
-        <div class="w-10 flex items-center justify-end">
-            <button onclick="history.back()" class="text-primary font-bold text-sm">保存</button>
+
+<body class="bg-[#f5f6f8] pb-10">
+    <header class="bg-white px-4 h-14 flex items-center justify-between sticky top-0 z-50">
+        <a href="javascript:history.back()" class="flex-none w-10 flex items-center">
+            <i class="fas fa-chevron-left text-gray-800 text-lg"></i>
+        </a>
+        <h1 class="text-[17px] font-bold text-gray-800 flex-grow text-center tracking-wide">个人资料</h1>
+        <div class="flex-none w-10 flex items-center justify-end">
+            <button onclick="history.back()" class="text-[#14b8a6] font-bold text-[15px]">保存</button>
         </div>
     </header>
 
-    <main class="mt-14 px-4 space-y-6">
+    <main class="mt-4 px-4 space-y-6">
         <!-- Avatar Section -->
         <section class="py-8 flex flex-col items-center">
             <div class="relative">
-                <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md">
-                    <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=150" alt="Avatar" class="w-full h-full object-cover">
+                <div class="w-[88px] h-[88px] rounded-full overflow-hidden border-4 border-white shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=150"
+                        alt="Avatar" class="w-full h-full object-cover">
                 </div>
-                <div class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full border-2 border-white flex items-center justify-center text-white text-xs">
+                <div
+                    class="absolute bottom-0 right-0 w-8 h-8 bg-[#14b8a6] rounded-full border-2 border-white flex items-center justify-center text-white text-[12px] shadow-sm">
                     <i class="fas fa-camera"></i>
                 </div>
             </div>
@@ -86,4 +93,5 @@
         </div>
     </main>
 </body>
+
 </html>

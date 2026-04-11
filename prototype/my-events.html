@@ -3,194 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的活动 | 青翼读书会</title>
+    <title>青翼读书会 | 发现活动</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="tailwind-config.js"></script>
     <link rel="stylesheet" href="base.css">
-    <style>
-        .timeline-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            position: absolute;
-            left: 0;
-            top: 6px;
-            background: #cbd5e1;
-            z-index: 10;
-        }
-        .timeline-dot.active {
-            background: var(--primary);
-            box-shadow: 0 0 0 4px rgba(0, 137, 123, 0.1);
-        }
-        .timeline-line {
-            width: 2px;
-            background: #f1f5f9;
-            position: absolute;
-            left: 4px;
-            top: 16px;
-            bottom: -24px;
-        }
-        .timeline-item:last-child .timeline-line {
-            display: none;
-        }
-    </style>
 </head>
-<body class="bg-gray-50 pb-24">
+<body class="bg-[#f5f6f8] pb-24">
 
     <!-- Header -->
-    <header class="glass-surface px-4 h-14 flex items-center justify-between sticky top-0 z-50 border-b border-gray-100">
-        <div class="flex items-center">
-            <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center -ml-2 btn-active">
-                <i class="fas fa-chevron-left text-gray-800 text-lg"></i>
-            </button>
-        </div>
-        <h1 class="text-lg font-bold text-gray-800 flex-grow text-center">我的活动</h1>
-        <div class="w-10 h-10 flex items-center justify-center -mr-2">
-            <i class="far fa-calendar-alt text-primary opacity-60"></i>
+    <header class="bg-white px-4 h-14 flex items-center justify-between sticky top-0 z-50">
+        <a href="javascript:history.back()" class="flex-none w-10 flex items-center">
+            <i class="fas fa-chevron-left text-gray-800 text-lg"></i>
+        </a>
+        <h1 class="text-[17px] font-bold text-gray-800 flex-grow text-center tracking-wide">我的活动</h1>
+        <div class="flex items-center space-x-3 bg-white border border-gray-200 rounded-full px-[10px] py-[5px] flex-none shadow-sm opacity-0 pointer-events-none">
+            <i class="fas fa-ellipsis-h text-gray-800 text-[12px]"></i>
         </div>
     </header>
 
-    <!-- Tabs Container (Synced with events.html) -->
-    <div class="bg-white border-b border-gray-100 sticky top-14 z-40 px-6">
-        <div class="flex space-x-10 py-1">
-            <a href="events.html" class="relative py-4 text-xs font-bold text-gray-400 tracking-wider uppercase transition-all hover:text-gray-600">
-                即将进行的活动
-            </a>
-            <button class="relative py-4 text-xs font-bold text-primary tracking-wider uppercase transition-all">
-                我的活动
-                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
-            </button>
-        </div>
-    </div>
-
-    <main class="p-6">
-        <div class="flex items-center justify-between mb-8 px-1">
-            <h2 class="text-xs font-black uppercase tracking-[0.1em] text-gray-400">已预约活动</h2>
-            <span class="text-[10px] text-gray-400">共 2 个</span>
-        </div>
+    <main class="p-4 space-y-8 mt-2">
         
-        <div class="space-y-10">
-            
-            <!-- Event 1 (Tomorrow) -->
-            <div class="relative pl-8 timeline-item">
-                <div class="timeline-dot active"></div>
-                <div class="timeline-line"></div>
-                
-                <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4 btn-active">
-                    <div class="flex justify-between items-start">
-                        <div class="space-y-1">
-                            <p class="text-xs font-semibold text-primary">明天 14:00 - 17:00</p>
-                            <h4 class="text-[15px] font-bold text-gray-900 leading-tight">《周末读诗》· 暮春特辑</h4>
+        <!-- Section: Upcoming -->
+        <section>
+            <div class="flex items-center justify-between mb-4 px-1">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-3.5 bg-[#1ab6a2] rounded-full"></div>
+                    <h2 class="text-[16px] font-bold text-gray-800 tracking-wider">待参加活动</h2>
+                </div>
+                <span class="text-[12px] text-gray-400 font-medium">共 2 场</span>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Event Card 1 (Starting Soon) -->
+                <article class="bg-white rounded-[10px] overflow-hidden shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)]">
+                    <div class="bg-[#1ab6a2] p-4 text-white">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-[17px] font-medium tracking-wide">2026年4月8日（今日）</div>
+                                <div class="text-[13px] opacity-90 mt-0.5 tracking-wide">15:30-17:00</div>
+                            </div>
+                            <div class="bg-[#ffedd5] text-[#f97316] px-2 py-0.5 rounded-[4px] text-[10px] font-bold">即将开始</div>
                         </div>
-                        <span class="text-[10px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded">即将开始</span>
+                        <h3 class="text-[19px] font-medium leading-[1.4] mb-4 tracking-wider">古典主义回响： 维吉尔《埃涅阿斯纪》精读营</h3>
+                        <div class="w-full h-[1px] bg-white/20 mb-3.5"></div>
+                        <div class="flex items-center text-[12px] opacity-90 font-light tracking-wide">
+                            <i class="fas fa-map-marker-alt mr-1.5 text-[10px]"></i>
+                            <span class="tracking-widest">青翼读书会 · 主茶室</span>
+                        </div>
                     </div>
-                    
-                    <div class="flex items-center space-x-2 text-[11px] text-gray-500">
-                        <i class="fas fa-map-marker-alt text-gray-300"></i>
-                         <span>青翼读书会 · 主茶室</span>
+                    <div class="bg-white p-3.5 flex justify-between items-center rounded-b-[10px]">
+                        <div class="flex items-center text-gray-400 text-[11px] font-light tracking-wide">
+                            <i class="far fa-clock mr-1"></i>报名时间: 2026.02.18
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="cancelRSVP(this)" class="px-3 py-[5px] border border-gray-200 text-gray-500 rounded text-[13px] font-medium active:bg-gray-50 tracking-wider transition-opacity">取消报名</button>
+                            <button onclick="showTicket()" class="px-3 py-[5px] bg-[#1ab6a2] text-white rounded text-[13px] font-medium active:bg-teal-600 flex items-center shadow-sm tracking-wider"><i class="fas fa-qrcode mr-1.5 text-[11px]"></i>入场凭证</button>
+                        </div>
                     </div>
-                    
-                    <div class="flex space-x-3 pt-1">
-                        <button onclick="openQRModal()" class="flex-[2] bg-primary text-white text-[12px] font-bold py-3 rounded-xl shadow-lg shadow-primary/20 btn-active">
-                             入场凭证
-                        </button>
-                        <button class="flex-1 border border-gray-200 text-gray-400 text-[12px] font-bold py-3 rounded-xl btn-active">
-                             取消
-                        </button>
+                </article>
+
+                <!-- Event Card 2 (Registered) -->
+                <article class="bg-white rounded-[10px] overflow-hidden shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)]">
+                    <div class="bg-[#1ab6a2] p-4 text-white">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-[17px] font-medium tracking-wide">2026年4月12日（周三）</div>
+                                <div class="text-[13px] opacity-90 mt-0.5 tracking-wide">15:30-17:00</div>
+                            </div>
+                            <div class="bg-[#ccfbf1] text-[#0f766e] px-2 py-0.5 rounded-[4px] text-[10px] font-bold">已报名</div>
+                        </div>
+                        <h3 class="text-[19px] font-medium leading-[1.4] mb-4 tracking-wider">博尔赫斯的迷宫：《小径分岔的花园》</h3>
+                        <div class="w-full h-[1px] bg-white/20 mb-3.5"></div>
+                        <div class="flex items-center text-[12px] opacity-90 font-light tracking-wide">
+                            <i class="fas fa-map-marker-alt mr-1.5 text-[10px]"></i>
+                            <span class="tracking-widest">青翼读书会 · 主茶室</span>
+                        </div>
                     </div>
+                    <div class="bg-white p-3.5 flex justify-between items-center rounded-b-[10px]">
+                        <div class="flex items-center text-gray-400 text-[11px] font-light tracking-wide">
+                            <i class="far fa-clock mr-1"></i>报名时间: 2026.03.20
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="cancelRSVP(this)" class="px-3 py-[5px] border border-gray-200 text-gray-500 rounded text-[13px] font-medium active:bg-gray-50 tracking-wider transition-opacity">取消报名</button>
+                            <button onclick="showTicket()" class="px-3 py-[5px] bg-[#1ab6a2] text-white rounded text-[13px] font-medium active:bg-teal-600 flex items-center shadow-sm tracking-wider"><i class="fas fa-qrcode mr-1.5 text-[11px]"></i>入场凭证</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Section: Past History -->
+        <section>
+            <div class="flex items-center justify-between mb-4 px-1">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-3.5 bg-gray-400 rounded-full"></div>
+                    <h2 class="text-[16px] font-bold text-gray-800 tracking-wider">历史足迹</h2>
                 </div>
             </div>
 
-            <!-- Event 2 (Next Week) -->
-            <div class="relative pl-8 timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-line"></div>
-                
-                <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3 opacity-95 btn-active">
-                    <div class="flex justify-between items-start">
-                        <div class="space-y-1">
-                            <p class="text-xs font-semibold text-gray-400">4月19日 (周六) 15:30</p>
-                            <h4 class="text-[15px] font-bold text-gray-800 leading-tight">字体与排版设计美学讲座</h4>
+            <div class="space-y-4">
+                <!-- Event Card 3 (Ended) -->
+                <article class="bg-white rounded-[10px] overflow-hidden shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] opacity-90">
+                    <div class="bg-[#9ca3af] p-4 text-white">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-[17px] font-medium tracking-wide">2026年1月8日（周五）</div>
+                                <div class="text-[13px] opacity-90 mt-0.5 tracking-wide">15:30-17:00</div>
+                            </div>
+                            <div class="bg-gray-200 text-gray-600 px-2 py-0.5 rounded-[4px] text-[10px] font-bold">已结束</div>
                         </div>
-                        <span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">已预约</span>
+                        <h3 class="text-[19px] font-medium leading-[1.4] mb-4 tracking-wider">青年独立导演放映会</h3>
+                        <div class="w-full h-[1px] bg-white/20 mb-3.5"></div>
+                        <div class="flex items-center text-[12px] opacity-90 font-light tracking-wide">
+                            <i class="fas fa-map-marker-alt mr-1.5 text-[10px]"></i>
+                            <span class="tracking-widest">青翼读书会 · 影音室</span>
+                        </div>
                     </div>
-                    
-                    <div class="flex items-center space-x-2 text-[11px] text-gray-500">
-                        <i class="fas fa-map-marker-alt text-gray-300"></i>
-                        <span>青翼读书会 · 创意工坊</span>
+                    <div class="bg-white p-3.5 flex justify-between items-center rounded-b-[10px]">
+                        <div class="flex items-center text-gray-400 text-[11px] font-light tracking-wide">
+                            <i class="far fa-clock mr-1"></i>报名时间: 2026.01.02
+                        </div>
+                        <div class="flex space-x-2">
+                            <a href="event-detail.html" class="px-3 py-[5px] border border-gray-200 text-gray-500 rounded text-[13px] font-medium active:bg-gray-50 tracking-wider">活动回顾</a>
+                            <button class="px-3 py-[5px] bg-[#9ca3af] text-white rounded text-[13px] font-medium active:bg-gray-500 flex items-center shadow-sm tracking-wider"><i class="fas fa-pen mr-1.5 text-[11px]"></i>写随笔</button>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </article>
 
-            <!-- Event 3 (Divider for Past) -->
-            <div class="py-4 text-center">
-                <span class="text-[10px] uppercase font-black tracking-widest text-gray-300">历史足迹</span>
+                <!-- Event Card 4 (Ended) -->
+                <article class="bg-white rounded-[10px] overflow-hidden shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] opacity-90">
+                    <div class="bg-[#9ca3af] p-4 text-white">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-[17px] font-medium tracking-wide">2025年12月14日（周六）</div>
+                                <div class="text-[13px] opacity-90 mt-0.5 tracking-wide">14:00-16:00</div>
+                            </div>
+                            <div class="bg-gray-200 text-gray-600 px-2 py-0.5 rounded-[4px] text-[10px] font-bold">已结束</div>
+                        </div>
+                        <h3 class="text-[19px] font-medium leading-[1.4] mb-4 tracking-wider">木心的文学回忆录：文学复兴拾影</h3>
+                        <div class="w-full h-[1px] bg-white/20 mb-3.5"></div>
+                        <div class="flex items-center text-[12px] opacity-90 font-light tracking-wide">
+                            <i class="fas fa-map-marker-alt mr-1.5 text-[10px]"></i>
+                            <span class="tracking-widest">青翼读书会 · 主茶室</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3.5 flex justify-between items-center rounded-b-[10px]">
+                        <div class="flex items-center text-gray-400 text-[11px] font-light tracking-wide">
+                            <i class="far fa-clock mr-1"></i>报名时间: 2025.12.01
+                        </div>
+                        <div class="flex space-x-2">
+                            <a href="event-detail.html" class="px-3 py-[5px] border border-gray-200 text-gray-500 rounded text-[13px] font-medium active:bg-gray-50 tracking-wider">活动回顾</a>
+                            <button class="px-3 py-[5px] bg-[#9ca3af] text-white rounded text-[13px] font-medium active:bg-gray-500 flex items-center shadow-sm tracking-wider"><i class="fas fa-pen mr-1.5 text-[11px]"></i>写随笔</button>
+                        </div>
+                    </div>
+                </article>
             </div>
-
-        </div>
+        </section>
     </main>
 
-    <!-- QR Modal -->
-    <div id="qrModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-6">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeQRModal()"></div>
-        <div class="bg-white rounded-3xl p-8 w-full max-w-[340px] relative flex flex-col items-center shadow-2xl animate-fade-up">
-            <button onclick="closeQRModal()" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center text-gray-300 hover:text-gray-800 transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Entry Pass</h3>
-            <p class="text-[13px] font-bold text-primary text-center mb-8 px-4 leading-tight">《周末读诗》· 暮春特辑</p>
-            
-            <div class="p-6 bg-gray-50 rounded-2xl border border-gray-100 mb-8 relative group">
-                <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GW_893021_EVENT" alt="QR Code" class="w-44 h-44 mix-blend-multiply transition-transform group-hover:scale-[1.02]">
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 h-[68px] bg-white border-t border-gray-100 px-8 flex items-center justify-between z-50 pt-2 pb-1 text-center">
+        <a href="index.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-home text-[22px]"></i>
+            <span class="text-[10px] font-bold">首页</span>
+        </a>
+        <a href="events.html" class="flex flex-col items-center space-y-1 text-[#14b8a6]">
+            <i class="far fa-flag text-[20px] shadow-sm"></i>
+            <span class="text-[10px] font-medium">活动</span>
+        </a>
+        <a href="placeholder.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-shopping-bag text-[20px]"></i>
+            <span class="text-[10px] font-medium">商城</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="far fa-smile text-[20px]"></i>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+        <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1/3 h-1 bg-black rounded-full"></div>
+    </nav>
+
+    <!-- Toast UI -->
+    <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/80 text-white px-5 py-3 rounded-lg text-sm flex items-center space-x-2 z-[60] transition-opacity duration-300 opacity-0 pointer-events-none">
+        <i class="fas fa-check-circle text-[#14b8a6]"></i>
+        <span id="toast-msg">报名已取消</span>
+    </div>
+
+    <!-- Ticket Modal -->
+    <div id="ticket-modal" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center p-8 bg-black/60">
+        <div class="w-full max-w-[300px] rounded-[16px] overflow-hidden shadow-2xl relative animate-fade-in-up flex flex-col bg-white">
+            <!-- Top Half -->
+            <div class="relative w-full h-[120px] bg-white">
+                <img src="images/ticket.png" alt="" class="absolute inset-0 w-full h-[120px] object-cover">
             </div>
-            
-            <div class="text-center space-y-2">
-                <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Verification Code</p>
-                <div class="flex space-x-3">
-                    <span class="text-2xl font-black tracking-[0.2em] text-gray-900">893</span>
-                    <span class="text-2xl font-black tracking-[0.2em] text-gray-900">021</span>
+            <!-- Bottom Half -->
+            <div class="bg-white px-5 pt-6 pb-6 flex flex-col items-center">
+                <h3 class="text-[17px] font-bold text-gray-800 mb-4">入场核销</h3>
+                
+                <!-- QR Code (Simulated) -->
+                <div class="w-40 h-40 mb-3 bg-gray-50 flex items-center justify-center p-2 rounded border border-gray-100">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=893021" alt="QR Code" class="w-full h-full object-contain">
+                </div>
+                
+                <div class="text-[15px] text-gray-800 font-medium mb-5 flex items-center justify-center">
+                    <span class="mr-2">核销码</span>
+                    <span class="text-[22px] font-mono font-bold tracking-widest bg-gray-100 px-3 py-1 rounded">893021</span>
+                </div>
+                
+                <!-- Dotted Line Separator -->
+                <div class="w-full border-t-[1.5px] border-dashed border-gray-300 relative mb-4">
+                    <div class="absolute -left-7 -top-2 w-4 h-4 rounded-full" style="background-color: rgba(0,0,0,0.6);"></div>
+                    <div class="absolute -right-7 -top-2 w-4 h-4 rounded-full" style="background-color: rgba(0,0,0,0.6);"></div>
+                </div>
+                
+                <div class="text-center text-[11px] leading-[1.6]">
+                    <p class="text-gray-500 font-medium tracking-wide">可在【活动核销】里面查看</p>
+                    <p class="text-[#f59e0b] font-bold tracking-wide mt-0.5">活动当日凭券码或券号参加活动</p>
                 </div>
             </div>
         </div>
+        <!-- Close button -->
+        <button onclick="closeTicket()" class="mt-8 w-8 h-8 rounded-full border-[1.5px] border-white/80 text-white flex items-center justify-center active:scale-95 transition-transform">
+            <i class="fas fa-times text-sm opacity-80"></i>
+        </button>
     </div>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-6 flex items-center justify-between z-50">
-        <a href="index.html" class="flex flex-col items-center space-y-1 text-gray-400 btn-active">
-            <i class="fas fa-home text-xl"></i>
-            <span class="text-[10px] font-medium">首页</span>
-        </a>
-        <a href="events.html" class="flex flex-col items-center space-y-1 text-primary btn-active">
-            <div class="relative">
-                <i class="fas fa-compass text-xl"></i>
-                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div>
-            </div>
-            <span class="text-[10px] font-bold">活动</span>
-        </a>
-        <a href="placeholder.html" class="flex flex-col items-center space-y-1 text-gray-400 btn-active">
-            <i class="fas fa-shopping-cart text-xl"></i>
-            <span class="text-[10px] font-medium">商城</span>
-        </a>
-        <a href="profile.html" class="flex flex-col items-center space-y-1 text-gray-400 btn-active">
-            <i class="fas fa-user text-xl"></i>
-            <span class="text-[10px] font-medium">我的</span>
-        </a>
-    </nav>
+    <style>
+        .animate-fade-in-up {
+            animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
 
     <script>
-        function openQRModal() {
-            const modal = document.getElementById('qrModal');
+
+        function cancelRSVP(btn) {
+            if (btn.disabled) return;
+            btn.innerText = "已取消";
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'bg-gray-50');
+            showToast("报名已取消，积分将退回账户");
+        }
+
+        function showTicket() {
+            const modal = document.getElementById('ticket-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            document.body.style.overflow = 'hidden';
         }
-        function closeQRModal() {
-            const modal = document.getElementById('qrModal');
+
+        function closeTicket() {
+            const modal = document.getElementById('ticket-modal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-            document.body.style.overflow = 'auto';
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0');
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2000);
         }
     </script>
 </body>

@@ -1,0 +1,91 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 80rpx 120rpx;
+  background: #ffffff;
+}
+
+.login-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 35vh;
+}
+
+.logo {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 32rpx;
+}
+
+.title {
+  font-size: 52rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  letter-spacing: 2rpx;
+}
+
+.deco-line {
+  width: 64rpx;
+  height: 6rpx;
+  background: var(--primary);
+  border-radius: 3rpx;
+  margin: 24rpx 0;
+}
+
+.subtitle {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  letter-spacing: 6rpx;
+}
+
+.login-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wx-login-btn {
+  width: 100%;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+.wx-login-btn::after {
+  border: none;
+}
+
+.wx-icon-wrap {
+  width: 44rpx;
+  height: 44rpx;
+  background: #07C160;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+}
+
+.wx-icon-text {
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.terms-text {
+  font-size: 22rpx;
+  color: var(--text-muted);
+  margin-top: 32rpx;
+}

@@ -1,0 +1,331 @@
+/* pages/my/my.wxss */
+
+.page-container {
+  min-height: 100vh;
+  position: relative;
+  width: 100%;
+}
+
+/* 背景图容器层 */
+.bg-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 500rpx;
+  z-index: 0;
+}
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.content-layer {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* 用户头部 - 原型 h-[210px] flex-column justify-end pb-8 */
+.profile-header {
+  position: relative;
+  z-index: 1;
+  height: 420rpx;
+  padding: 0 32rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+/* 头像 - 原型 w-[72px] h-[72px] border-white/20 shadow-md */
+.avatar {
+  width: 144rpx;
+  height: 144rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(255,255,255,0.2);
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+.user-info {
+  margin-left: 28rpx;
+  flex: 1;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+/* 用户名 - 原型 text-[22px] font-bold text-gray-900 tracking-wide */
+.user-name {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #111827;
+  letter-spacing: 2rpx;
+}
+
+/* 皇冠 - 原型 w-5 h-5 bg-white/80 */
+.crown-icon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crown-img {
+  width: 20rpx;
+  height: 20rpx;
+}
+
+/* 签名 - 原型 text-[11px] text-white/90 */
+.user-signature {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.9);
+  margin-top: 8rpx;
+  display: block;
+}
+
+/* 等级 + 进度同行 - 原型 flex justify-between items-end */
+.level-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 4rpx;
+  margin-bottom: 16rpx;
+}
+
+/* 等级标签 - 原型 bg-white/40 backdrop-blur-sm text-white */
+.level-tag {
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 8rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #ffffff;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  border: 1rpx solid rgba(255,255,255,0.2);
+}
+
+/* 进度文字 - 原型 text-[12px] font-bold text-gray-800 */
+.progress-text {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+/* 积分数字 - 原型 text-[#fbbf24] text-lg font-bold */
+.progress-highlight {
+  font-size: 36rpx;
+  color: #fbbf24;
+  font-weight: bold;
+}
+
+/* 进度条 - 原型 h-[6px] bg-white/70 rounded-full */
+.progress-bar {
+  height: 12rpx;
+  background: rgba(255,255,255,0.7);
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #14b8a6;
+  border-radius: 999rpx;
+  transition: width 0.3s ease;
+}
+
+/* 统计卡片 - 原型 -mt-3 负间距叠在头部上 */
+.stats-card {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  border-radius: 24rpx;
+  margin: -24rpx 32rpx 0;
+  padding: 44rpx 32rpx 48rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2rpx 16rpx -4rpx rgba(0,0,0,0.04);
+  border: 1rpx solid #f9fafb;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+/* 统计数字 - 原型 text-[34px] tracking-tighter leading-none text-[#14b8a6] */
+.stat-number {
+  font-size: 68rpx;
+  font-weight: bold;
+  color: #14b8a6;
+  letter-spacing: -4rpx;
+  line-height: 1;
+}
+
+.stat-unit {
+  font-size: 22rpx;
+  color: #14b8a6;
+  margin-left: 2rpx;
+}
+
+/* 统计标签 - 原型 text-[11px] text-gray-500 font-medium */
+.stat-label {
+  font-size: 22rpx;
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 8rpx;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 96rpx;
+  background: #f3f4f6;
+  align-self: center;
+}
+
+/* 菜单卡片 */
+.menu-card {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  border-radius: 24rpx;
+  margin: 24rpx 32rpx 0;
+  padding: 0 36rpx;
+  box-shadow: 0 2rpx 16rpx -4rpx rgba(0,0,0,0.04);
+  border: 1rpx solid #f9fafb;
+}
+
+/* 菜单项 - 原型 py-4 border-b border-gray-100/60 */
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx 0;
+}
+
+.menu-item:active {
+  background: #f9fafb;
+}
+
+/* 菜单图标 - 原型 w-9 h-9 rounded-full bg-gray-100 */
+.menu-icon-wrap {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* 积分图标特殊色 - 原型 bg-[#f0f9ff] text-[#14b8a6] */
+.icon-points {
+  background: #f0fdfa;
+}
+
+.menu-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.menu-text-wrap {
+  flex: 1;
+  margin-left: 28rpx;
+}
+
+/* 菜单文字 - 原型 text-[15px] font-bold */
+.menu-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+/* 子文字 - 原型 text-[13px] text-gray-400 font-medium ml-0.5 */
+.menu-sub-text {
+  font-size: 26rpx;
+  color: #9ca3af;
+  font-weight: 400;
+  margin-left: 4rpx;
+}
+
+/* 右箭头 - 原型 fas fa-chevron-right text-[11px] text-gray-300 */
+.menu-arrow {
+  width: 20rpx;
+  height: 20rpx;
+  margin-left: auto;
+  opacity: 0.3;
+}
+
+.menu-divider {
+  height: 1rpx;
+  background: rgba(243,244,246,0.6);
+}
+
+/* 退出按钮 - 原型 py-4 text-[#14b8a6] bg-white rounded-xl shadow-sm */
+.logout-btn {
+  position: relative;
+  z-index: 1;
+  margin: 24rpx 32rpx;
+  padding: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #14b8a6;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 16rpx -4rpx rgba(0,0,0,0.04);
+  border: 1rpx solid #f9fafb;
+}
+
+.logout-btn:active {
+  opacity: 0.8;
+}
+
+.logout-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+/* Footer - 原型 opacity-80 */
+.profile-footer {
+  display: flex;
+  justify-content: center;
+  padding: 10rpx 0 32rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-logo {
+  width: 160rpx;
+  height: 160rpx;
+  opacity: 0.8;
+}

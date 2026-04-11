@@ -1,0 +1,46 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <text class="text-muted">加载中...</text>
+  </view>
+
+  <view wx:elif="{{books.length === 0}}" class="empty-state">
+    <text class="empty-text">暂无推荐书籍</text>
+  </view>
+
+  <view wx:else class="book-list">
+    <view class="book-item animate-fade-up {{index < 5 ? 'stagger-' + (index + 1) : ''}}"
+      wx:for="{{books}}" wx:key="_id"
+      bindtap="goBookDetail" data-id="{{item._id}}">
+      <view class="book-cover-wrap">
+        <image src="{{item.cover_image}}" mode="aspectFill" class="book-cover" />
+        <view class="book-rating-badge" wx:if="{{item.rating}}">
+          <text>{{item.rating}}</text>
+        </view>
+      </view>
+      <view class="book-info">
+        <text class="book-title ellipsis-2">{{item.title}}</text>
+        <view class="book-rating-row">
+          <text class="rating-label">推荐指数</text>
+          <text class="rating-value">{{item.rating || '-'}}</text>
+        </view>
+        <view class="book-stars">
+          <text class="star {{sIdx < item._fullStars ? 'star-full' : (sIdx === item._fullStars && item._halfStar ? 'star-half' : 'star-empty')}}"
+            wx:for="{{5}}" wx:key="*this" wx:for-item="s" wx:for-index="sIdx">{{sIdx < item._fullStars ? '\u2605' : (sIdx === item._fullStars && item._halfStar ? '\u2605' : '\u2606')}}</text>
+        </view>
+        <view class="book-meta">
+          <text class="meta-text">作者：{{item.author}}</text>
+          <text class="meta-text">出版社：{{item.publisher || '未知'}}</text>
+          <text class="meta-text">出版年：{{item.publish_year || '-'}}</text>
+          <text class="meta-text">页数：{{item.pages || '-'}}</text>
+        </view>
+        <view class="book-tag" wx:if="{{item.category}}">
+          <text>{{item.category}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{hasMore}}" class="loading-wrap">
+    <text class="text-muted">加载更多...</text>
+  </view>
+</view>

@@ -1,0 +1,9 @@
+<view class="shop-page">
+  <view class="shop-content">
+    <view class="shop-icon-wrap">
+      <text class="shop-icon">S</text>
+    </view>
+    <text class="shop-title">商城正在筹备中</text>
+    <text class="shop-desc">敬请期待</text>
+  </view>
+</view>
