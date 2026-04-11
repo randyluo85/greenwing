@@ -12,7 +12,7 @@
       wx:for="{{books}}" wx:key="_id"
       bindtap="goBookDetail" data-id="{{item._id}}">
       <view class="book-cover-wrap">
-        <image src="{{item.cover_image}}" mode="aspectFill" class="book-cover" />
+        <image src="{{item.cover_image || '/images/book1.jpg'}}" mode="aspectFill" class="book-cover" />
         <view class="book-rating-badge" wx:if="{{item.rating}}">
           <text>{{item.rating}}</text>
         </view>
@@ -24,8 +24,11 @@
           <text class="rating-value">{{item.rating || '-'}}</text>
         </view>
         <view class="book-stars">
-          <text class="star {{sIdx < item._fullStars ? 'star-full' : (sIdx === item._fullStars && item._halfStar ? 'star-half' : 'star-empty')}}"
-            wx:for="{{5}}" wx:key="*this" wx:for-item="s" wx:for-index="sIdx">{{sIdx < item._fullStars ? '\u2605' : (sIdx === item._fullStars && item._halfStar ? '\u2605' : '\u2606')}}</text>
+          <block wx:for="{{item._stars}}" wx:key="index" wx:for-item="st">
+            <text wx:if="{{st === 'full'}}" class="star star-full">★</text>
+            <text wx:elif="{{st === 'half'}}" class="star star-half">★</text>
+            <text wx:else class="star star-empty">☆</text>
+          </block>
         </view>
         <view class="book-meta">
           <text class="meta-text">作者：{{item.author}}</text>

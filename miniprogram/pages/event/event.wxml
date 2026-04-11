@@ -19,7 +19,8 @@
                 <text class="date-text">{{item._formattedDate}}</text>
                 <text class="time-text">{{item._formattedTime}}</text>
               </view>
-              <view class="status-badge badge-open" wx:if="{{item.enrolled_count < item.quota}}">报名中</view>
+              <view class="status-badge badge-open" wx:if="{{item.enrolled_count < item.quota && !item._enrolled}}">报名中</view>
+              <view class="status-badge badge-registered" wx:elif="{{item._enrolled}}">已报名</view>
               <view class="status-badge badge-full" wx:else>名额已满</view>
             </view>
             <text class="card-title">{{item.title}}</text>
@@ -40,8 +41,8 @@
               <view class="btn-detail" bindtap="goDetail" data-id="{{item._id}}">
                 <text>查看详情</text>
               </view>
-              <view class="btn-enroll {{item.enrolled_count >= item.quota ? 'disabled' : ''}}" bindtap="goDetail" data-id="{{item._id}}">
-                <text>{{item.enrolled_count >= item.quota ? '名额已满' : '立即报名'}}</text>
+              <view class="btn-enroll {{item._enrolled || item.enrolled_count >= item.quota ? 'disabled' : ''}}" bindtap="goDetail" data-id="{{item._id}}">
+                <text>{{item._enrolled ? '已报名' : item.enrolled_count >= item.quota ? '名额已满' : '立即报名'}}</text>
               </view>
             </view>
           </view>

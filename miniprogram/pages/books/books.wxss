@@ -89,7 +89,7 @@
 }
 
 .book-title {
-  font-size: 34rpx;
+  font-size: 36rpx;
   font-weight: bold;
   color: var(--text-main);
   line-height: 1.4;
@@ -122,7 +122,7 @@
 }
 
 .star {
-  font-size: 22rpx;
+  font-size: 28rpx;
 }
 
 .star-full {
@@ -145,7 +145,7 @@
 }
 
 .meta-text {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--text-muted);
   line-height: 1.5;
 }

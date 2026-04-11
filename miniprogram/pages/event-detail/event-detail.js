@@ -1,6 +1,6 @@
 const { callFunction } = require('../../utils/cloud')
 const auth = require('../../utils/auth')
-const { formatDate, formatMoney } = require('../../utils/util')
+const { formatDate, formatMoney, timeAgo } = require('../../utils/util')
 
 Page({
   data: {
@@ -15,15 +15,27 @@ Page({
     userPoints: 0,
     canEnroll: false,
     enrollBtnText: '立即报名',
+    platformStatus: 'open',  // 'open' | 'full' | 'closed'
+    isEventPast: false,
     showSuccessModal: false,
-    verifyCode: ''
+    verifyCode: '',
+    // 评论
+    comments: [],
+    commentTotal: 0,
+    commentPage: 1,
+    commentHasMore: false,
+    commentText: '',
+    isEnrolled: false,
+    commentsLoading: false,
+    commentPosting: false,
+    showCommentInput: false
   },
 
   onLoad(options) {
     if (options.id) {
       this.setData({ eventId: options.id })
       this.loadEvent(options.id)
-      this.loadUserInfo()
+      this.loadUserInfo().then(() => this.checkEnrollment())
     }
   },
 
@@ -61,13 +73,7 @@ Page({
       const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
       const tierMap = { bronze: '青铜会员', silver: '白银会员', gold: '黄金会员' }
 
-      const isEnded = event.status === 'ended'
-      const isFull = event.quota && event.enrolled_count >= event.quota
-      let enrollBtnText = modeMap[event.registration_mode] || '立即报名'
-      let canEnroll = !isEnded && !isFull
-
-      if (isEnded) enrollBtnText = '活动已结束'
-      else if (isFull) enrollBtnText = '名额已满'
+      const isEventPast = new Date(event.event_time) < new Date()
 
       this.setData({
         event,
@@ -76,9 +82,10 @@ Page({
         formattedTime: formatDate(event.event_time, 'YYYY年MM月DD日'),
         formattedTimeSub: formatDate(event.event_time, 'HH:mm'),
         tierText: tierMap[event.tier_threshold] || '',
-        enrollBtnText,
-        canEnroll
+        isEventPast
       })
+
+      this.updateUIState()
 
       wx.hideLoading()
     } catch (e) {
@@ -121,9 +128,10 @@ Page({
       this.setData({
         showSuccessModal: true,
         verifyCode: res.data.verify_code,
-        canEnroll: false,
-        enrollBtnText: '已报名'
+        isEnrolled: true
       })
+      this.updateUIState()
+      this.loadComments()
     } catch (e) {
       wx.hideLoading()
       wx.showToast({ title: e.message || '报名失败', icon: 'none' })
@@ -137,5 +145,153 @@ Page({
   goMyEvents() {
     this.setData({ showSuccessModal: false })
     wx.navigateTo({ url: '/pages/my-events/my-events' })
+  },
+
+  async checkEnrollment() {
+    try {
+      const app = getApp()
+      if (!app.globalData.userInfo) return
+
+      const res = await callFunction('event', {
+        action: 'checkEnrollment',
+        eventId: this.data.eventId
+      })
+
+      this.setData({ isEnrolled: res.data.enrolled })
+      this.updateUIState()
+      if (res.data.enrolled) {
+        this.loadComments()
+      }
+    } catch (e) {
+      console.warn('检查报名状态失败:', e)
+    }
+  },
+
+  async loadComments(loadMore = false) {
+    if (this.data.commentsLoading) return
+
+    const page = loadMore ? this.data.commentPage + 1 : 1
+    this.setData({ commentsLoading: true })
+
+    try {
+      const res = await callFunction('event', {
+        action: 'listComments',
+        eventId: this.data.eventId,
+        page,
+        pageSize: 20
+      })
+
+      const formattedList = res.data.list.map(item => ({
+        ...item,
+        timeAgo: item.created_at ? timeAgo(item.created_at) : ''
+      }))
+
+      // 按 created_at 升序排列（API 返回 desc）
+      const sorted = formattedList.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+
+      const comments = loadMore
+        ? [...this.data.comments, ...sorted]
+        : sorted
+
+      this.setData({
+        comments,
+        commentTotal: res.data.total,
+        commentPage: page,
+        commentHasMore: res.data.hasMore,
+        commentsLoading: false
+      })
+    } catch (e) {
+      this.setData({ commentsLoading: false })
+      console.warn('加载评论失败:', e)
+    }
+  },
+
+  onCommentInput(e) {
+    this.setData({ commentText: e.detail.value })
+  },
+
+  async onPostComment() {
+    const content = this.data.commentText.trim()
+    if (!content) {
+      wx.showToast({ title: '请输入评论内容', icon: 'none' })
+      return
+    }
+
+    this.setData({ commentPosting: true })
+
+    try {
+      const res = await callFunction('event', {
+        action: 'addComment',
+        eventId: this.data.eventId,
+        content
+      })
+
+      const newComment = {
+        ...res.data,
+        timeAgo: '刚刚'
+      }
+
+      this.setData({
+        comments: [...this.data.comments, newComment],
+        commentTotal: this.data.commentTotal + 1,
+        commentText: '',
+        commentPosting: false,
+        showCommentInput: false
+      })
+
+      wx.showToast({ title: '评论成功', icon: 'success' })
+    } catch (e) {
+      this.setData({ commentPosting: false })
+      wx.showToast({ title: e.message || '评论失败', icon: 'none' })
+    }
+  },
+
+  onToggleCommentInput() {
+    this.setData({ showCommentInput: !this.data.showCommentInput })
+  },
+
+  onLoadMoreComments() {
+    if (this.data.commentHasMore && !this.data.commentsLoading) {
+      this.loadComments(true)
+    }
+  },
+
+  // 统一计算按钮状态（平台状态 + 用户报名状态）
+  updateUIState() {
+    const { event, isEnrolled, isEventPast } = this.data
+    if (!event) return
+
+    const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
+
+    // 平台状态
+    const isEnded = event.status === 'ended'
+    const isPastDeadline = event.registration_deadline && new Date() > new Date(event.registration_deadline)
+    const isFull = event.quota && event.enrolled_count >= event.quota
+
+    let platformStatus = 'open'
+    if (isEnded || isPastDeadline || isEventPast) {
+      platformStatus = 'closed'
+    } else if (isFull) {
+      platformStatus = 'full'
+    }
+
+    // 按钮文案 + 可点击
+    let enrollBtnText, canEnroll
+
+    if (isEnrolled) {
+      enrollBtnText = isEventPast || isEnded ? '已结束' : '已报名'
+      canEnroll = false
+    } else if (platformStatus === 'closed') {
+      enrollBtnText = '报名已结束'
+      canEnroll = false
+    } else if (platformStatus === 'full') {
+      enrollBtnText = '名额已满'
+      canEnroll = false
+    } else {
+      enrollBtnText = modeMap[event.registration_mode] || '立即报名'
+      canEnroll = true
+    }
+
+    this.setData({ platformStatus, enrollBtnText, canEnroll })
   }
 })

@@ -8,7 +8,12 @@
     <view class="cover-content">
       <text class="cover-title">{{event.title}}</text>
       <view class="cover-tags">
-        <text class="cover-tag tag-status" wx:if="{{event.status === 'published'}}">报名中</text>
+        <!-- 平台状态 -->
+        <text class="cover-tag tag-enrolled" wx:if="{{isEnrolled}}">已报名</text>
+        <text class="cover-tag tag-status" wx:elif="{{platformStatus === 'open'}}">报名中</text>
+        <text class="cover-tag tag-full" wx:elif="{{platformStatus === 'full'}}">名额已满</text>
+        <text class="cover-tag tag-closed" wx:elif="{{platformStatus === 'closed'}}">报名已结束</text>
+        <!-- 报名模式 -->
         <text class="cover-tag tag-points" wx:if="{{event.registration_mode === 'points_only'}}">{{event.points_cost}}积分</text>
         <text class="cover-tag tag-paid" wx:if="{{event.registration_mode === 'paid'}}">{{priceText}}元</text>
         <text class="cover-tag tag-free" wx:if="{{event.registration_mode === 'free'}}">免费</text>
@@ -85,6 +90,59 @@
   <view class="card detail-card">
     <text class="card-label">活动详情</text>
     <rich-text nodes="{{event.description || '暂无详情'}}" class="detail-content" />
+  </view>
+
+  <!-- 评论讨论区 (仅已报名用户可见) -->
+  <view class="card comment-card" wx:if="{{isEnrolled}}">
+    <text class="card-label">活动讨论 ({{commentTotal}})</text>
+
+    <!-- 评论列表 -->
+    <view class="comment-list" wx:if="{{comments.length > 0}}">
+      <view class="comment-item" wx:for="{{comments}}" wx:key="_id">
+        <image class="comment-avatar" src="{{item.avatar_url || '/images/default-avatar.png'}}" mode="aspectFill" />
+        <view class="comment-body">
+          <view class="comment-header">
+            <text class="comment-nickname">{{item.nickname}}</text>
+            <text class="comment-time">{{item.timeAgo}}</text>
+          </view>
+          <text class="comment-content">{{item.content}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="comment-empty" wx:if="{{comments.length === 0 && !commentsLoading}}">
+      <text class="comment-empty-text">还没有人讨论，来说点什么吧</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="comment-load-more" wx:if="{{commentHasMore}}" bindtap="onLoadMoreComments">
+      <text class="comment-load-more-text">{{commentsLoading ? '加载中...' : '查看更多评论'}}</text>
+    </view>
+
+    <!-- 发表评论输入区 -->
+    <view class="comment-input-area" wx:if="{{showCommentInput}}">
+      <textarea
+        class="comment-textarea"
+        placeholder="说点什么..."
+        value="{{commentText}}"
+        bindinput="onCommentInput"
+        maxlength="500"
+        auto-height
+        focus="{{showCommentInput}}"
+      />
+      <view class="comment-input-actions">
+        <text class="comment-char-count">{{commentText.length}}/500</text>
+        <view class="comment-submit-btn {{commentPosting ? 'disabled' : ''}}" bindtap="onPostComment">
+          <text>{{commentPosting ? '发送中...' : '发送'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 发表评论触发条 -->
+    <view class="comment-post-trigger" wx:if="{{!showCommentInput}}" bindtap="onToggleCommentInput">
+      <text class="comment-post-trigger-text">发表评论...</text>
+    </view>
   </view>
 
   <!-- 底部浮动操作栏 -->

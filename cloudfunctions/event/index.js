@@ -6,15 +6,22 @@ const _ = db.command
 // 内联工具函数
 function generateVerifyCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = 'QY-'
-  const now = new Date()
-  code += String(now.getMonth() + 1).padStart(2, '0')
-  code += String(now.getDate()).padStart(2, '0')
-  code += '-'
-  for (let i = 0; i < 5; i++) {
+  let code = ''
+  for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length))
   }
   return code
+}
+
+// 带唯一性校验的核销码生成
+async function generateUniqueVerifyCode(collection) {
+  for (let i = 0; i < 3; i++) {
+    const code = generateVerifyCode()
+    const exist = await collection.where({ verify_code: code }).count()
+    if (exist.total === 0) return code
+  }
+  // 3次都碰撞，用时间戳后缀保底
+  return generateVerifyCode() + Date.now().toString(36).slice(-3)
 }
 
 exports.main = async (event, context) => {
@@ -38,6 +45,12 @@ exports.main = async (event, context) => {
       return handleVerify(OPENID, event)
     case 'getQRCode':
       return handleGetQRCode(OPENID, event)
+    case 'checkEnrollment':
+      return handleCheckEnrollment(OPENID, event)
+    case 'listComments':
+      return handleListComments(OPENID, event)
+    case 'addComment':
+      return handleAddComment(OPENID, event)
     default:
       return { success: false, message: '未知操作' }
   }
@@ -123,7 +136,7 @@ async function handleEnrollFree(openid, event) {
     }
 
     // 创建报名记录
-    const verifyCode = generateVerifyCode()
+    const verifyCode = await generateUniqueVerifyCode(db.collection('registrations'))
     await transaction.collection('registrations').add({
       data: {
         user_id: user._id,
@@ -225,7 +238,7 @@ async function handleEnrollPoints(openid, event) {
     })
 
     // 创建报名记录
-    const verifyCode = generateVerifyCode()
+    const verifyCode = await generateUniqueVerifyCode(db.collection('registrations'))
     await transaction.collection('registrations').add({
       data: {
         user_id: user._id,
@@ -411,7 +424,17 @@ async function handleVerify(openid, event) {
     }
 
     await transaction.commit()
-    return { success: true, data: { registration_id: reg._id, user_nickname: user.nickname } }
+
+    // 查询报名者昵称（核销员是 user，报名者是 reg.user_id）
+    let regNickname = '未知用户'
+    try {
+      const regUserRes = await db.collection('users').doc(reg.user_id).get()
+      regNickname = regUserRes.data.nickname || regNickname
+    } catch (e) {
+      console.warn('查询报名者昵称失败:', e.message)
+    }
+
+    return { success: true, data: { registration_id: reg._id, user_nickname: regNickname } }
   } catch (err) {
     await transaction.rollback()
     return { success: false, message: '核销失败: ' + err.message }
@@ -470,5 +493,116 @@ async function handleGetQRCode(openid, event) {
   } catch (err) {
     console.error('生成小程序码失败:', err)
     return { success: false, data: { fallback: true }, message: '生成小程序码失败，请使用核销码' }
+  }
+}
+
+// 检查报名状态
+async function handleCheckEnrollment(openid, event) {
+  try {
+    const { eventId } = event
+    if (!eventId) return { success: false, message: '缺少活动ID' }
+
+    const userRes = await db.collection('users').where({ open_id: openid }).get()
+    if (userRes.data.length === 0) return { success: true, data: { enrolled: false } }
+
+    const regRes = await db.collection('registrations')
+      .where({ user_id: userRes.data[0]._id, event_id: eventId, status: _.neq('cancelled') })
+      .get()
+
+    return { success: true, data: { enrolled: regRes.data.length > 0 } }
+  } catch (err) {
+    return { success: false, message: err.message }
+  }
+}
+
+// 评论列表
+async function handleListComments(openid, event) {
+  try {
+    const { eventId, page = 1, pageSize = 20 } = event
+    if (!eventId) return { success: false, message: '缺少活动ID' }
+
+    // 校验已报名
+    const userRes = await db.collection('users').where({ open_id: openid }).get()
+    if (userRes.data.length === 0) return { success: false, message: '请先登录' }
+    const userId = userRes.data[0]._id
+
+    const regRes = await db.collection('registrations')
+      .where({ user_id: userId, event_id: eventId, status: _.neq('cancelled') })
+      .get()
+    if (regRes.data.length === 0) {
+      return { success: false, message: '仅已报名用户可查看评论' }
+    }
+
+    const where = { event_id: eventId, status: 'visible' }
+    const countRes = await db.collection('comments').where(where).count()
+    const listRes = await db.collection('comments')
+      .where(where)
+      .orderBy('created_at', 'desc')
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .get()
+
+    return {
+      success: true,
+      data: { list: listRes.data, total: countRes.total, hasMore: page * pageSize < countRes.total }
+    }
+  } catch (err) {
+    return { success: false, message: err.message }
+  }
+}
+
+// 发表评论
+async function handleAddComment(openid, event) {
+  try {
+    const { eventId, content } = event
+    if (!eventId) return { success: false, message: '缺少活动ID' }
+    if (!content || !content.trim()) return { success: false, message: '评论内容不能为空' }
+
+    const trimmedContent = content.trim()
+    if (trimmedContent.length > 500) return { success: false, message: '评论内容不能超过500字' }
+
+    // 校验用户身份
+    const userRes = await db.collection('users').where({ open_id: openid }).get()
+    if (userRes.data.length === 0) return { success: false, message: '请先登录' }
+    const user = userRes.data[0]
+
+    // 校验已报名
+    const regRes = await db.collection('registrations')
+      .where({ user_id: user._id, event_id: eventId, status: _.neq('cancelled') })
+      .get()
+    if (regRes.data.length === 0) {
+      return { success: false, message: '仅已报名用户可发表评论' }
+    }
+
+    // 微信内容安全检测
+    try {
+      await cloud.openapi.security.msgSecCheck({ content: trimmedContent })
+    } catch (secErr) {
+      if (secErr.errCode === 87014) {
+        return { success: false, message: '评论内容包含违规信息，请修改后重试' }
+      }
+      console.warn('msgSecCheck API error:', secErr)
+    }
+
+    // 写入评论
+    const commentData = {
+      event_id: eventId,
+      user_id: user._id,
+      open_id: openid,
+      nickname: user.nickname || '书友',
+      avatar_url: user.avatar_url || '',
+      content: trimmedContent,
+      status: 'visible',
+      created_at: db.serverDate()
+    }
+
+    const addRes = await db.collection('comments').add({ data: commentData })
+
+    return {
+      success: true,
+      data: { _id: addRes._id, ...commentData, created_at: new Date() }
+    }
+  } catch (err) {
+    return { success: false, message: err.message }
   }
 }
