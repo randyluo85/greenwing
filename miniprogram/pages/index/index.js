@@ -118,7 +118,23 @@ Page({
       .limit(10)
       .get()
     if (res.data.length > 0) {
-      this.setData({ books: res.data })
+      const books = res.data
+      // cloud:// 在 DevTools 下可能无法解析，转为 HTTP URL
+      const cloudIds = books.filter(b => b.cover_image && b.cover_image.startsWith('cloud://'))
+        .map(b => b.cover_image)
+      if (cloudIds.length > 0) {
+        try {
+          const urlRes = await wx.cloud.getTempFileURL({ fileList: cloudIds })
+          const urlMap = {}
+          urlRes.fileList.forEach(f => { urlMap[f.fileID] = f.tempFileURL })
+          books.forEach(b => {
+            if (b.cover_image && urlMap[b.cover_image]) {
+              b.cover_image = urlMap[b.cover_image]
+            }
+          })
+        } catch (e) { /* 转换失败则保留原值，真机可用 */ }
+      }
+      this.setData({ books })
     }
   },
 

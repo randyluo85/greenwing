@@ -9,8 +9,18 @@ function generateMemberNo() {
   const y = now.getFullYear()
   const m = String(now.getMonth() + 1).padStart(2, '0')
   const d = String(now.getDate()).padStart(2, '0')
-  const rand = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+  const rand = String(Math.floor(Math.random() * 100000)).padStart(5, '0')
   return `QY${y}${m}${d}${rand}`
+}
+
+// 带唯一性校验的会员号生成
+async function generateUniqueMemberNo() {
+  for (let i = 0; i < 3; i++) {
+    const no = generateMemberNo()
+    const exist = await db.collection('users').where({ member_no: no }).count()
+    if (exist.total === 0) return no
+  }
+  return generateMemberNo() + Date.now().toString(36).slice(-3)
 }
 function calcLevel(totalPoints, thresholds) {
   const t = thresholds || { bronze: 0, silver: 500, gold: 1000 }
@@ -59,7 +69,7 @@ async function handleLogin(openid) {
       phone: '',
       nickname: '书友',
       avatar_url: '',
-      member_no: generateMemberNo(),
+      member_no: await generateUniqueMemberNo(),
       role: 'user',
       level: 'bronze',
       total_points: 0,

@@ -15,8 +15,8 @@
 }
 
 .toolbar-logo {
-  width: 128rpx;
-  height: 128rpx;
+  width: 168rpx;
+  height: 64rpx;
   flex-shrink: 0;
 }
 

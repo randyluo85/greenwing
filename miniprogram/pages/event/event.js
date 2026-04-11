@@ -32,6 +32,13 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1 })
     }
+    // 每次回到页面刷新当前 tab 数据
+    if (this.data.currentTab === 'list') {
+      this.setData({ page: 1, hasMore: true, events: [] })
+      this.loadEvents()
+    } else {
+      this.loadMyEvents()
+    }
   },
 
   onPullDownRefresh() {
@@ -67,11 +74,24 @@ Page({
     try {
       const { page } = this.data
       const res = await callFunction('event', { action: 'list', page, pageSize: 10 })
+
+      // 查询当前用户已报名的活动ID集合
+      let enrolledIds = []
+      try {
+        const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
+        enrolledIds = (myRes.data.list || [])
+          .filter(i => i.status === 'pending')
+          .map(i => i.event_id)
+      } catch (e) {
+        // 查询失败不影响列表展示
+      }
+
       const newList = res.data.list.map(e => ({
         ...e,
         _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
         _formattedTime: formatDate(e.event_time, 'HH:mm'),
-        _isPast: new Date(e.event_time) < new Date()
+        _isPast: new Date(e.event_time) < new Date(),
+        _enrolled: enrolledIds.indexOf(e._id) >= 0
       }))
 
       this.setData({

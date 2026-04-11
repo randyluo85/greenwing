@@ -106,7 +106,7 @@
           wx:for="{{events}}" wx:key="_id"
           bindtap="goEventDetail" data-id="{{item._id}}">
           <view class="event-cover-wrap">
-            <image src="{{item.cover_image || '/images/event-default.png'}}" mode="aspectFill" class="event-cover" />
+            <image src="{{item.cover_image || '/images/event.jpg'}}" mode="aspectFill" class="event-cover" />
           </view>
           <view class="event-info">
             <text class="event-title ellipsis-2">{{item.title}}</text>
@@ -137,7 +137,7 @@
       <view class="book-grid">
         <view class="book-item" wx:for="{{books}}" wx:key="_id" bindtap="onBookTap" data-id="{{item._id}}">
           <view class="book-cover-wrap">
-            <image src="{{item.cover_image}}" mode="aspectFill" class="book-cover" />
+            <image src="{{item.cover_image || '/images/book1.jpg'}}" mode="aspectFill" class="book-cover" />
             <view class="book-rating" wx:if="{{item.rating}}">
               <text>{{item.rating}}</text>
             </view>
