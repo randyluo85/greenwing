@@ -1,0 +1,50 @@
+<!--pages/my-orders/my-orders.wxml-->
+<view class="page">
+
+  <!-- Tab -->
+  <view class="tabs">
+    <view class="tab {{currentStatus === '' ? 'active' : ''}}" bindtap="switchTab" data-status="">全部</view>
+    <view class="tab {{currentStatus === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-status="pending">待支付</view>
+    <view class="tab {{currentStatus === 'paid' ? 'active' : ''}}" bindtap="switchTab" data-status="paid">已支付</view>
+    <view class="tab {{currentStatus === 'refunded' ? 'active' : ''}}" bindtap="switchTab" data-status="refunded">已退款</view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="list">
+    <view class="card order-card" wx:for="{{list}}" wx:key="_id">
+      <view class="order-header">
+        <text class="order-no">{{item.order_no}}</text>
+        <view class="status-tag status-{{item.status}}">
+          <text>{{statusMap[item.status] || item.status}}</text>
+        </view>
+      </view>
+      <view class="order-body">
+        <text class="order-title">{{item.event.title || '活动'}}</text>
+        <text class="order-amount">{{item._amountText}}</text>
+      </view>
+      <view class="order-meta">
+        <text>{{item._formattedTime}}</text>
+      </view>
+      <view class="order-actions">
+        <view class="btn-sm btn-pay" wx:if="{{item.status === 'pending'}}" bindtap="goPay" data-id="{{item._id}}" data-event="{{item.event_id}}">
+          <text>去支付</text>
+        </view>
+        <view class="btn-sm btn-refund" wx:if="{{item.status === 'paid'}}" bindtap="requestRefund" data-id="{{item._id}}">
+          <text>申请退款</text>
+        </view>
+        <view class="btn-sm btn-cancel" wx:if="{{item.status === 'pending'}}" bindtap="cancelOrder" data-id="{{item._id}}">
+          <text>取消订单</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:if="{{!loading && list.length === 0}}">
+    <text class="empty-text">暂无订单</text>
+  </view>
+
+  <view class="load-end" wx:if="{{!hasMore && list.length > 0}}">
+    <text>没有更多了</text>
+  </view>
+
+</view>

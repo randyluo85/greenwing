@@ -1,0 +1,62 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/event/event",
+    "pages/my/my",
+    "pages/event-detail/event-detail",
+    "pages/order-confirm/order-confirm",
+    "pages/my-events/my-events",
+    "pages/my-orders/my-orders",
+    "pages/points/points",
+    "pages/verify/verify",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/books/books",
+    "pages/book-detail/book-detail",
+    "pages/notifications/notifications",
+    "pages/profile-edit/profile-edit",
+    "pages/shop/shop"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "青翼读书会",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f6f8"
+  },
+  "tabBar": {
+    "color": "#94A3B8",
+    "selectedColor": "#14b8a6",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/event/event",
+        "text": "活动",
+        "iconPath": "images/tab-event.png",
+        "selectedIconPath": "images/tab-event-active.png"
+      },
+      {
+        "pagePath": "pages/shop/shop",
+        "text": "商城",
+        "iconPath": "images/tab-shop.png",
+        "selectedIconPath": "images/tab-shop-active.png"
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": "我的",
+        "iconPath": "images/tab-my.png",
+        "selectedIconPath": "images/tab-my-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "cloud": true,
+  "lazyCodeLoading": "requiredComponents"
+}

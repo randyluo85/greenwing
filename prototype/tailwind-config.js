@@ -1,13 +1,13 @@
-// Emerald Modern Prototype - Shared Tailwind Configuration
+// Tehran Prototype - Shared Tailwind Configuration
 tailwind.config = {
     theme: {
         extend: {
             colors: {
-                primary: '#00897B',
-                secondary: '#26A69A',
-                accent: '#FF9800',
-                bg: '#F8FAFC',
-                surface: '#E0F2F1',
+                primary: '#14b8a6',
+                secondary: '#2dd4bf',
+                accent: '#f59e0b',
+                bg: '#f5f6f8',
+                surface: '#f0fdfa',
                 emerald: {
                     50: '#F0FDF4',
                     500: '#10B981',

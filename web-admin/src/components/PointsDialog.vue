@@ -47,8 +47,8 @@ function handleConfirm() {
     ElMessage.warning('单次调整不能超过 10000 积分')
     return
   }
-  emit('confirm', { ...form })
-  ElMessage.success(form.type === 'add' ? `已增加 ${form.amount} 积分` : `已扣减 ${form.amount} 积分`)
+  const amount = form.type === 'add' ? form.amount : -form.amount
+  emit('confirm', { userId: props.user?._id, amount, reason: form.reason })
   emit('update:modelValue', false)
   form.type = 'add'
   form.amount = 1

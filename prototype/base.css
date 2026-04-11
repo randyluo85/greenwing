@@ -1,10 +1,10 @@
-/* Emerald Modern Prototype - Global Styles */
+/* Tehran (Emerald Modern) - Global Styles */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
-    --primary: #00897B;
-    --bg-slate: #F8FAFC;
+    --primary: #14b8a6;
+    --bg-slate: #f5f6f8;
     --text-slate: #1E293B;
 }
 

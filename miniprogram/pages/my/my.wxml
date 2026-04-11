@@ -1,0 +1,134 @@
+<!--pages/my/my.wxml-->
+<view class="page-container">
+
+  <!-- 背景图层 (使用 .png，因为 .jpg 在本地是一张纯白色/浅薄荷色图像，会导致白色字体隐藏) -->
+  <view class="bg-layer">
+    <image src="/images/profile_bg.png" mode="aspectFill" class="bg-image" />
+  </view>
+
+  <!-- 内容层 -->
+  <view class="content-layer">
+
+    <!-- 用户信息头部 -->
+    <view class="profile-header">
+      <view class="user-row">
+        <!-- 修复空白头像: 使用 default-avatar.png 如缺失则提供绝对路径后备保障 -->
+        <image src="{{userInfo.avatar_url || '/images/logo.png'}}" class="avatar" />
+      <view class="user-info">
+        <view class="name-row">
+          <text class="user-name">{{userInfo.nickname || '书友'}}</text>
+          <view class="crown-icon">
+            <image src="/images/icons/crown.svg" class="crown-img" />
+          </view>
+        </view>
+        <text class="user-signature">{{userInfo.bio || '阅读，是心灵的旅行。'}}</text>
+      </view>
+    </view>
+
+    <!-- 等级 + 升级进度 -->
+    <view class="level-row" wx:if="{{levelProgress.next}}">
+      <view class="level-tag">
+        <text>{{levelName}}</text>
+      </view>
+      <text class="progress-text">距离升级还需 <text class="progress-highlight">{{levelProgress.needPoints}}</text> 积分</text>
+    </view>
+    <view class="progress-bar" wx:if="{{levelProgress.next}}">
+      <view class="progress-fill" style="width: {{levelProgress.percent}}%"></view>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <view class="stat-number-row">
+        <text class="stat-number">{{signDays}}</text>
+        <text class="stat-unit">天</text>
+      </view>
+      <text class="stat-label">累计签到</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number-row">
+        <text class="stat-number">{{userInfo.current_points || 0}}</text>
+        <text class="stat-unit">分</text>
+      </view>
+      <text class="stat-label">我的积分</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number-row">
+        <text class="stat-number">{{eventCount}}</text>
+        <text class="stat-unit">场</text>
+      </view>
+      <text class="stat-label">参加活动</text>
+    </view>
+  </view>
+
+  <!-- 菜单卡片 -->
+  <view class="menu-card">
+    <!-- 活动核销 (管理员) -->
+    <view class="menu-item" wx:if="{{isAdminUser}}" bindtap="goVerify">
+      <view class="menu-icon-wrap">
+        <image src="/images/icons/verify.svg" class="menu-icon" />
+      </view>
+      <view class="menu-text-wrap">
+        <text class="menu-text">活动核销</text>
+        <text class="menu-sub-text">(仅工作人员使用)</text>
+      </view>
+      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
+    </view>
+    <view class="menu-divider" wx:if="{{isAdminUser}}"></view>
+
+    <!-- 我的活动 -->
+    <view class="menu-item" bindtap="goMyEvents">
+      <view class="menu-icon-wrap">
+        <image src="/images/icons/bookmark.svg" class="menu-icon" />
+      </view>
+      <text class="menu-text">我的活动</text>
+      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
+    </view>
+    <view class="menu-divider"></view>
+
+    <!-- 我的订单 -->
+    <view class="menu-item" bindtap="goMyOrders">
+      <view class="menu-icon-wrap">
+        <image src="/images/icons/receipt.svg" class="menu-icon" />
+      </view>
+      <text class="menu-text">我的订单</text>
+      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
+    </view>
+    <view class="menu-divider"></view>
+
+    <!-- 积分明细 -->
+    <view class="menu-item" bindtap="goPoints">
+      <view class="menu-icon-wrap icon-points">
+        <image src="/images/icons/coin.svg" class="menu-icon" />
+      </view>
+      <text class="menu-text">积分明细</text>
+      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
+    </view>
+    <view class="menu-divider"></view>
+
+    <!-- 账号设置 -->
+    <view class="menu-item" bindtap="goProfileEdit">
+      <view class="menu-icon-wrap">
+        <image src="/images/icons/user.svg" class="menu-icon" />
+      </view>
+      <text class="menu-text">账号设置与管理</text>
+      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-btn" bindtap="onLogout" wx:if="{{userInfo}}">
+    <image src="/images/icons/power-off.svg" class="logout-icon" />
+    <text>退出登录</text>
+  </view>
+
+  <!-- Footer -->
+  <view class="profile-footer">
+    <image src="/images/logo.png" mode="aspectFit" class="footer-logo" />
+  </view>
+
+  </view> <!-- content-layer -->
+</view> <!-- page-container -->

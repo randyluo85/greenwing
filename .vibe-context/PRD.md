@@ -8,6 +8,7 @@
 |------|----------|----------|----------|------|
 | v1.0 | 2026-04-08 | 2026-04-08 | 初始版本：纯积分报名模式 | -- |
 | v2.0 | 2026-04-09 | 2026-04-09 | 新增微信支付报名、优化文档结构 | -- |
+| v3.0 | 2026-04-09 | 2026-04-09 | 迁移至微信云开发架构 | -- |
 
 ---
 
@@ -16,23 +17,6 @@
 ### 产品愿景
 
 青翼读书会是一个以阅读活动为核心的社区平台，通过积分体系与付费活动并行运营，连接读者与优质内容，构建可持续的阅读生态。
-
-### 产品目标
-
-1. **用户增长**：3 个月内达到 1,000 名注册用户
-2. **活动运营**：月均 4+ 场活动，覆盖免费、积分、付费三种模式
-3. **用户留存**：30 日留存率 > 40%
-4. **付费转化**：付费活动报名转化率 > 15%
-
-### 成功指标
-
-| 指标 | 定义 | 目标值 |
-|------|------|--------|
-| DAU | 日活跃用户数 | 200+ |
-| 活动参与率 | 报名人数/活动名额 | > 80% |
-| 签到率 | 实际签到/已报名 | > 70% |
-| 付费转化率 | 付费报名/活动页访问 | > 15% |
-| ARPU | 每用户平均收入（含积分价值） | 持续增长 |
 
 ---
 
@@ -65,14 +49,45 @@
 | 活动报名模式 | 活动的准入方式：free（免费）/ points_only（积分兑换）/ paid（付费报名） |
 | 订单 | 付费报名时创建的支付记录 |
 | 退款 | 取消付费活动报名并退还款项 |
+| 云函数 | 微信云开发中运行的 Node.js 服务端代码，免鉴权 |
+| 云数据库 | 微信云开发内置的文档型数据库 |
+| 云调用 | 云函数内直接调用微信开放接口，免签名免证书 |
 
 ---
 
 ## 1. 总体架构规划
 
-本产品包含两大主要业务端，前后端功能命名保持高度对应与一致：
+### 1.1 技术架构
+
+```
+┌─────────────────────────────────────────────────┐
+│                微信原生小程序 (前端)               │
+│  pages / components / utils / styles             │
+└──────────┬──────────────┬──────────────┬─────────┘
+           │              │              │
+    callFunction()  database()    callContainer()
+           │              │              │
+┌──────────▼──────┐ ┌─────▼─────┐ ┌─────▼──────────┐
+│    云函数        │ │ 云数据库   │ │ 云托管(支付)    │
+│  user/event/    │ │ 7个集合    │ │ Express 服务    │
+│  pay/admin      │ │ + 安全规则 │ │ 内置支付API     │
+└─────────────────┘ └───────────┘ └────────────────┘
+```
+
+### 1.2 技术选型
+
+| 层级 | 选型 | 说明 |
+|------|------|------|
+| 前端 | 原生小程序 (WXML/WXSS/JS) | 仅微信端，无需跨平台 |
+| 服务端 | 云函数 (Node.js) | 免服务器，按量计费 |
+| 数据库 | 云数据库 (文档型) | 内置，类 MongoDB |
+| 支付 | 云托管 + 云调用 | 免签名、免证书、免 access_token |
+| 存储 | 云存储 | 封面图、头像等文件 |
+
+### 1.3 业务端划分
+
 1. **用户端（C端）**：面向普通读者的微信小程序。
-2. **管理端（B端）**：面向运营人员和现场核销人员的后台管理系统。
+2. **管理端（B端）**：同一小程序内的管理页面（通过 role 字段控制权限入口），或独立管理端小程序。
 
 ---
 
@@ -82,52 +97,56 @@
 
 首页作为平台的核心分发中枢，主要包含以下功能区块：
 
-1. **用户状态栏**：展示用户当前的会员等级（如"白银会员"）。
-2. **核心焦点推荐**：首屏展示最新、最重磅的读书会活动或核心会员特权信息。
-3. **常用功能入口（金刚区）**：
-   - **每日签到**：点击获取每日积分奖励，积分规则由管理端统一定义。
-   - **扫码核销**：非管理员点击提示无权限，线下活动使用。
-   - **我的积分**：点击跳转至完整的积分流水页面。
-4. **近期活动**：按照时间维度（当周活动、下周活动）展示，包含活动标签、活动标题、时间、地点。
-5. **好书推荐**：以横向滑动的方式展示平台推荐的实体书籍及其作者信息（点击后显示：功能开发中，敬请期待..）。
-6. **全局底部导航**：分为"首页"、"活动"、"商城（规划中）"、"我的"。
+1. **顶部操作区**：具备全站活动搜索功能入口以及全局消息/通知（通知中心）入口。
+2. **首页 Banner**：大视觉焦点图，点击可直接跳转至最重磅的读书会或特邀活动。
+3. **快捷操作区（金刚区）**：
+   - **每日签到**：核心引流/促活模块，视觉强化展示已累计签到天数，点击可弹出签到成功动效奖励。
+   - **积分查询**：跳转至积分流水，查询积分入账与消耗明细。
+   - **我的活动**：方便重度参与者快速切入已报名赛道（支持活动签到页）。
+4. **热门活动**：动态展示当前热门或临期的代表性读书活动，呈现时间、地点及付费/积分情况。
+5. **好书推荐**：展示平台精选的高分（如9.5分、9.8分）实体书籍推荐位及封皮信息。
+6. **全局底部导航**：固定展示四大核心模块：首页、活动、商城（规划预留）、我的。
 
-### 2.2 活动
+### 2.2 活动大厅
 
-提供多维度的活动展示与报名预约功能。
+活动聚合页采用双 Tab 导航结构，将"我的活动"与全量"活动列表"合并归档，并在交互上以"我的活动"为默认第一呈现。
 
-1. **活动大厅**：分页或列表形式呈现平台内所有的对外活动。
+1. **双 Tab 聚合页**：
+   - **我的活动（默认展现）**：呈现用户私人的参与纪要，展示已报名、待参加的活动集合。在后续核销流程中，将在此页为用户提供专属签到入场数字码（或二维码）。
+   - **活动列表（次级视图）**：公开呈现平台所有的对外活动集合，包含分页加载。
 
-2. **活动详情**：
-   - 展示图文介绍、特邀嘉宾、详细日程安排、活动场地地址及地图引导。
-   - **报名模式展示**：根据活动的 `registration_mode` 展示不同的准入信息：
-     - `free`：显示"免费报名"
-     - `points_only`：显示"需 X 积分"及会员等级门槛
-     - `paid`：显示"报名费 Y 元"
-   - **报名按钮逻辑**：
-     - `free`：按钮文案"免费报名"，点击直接进入报名流程
-     - `points_only`：按钮文案"立即报名 . X 积分"，前置校验会员等级与积分余额
-     - `paid`：按钮文案"立即报名 . Y 元"，进入支付订单确认页
-   - **往期回顾**：对于已结束的活动，展示现场精华照片、活动回顾总结，报名按钮转为"查看回顾"状态。
+2. **活动详情页**：
+   - 全屏沉浸式海报背景与渐变效果。展示图文介绍、主讲人、详细日程规划与活动场地地图引导。
+   - **报名模式与底部留驻状态区**：根据 `registration_mode` 展示不同的价格阶梯或提示：
+     - `free`："免费报名" 并直接进报名流程。
+     - `points_only`："需 X 积分" 标签或提示项。
+     - `paid`："20.00元" 等直接显示的付费标签与已报人数。
+   - **底部动作按钮**：浮动固定的功能栏按钮，引导用户"立即报名"，报名成功后呈现弹窗，提示去对应的【我的】页面查找入场券。
 
 3. **支付订单确认页**（仅 `paid` 模式）：
-   - 展示活动摘要（标题、时间、地点）
-   - 展示价格明细（报名费）
-   - 订单倒计时（15 分钟内完成支付）
-   - "确认支付"按钮，调用 `wx.requestPayment` 发起微信支付
-   - 支付成功后自动跳转至报名成功页
+   - 展示活动摘要及费用明细，限时 15 分钟内支付倒计时。
+   - 调用 `wx.requestPayment` 发起微信支付。
 
-4. **我的活动**：
-   - 查看用户参与的全部活动状态（待参加、已取消、已完成）。
-   - **入场核销码**：为报名成功的活动提供专属二维码及数字串码，供线下展示与管理员扫码验票。
+### 2.3 好书推荐 (全新增强模块)
 
-5. **我的订单**：
-   - 按状态筛选订单：待支付 / 已支付 / 已取消 / 已退款
-   - 每个订单展示：活动标题、支付金额、订单时间、状态
-   - 待支付订单可操作："去支付"（若未超时）或"取消订单"
-   - 已支付订单可操作："申请退款"（若活动退款政策允许）
+作为知识社区的重要一环，提供书籍阅览资料馆：
 
-### 2.3 个人中心
+1. **统一图书长廊（图书总列表）**：
+   - 图书的系统性呈现平铺或网格流视图，展现高分推荐与当季上新。
+2. **图书详情页**：
+   - 展现书籍的精美封面大图与评分机制。展示书名、作者、简介以及社区读者对该书籍内容的短平快相关评价。
+   - 未来扩展规划：提供购书链接或衍生沙龙活动反向强绑定。
+
+### 2.4 个人中心
+
+1. **个人资料与数据看板**：
+   - 顶部提供快速【编辑资料】的功能入口及账户头像与昵称。
+   - 积分、会员等级与进度动态计算呈现。
+2. **核心业务资产流向块**：
+   - **订单记录库（我的订单）**：系统保留对 Paid Mode（付费报名/商城记录）产生的真实交易流水状态展示，包含"支付/退款"状态管理。
+   - 其它快速入口包含：活动验证（管理员专属扫码页）、积分核销及活动跳转记录。
+3. **管理员扫码页（权限显示）**：
+   - 通过系统身份判断，单独剥离出专属 `event-verify` 扫码核销控制面板。
 
 1. **个人资料卡片**：
    - 展示用户头像、用户昵称、会员号（唯一识别码）、当前会员等级徽章。
@@ -139,17 +158,31 @@
 4. **管理员扫码（专有功能）**：
    - 若当前用户被系统赋予"活动管理员"权限，此页面将展示"扫码核销（管理员）"入口。点击后调用设备摄像头，扫描其他用户的"入场核销码"完成线下验票登记。
 
-### 2.4 账号与设置
+### 2.5 账号与设置
 
 1. **身份认证**：新用户授权获取基础展示信息，绑定认证手机号码。
-2. **资料编辑**：支持用户自主修改系统头像、编辑用户昵称信息。
-3. **安全退出**：退出当前账号登录状态。
+2. **资料编辑**：独立出完整的用户信息配置页面（头像、昵称、常用联系电话编辑功能）。
+3. **安全退出**：退出当前账号登录状态（返回登录页 `login.html`）。
 
 ---
 
 ## 3. 管理端功能需求
 
-为了支撑用户端所有展示和闭环操作流，管理端须配套以下相应的管控能力：
+管理端分为两个载体，各自承载最适合的操作场景：
+
+### 管理端载体划分
+
+| 载体 | 技术实现 | 负责功能 | 操作场景 |
+|------|---------|---------|---------|
+| **Web 管理后台** | Vue3 + Element Plus，部署在云开发静态托管 | 用户管理、积分调整、活动管理、订单管理、退款审批、内容管理、财务看板 | 电脑端，日常运营 |
+| **小程序端** | 小程序内 `/pages/verify/` 页面 | 管理员扫码核销 | 手机端，线下活动现场 |
+
+Web 后台通过 `@cloudbase/js-sdk` 接入云开发，与小程序共享同一个云开发环境（数据库、云函数、存储）。
+Web 后台登录使用云开发邮箱密码鉴权，管理员账号在云开发控制台预先创建。
+
+---
+
+以下为各管理功能模块的详细需求：
 
 ### 3.1 用户管理
 
@@ -183,7 +216,7 @@
 - **退款管理**（仅 `paid` 模式活动）：
   - 查看待处理退款申请
   - 管理员审批：同意或拒绝退款
-  - 调用微信退款 API 执行退款
+  - 通过云函数调用退款 API 执行退款
   - 退款审计日志
 
 ### 3.3 积分与等级管理
@@ -221,19 +254,16 @@
 ```mermaid
 sequenceDiagram
     participant User as 用户
-    participant Frontend as 用户端(前端)
-    participant Backend as 后端服务
+    participant Frontend as 小程序前端
+    participant CloudFunc as 云函数
 
-    User->>Frontend: 打开青翼读书会首页/个人中心
-    Frontend->>Backend: 检查本地登录状态/Token
-    Backend-->>Frontend: 返回未登录/Token已失效
-    Frontend->>User: 呼起授权登录界面(微信/手机号)
-    User->>Frontend: 确认授权并提交验证信息
-    Frontend->>Backend: 发送鉴权临时票据或验证码
-    Backend->>Backend: 校验并创建新用户/映射老用户
-    Backend->>Backend: 赋予初始会员等级(如:青铜)及会员号
-    Backend-->>Frontend: 下发会话Token与用户基础信息
-    Frontend-->>User: 登录/注册成功，展示个人中心
+    User->>Frontend: 打开小程序
+    Frontend->>Frontend: wx.login() 获取 code
+    Frontend->>CloudFunc: callFunction('user', {action:'login', code})
+    CloudFunc->>CloudFunc: cloud.getWXContext() 获取 openid
+    CloudFunc->>CloudFunc: 查询/创建 users 集合记录
+    CloudFunc-->>Frontend: 返回用户信息
+    Frontend-->>User: 展示首页/个人中心
 ```
 
 ### 4.2 活动报名流程
@@ -241,52 +271,52 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant User as 用户
-    participant Frontend as 用户端(前端)
-    participant Backend as 后端服务
-    participant WeChatPay as 微信支付
+    participant Frontend as 小程序前端
+    participant CloudFunc as 云函数
+    participant DB as 云数据库
 
     User->>Frontend: 浏览活动列表并点击进入详情
-    Frontend->>Backend: 请求活动详情数据(名额、报名模式)
-    Backend-->>Frontend: 返回活动信息与剩余名额
+    Frontend->>DB: 直接查询 events 集合(status=published)
+    DB-->>Frontend: 返回活动信息与剩余名额
 
     User->>Frontend: 点击【报名】
 
     alt 免费报名(free)
-        Frontend->>Backend: 发起报名请求
-        Backend->>Backend: 检验名额余量
-        Backend->>Backend: 创建报名记录，生成核销码
-        Backend-->>Frontend: 返回报名成功
-        Frontend-->>User: 提示报名成功，更新为待参加状态
+        Frontend->>CloudFunc: callFunction('event', {action:'enrollFree'})
+        CloudFunc->>DB: 事务内检查名额
+        CloudFunc->>DB: 创建 registration 记录
+        CloudFunc->>DB: events.enrolled_count +1
+        CloudFunc-->>Frontend: 报名成功 + 核销码
+        Frontend-->>User: 展示报名成功
 
     else 积分报名(points_only)
-        Frontend->>Backend: 发起积分报名请求
-        Backend->>Backend: 检验名额余量
-        Backend->>Backend: 校验会员等级与积分余额
+        Frontend->>CloudFunc: callFunction('event', {action:'enrollPoints'})
+        CloudFunc->>DB: 事务内检查名额+等级+积分
         alt 校验不通过
-            Backend-->>Frontend: 报错(名额已满/积分或等级不足)
-            Frontend-->>User: 弹窗提示无法报名的原因
+            CloudFunc-->>Frontend: 报错(名额/积分/等级不足)
+            Frontend-->>User: 弹窗提示原因
         else 校验通过
-            Backend->>Backend: 安全防重锁(并发处理)
-            Backend->>Backend: 扣减积分并记录积分流水
-            Backend->>Backend: 创建报名记录，生成核销码
-            Backend-->>Frontend: 返回报名成功及凭证详情
-            Frontend-->>User: 提示报名成功，更新为待参加状态
+            CloudFunc->>DB: 扣减积分，创建 point_log
+            CloudFunc->>DB: 创建 registration 记录
+            CloudFunc->>DB: events.enrolled_count +1
+            CloudFunc-->>Frontend: 报名成功 + 核销码
+            Frontend-->>User: 展示报名成功
         end
 
     else 付费报名(paid)
-        Frontend->>Backend: 发起付费报名，创建订单
-        Backend->>Backend: 检验名额余量
-        Backend->>Backend: 创建待支付订单(status: pending)
-        Backend->>WeChatPay: 调用统一下单API(JSAPI)
-        WeChatPay-->>Backend: 返回prepay_id
-        Backend-->>Frontend: 返回签名后的支付参数
-        Frontend->>Frontend: 调用wx.requestPayment唤起支付
-        User->>Frontend: 完成微信支付
-        WeChatPay->>Backend: 支付结果回调通知
-        Backend->>Backend: 验证回调签名，更新订单状态为已支付
-        Backend->>Backend: 创建报名记录，生成核销码
-        Backend-->>Frontend: 前端轮询确认支付结果
-        Frontend-->>User: 提示报名成功，更新为待参加状态
+        Frontend->>CloudFunc: callFunction('pay', {action:'createOrder'})
+        CloudFunc->>DB: 检查名额，创建 orders 记录(pending)
+        CloudFunc->>CloudFunc: 调用云托管统一下单API
+        CloudFunc-->>Frontend: 返回支付参数
+        Frontend->>Frontend: wx.requestPayment 唤起支付
+        User->>Frontend: 完成支付
+        Note over CloudFunc: 云托管回调通知支付结果
+        CloudFunc->>DB: 更新 order 为 paid
+        CloudFunc->>DB: 创建 registration 记录 + 核销码
+        CloudFunc->>DB: events.enrolled_count +1
+        Frontend->>CloudFunc: callFunction('pay', {action:'queryOrder'})
+        CloudFunc-->>Frontend: 返回支付成功 + 报名信息
+        Frontend-->>User: 展示报名成功页 + 核销码
     end
 ```
 
@@ -297,108 +327,107 @@ sequenceDiagram
     participant User as 参会用户
     participant Admin as 现场核销管理员
     participant AdminApp as 管理员端(扫码界面)
-    participant Backend as 后端服务
+    participant CloudFunc as 云函数
 
     User->>User: 抵达现场，打开"我的活动"出示核销码
-    Admin->>AdminApp: 在个人中心点击【扫码核销(管理员)】
-    AdminApp->>Backend: 校验当前角色是否具有核销权限
-    Backend-->>AdminApp: 权限验证通过，唤起设备摄像头
-    AdminApp->>User: 扫描参会者的入场核销二维码
-    AdminApp->>Backend: 提交解析出的二维码Ticket并请求验票
-    Backend->>Backend: 解析匹配活动及人员，校验是否已签到
+    Admin->>AdminApp: 点击【扫码核销(管理员)】
+    AdminApp->>CloudFunc: callFunction('event', {action:'verify', code: 'xxx'})
+    CloudFunc->>CloudFunc: 校验管理员权限(cloud.getWXContext)
+    CloudFunc->>CloudFunc: 查询 registration 记录
     alt 无效或重复扫
-        Backend-->>AdminApp: 驳回(状态异常)
-        AdminApp-->>Admin: 红斑预警弹窗：提示不合法/重复入场
+        CloudFunc-->>AdminApp: 驳回(状态异常)
+        AdminApp-->>Admin: 红色预警弹窗
     else 验证通过
-        Backend->>Backend: 修改报名库数据为【已签到】
-        Backend->>Backend: 生成带有管理员标签的扫码溯源日志
-        Backend-->>AdminApp: 返回验票成功指令
-        AdminApp-->>Admin: 绿色通行弹窗：展示用户身份准入
+        CloudFunc->>CloudFunc: 更新 status=verified
+        CloudFunc->>CloudFunc: 记录 verified_by 和 verified_at
+        CloudFunc->>CloudFunc: 发放活动奖励积分
+        CloudFunc-->>AdminApp: 验票成功 + 用户信息
+        AdminApp-->>Admin: 绿色通行弹窗
     end
 ```
 
 ### 4.4 每日签到与积分等级更新流程
 
 1. **发起行为（前端）**：用户在**首页**点击"每日签到"入口。
-2. **逻辑核算（后端）**：后端防多端重复点击校验，核准后依照**积分与等级管理**中设定的每日签到得分值增加用户的账面积分。
-3. **等级判定（后端）**：积分增加后，重新测算累计积分是否触发了新一层级的会员门槛（如 495分 + 10分签到 = 505分），触发则直接完成升级。
-4. **实时反馈（前端）**：前端展示获得积分的动效，并重绘**个人中心**内的积分卡片数值与等级进度条。
+2. **逻辑核算（云函数）**：`callFunction('user', {action:'signIn'})`，防重复签到（校验 `last_sign_date`），增加积分并生成 `point_logs` 记录。
+3. **等级判定（云函数）**：积分增加后，重新测算累计积分是否触发等级跃迁，自动更新 `level` 字段。
+4. **实时反馈（前端）**：展示获得积分的动效，刷新积分和等级进度条。
 
-### 4.5 支付与订单流程
+### 4.5 支付与订单流程（云开发版）
 
 ```mermaid
 sequenceDiagram
     participant User as 用户
-    participant Frontend as 用户端(前端)
-    participant Backend as 后端服务
-    participant WeChatPay as 微信支付平台
+    participant Frontend as 小程序前端
+    participant CloudFunc as 云函数
+    participant PayAPI as 云托管支付API
+    participant DB as 云数据库
 
-    Note over User,WeChatPay: 1. 创建订单
-    User->>Frontend: 在订单确认页点击【确认支付】
-    Frontend->>Backend: POST /api/orders {activity_id}
-    Backend->>Backend: 校验名额、生成唯一订单号(out_trade_no)
-    Backend->>Backend: 创建订单记录(status: pending)
-    Backend->>WeChatPay: 调用JSAPI统一下单(v3/transactions/jsapi)
-    WeChatPay-->>Backend: 返回prepay_id
+    Note over User,DB: 1. 创建订单
+    User->>Frontend: 点击【确认支付】
+    Frontend->>CloudFunc: callFunction('pay', {action:'createOrder', eventId})
+    CloudFunc->>DB: 检查名额、创建 orders 记录
+    CloudFunc->>CloudFunc: 生成唯一 order_no
+    CloudFunc->>PayAPI: POST /_/pay/unifiedOrder
+    PayAPI-->>CloudFunc: 返回支付参数
+    CloudFunc-->>Frontend: 返回支付参数
 
-    Note over User,WeChatPay: 2. 前端调起支付
-    Backend->>Backend: 签名支付参数(timeStamp,nonceStr,package,signType,paySign)
-    Backend-->>Frontend: 返回签名参数
-    Frontend->>Frontend: 调用wx.requestPayment唤起支付界面
+    Note over User,DB: 2. 前端唤起支付
+    Frontend->>Frontend: wx.requestPayment(支付参数)
     User->>Frontend: 输入密码完成支付
 
-    Note over User,WeChatPay: 3. 支付结果确认
-    WeChatPay->>Backend: 支付结果回调(webhook)
-    Backend->>Backend: 验证回调签名(防止伪造)
-    Backend->>Backend: 幂等检查(防止重复处理)
-    Backend->>Backend: 更新订单状态为paid
-    Backend->>Backend: 创建报名记录，生成核销码
-    Backend-->>WeChatPay: 返回SUCCESS确认
+    Note over User,DB: 3. 支付回调(云托管)
+    PayAPI->>CloudFunc: 回调通知支付结果
+    CloudFunc->>DB: 更新 order.status=paid
+    CloudFunc->>DB: 创建 registration + 核销码
+    CloudFunc->>DB: events.enrolled_count +1
+    CloudFunc-->>PayAPI: 返回 {errcode:0}
 
-    Note over User,WeChatPay: 4. 前端获取结果
-    Frontend->>Backend: 轮询 GET /api/orders/:id 查询支付状态
-    Backend-->>Frontend: 返回订单已支付+报名信息
-    Frontend-->>User: 展示报名成功页，含核销码
+    Note over User,DB: 4. 前端确认结果
+    Frontend->>CloudFunc: callFunction('pay', {action:'queryOrder', orderId})
+    CloudFunc-->>Frontend: 返回订单已支付 + 报名信息
+    Frontend-->>User: 展示报名成功页 + 核销码
 ```
 
 **支付边界处理**：
-- **支付超时**：订单创建后 15 分钟未支付，系统自动关闭订单，释放名额
+- **支付超时**：订单创建后 15 分钟未支付，云函数定时触发器自动关闭订单，释放名额
 - **支付失败**：前端展示失败原因，提供"重新支付"按钮
-- **重复支付**：基于 `out_trade_no` 幂等校验，防止同一订单多次扣款
-- **回调丢失**：后端每 5 分钟主动查询微信支付 API，补偿未收到回调的订单
+- **重复支付**：基于 `order_no` 幂等校验，防止同一订单多次扣款
+- **回调丢失**：云函数定时触发器每 5 分钟查询未确认订单，补偿处理
 
 ### 4.6 退款流程
 
 ```mermaid
 sequenceDiagram
     participant User as 用户
-    participant Frontend as 用户端(前端)
-    participant Backend as 后端服务
-    participant WeChatPay as 微信支付平台
+    participant MiniApp as 小程序前端
+    participant CloudFunc as 云函数
+    participant PayAPI as 云托管支付API
+    participant WebAdmin as Web 管理后台
     participant Admin as 管理员
 
-    User->>Frontend: 在订单详情点击【申请退款】
-    Frontend->>Backend: POST /api/orders/:id/refund
-    Backend->>Backend: 校验退款策略(活动退款规则)
-    Backend->>Backend: 创建退款申请记录(status: pending)
-    Backend-->>Frontend: 返回退款申请已提交
-    Frontend-->>User: 展示退款审核中
+    User->>MiniApp: 点击【申请退款】
+    MiniApp->>CloudFunc: callFunction('pay', {action:'requestRefund', orderId})
+    CloudFunc->>CloudFunc: 校验退款策略
+    CloudFunc->>CloudFunc: 更新 order 状态为退款审核中
+    CloudFunc-->>MiniApp: 退款申请已提交
+    MiniApp-->>User: 展示退款审核中
 
-    Admin->>Backend: 在管理端审批退款申请
+    Note over WebAdmin: 管理员在电脑端 Web 后台操作
+    Admin->>WebAdmin: 在退款审批页查看待处理列表
+    WebAdmin->>CloudFunc: callFunction('admin', {action:'approveRefund'})
     alt 拒绝退款
-        Admin->>Backend: 拒绝退款
-        Backend->>Backend: 更新退款状态为rejected
-        Backend-->>Frontend: 通知用户退款被拒
-        Frontend-->>User: 展示退款被拒原因
+        CloudFunc->>CloudFunc: 更新 order 状态为退款被拒
+        CloudFunc-->>MiniApp: 退款被拒通知
+        MiniApp-->>User: 展示退款被拒原因
     else 同意退款
-        Admin->>Backend: 批准退款
-        Backend->>WeChatPay: 调用退款API(v3/refunds)
-        WeChatPay-->>Backend: 返回退款处理中
-        WeChatPay->>Backend: 退款成功回调
-        Backend->>Backend: 更新订单状态为refunded
-        Backend->>Backend: 取消报名记录，释放名额
-        Backend-->>Frontend: 通知退款成功
-        Frontend-->>User: 展示退款成功，款项原路退回
+        CloudFunc->>PayAPI: POST /_/pay/refund
+        PayAPI-->>CloudFunc: 退款处理中
+        PayAPI->>CloudFunc: 退款成功回调
+        CloudFunc->>CloudFunc: 更新 order.status=refunded
+        CloudFunc->>CloudFunc: 取消报名记录，释放名额
+        CloudFunc-->>MiniApp: 退款成功通知
+        MiniApp-->>User: 退款成功，款项原路退回
     end
 ```
 
@@ -408,7 +437,7 @@ sequenceDiagram
 
 ### 5.1 并发响应能力
 
-名额有限的稀缺活动可能诱发抢票行为，报名、积分扣减、订单创建等核心并发接口必须进行对应的库存锁操作并发防重设计。
+名额有限的稀缺活动可能诱发抢票行为，报名、积分扣减、订单创建等核心并发接口在云函数中使用 `db.runTransaction()` 事务处理。
 
 ### 5.2 多端状态一致性
 
@@ -416,15 +445,16 @@ sequenceDiagram
 
 ### 5.3 统一设计规范
 
-用户端界面遵循已设计原型的视觉风格；管理端遵循高效扁平的组件库形态，保证管理后台操作路径清晰明了。
+用户端全方位执行 "Tehran" 首版设计规范体系：基于 Teal（绿青色 `#14b8a6`）作为主品牌识别色，采取大留白、轻量圆角和毛玻璃微动效（Minimalist & Glassmorphism）。
+管理端遵循高效扁平的组件库形态，保证管理后台操作路径清晰明了。
 
 ### 5.4 支付安全
 
-- 所有支付回调必须验证微信签名，防止伪造通知
-- 订单号（out_trade_no）必须全局唯一且幂等
-- 支付金额必须在后端校验（绝不信任前端传入的金额）
-- 微信支付 API 密钥存储在 `.env` 文件中，绝不暴露给前端
-- 支付超时处理：订单 15 分钟未支付自动关闭，释放活动名额
+- 微信支付通过云调用处理，**无需管理证书和签名**
+- 金额在后端（云函数）校验，**绝不信任前端传入的金额**
+- 订单号（order_no）必须全局唯一且幂等
+- 支付超时处理：云函数定时触发器每分钟扫描超时订单（15分钟未支付自动关闭）
+- 回调处理必须幂等（微信可能发送重复回调）
 
 ### 5.5 合规要求
 
@@ -436,29 +466,69 @@ sequenceDiagram
 
 ### 5.6 数据一致性
 
-- 订单创建和支付回调处理必须保证原子性
+- 订单创建和支付回调处理在云函数事务中保证原子性
 - 支付回调处理必须幂等（微信可能发送重复回调）
 - 活动名额在支付确认时扣减（非下单时），防止未支付订单占用名额
-- 每日定时对账任务：将微信支付平台记录与本地订单进行比对
+- 云函数定时触发器执行对账：每5分钟补偿未收到回调的订单
 
 ### 5.7 错误处理与边界情况
 
-- **支付期间网络中断**：前端展示"查询支付结果"按钮，轮询后端确认支付状态
-- **回调丢失**：后端每 5 分钟主动查询微信支付 API 补偿未收到回调的订单
-- **重复支付**：通过用户+活动的唯一约束拦截
-- **活动取消**：自动触发所有付费参与者的批量退款流程
+- **支付期间网络中断**：前端展示"查询支付结果"按钮，轮询云函数确认支付状态
+- **回调丢失**：云函数定时触发器补偿未收到回调的订单
+- **重复支付**：通过 user_id + event_id 的组合唯一约束拦截
+- **活动取消**：管理员操作触发批量退款云函数
 
-### 5.8 API 设计约定
+### 5.8 云函数接口设计约定
 
-所有接口统一返回 JSON 格式：`{ success: boolean, data: any, message: string }`。
+云函数同时服务小程序端和 Web 管理后台，调用方式统一：
 
-支付相关接口：
+**小程序端调用：**
+```javascript
+wx.cloud.callFunction({
+  name: '函数名',
+  data: { action: '操作名', ...参数 }
+})
+```
 
-| 接口 | 方法 | 说明 |
-|------|------|------|
-| /api/orders | POST | 创建订单并获取微信支付参数 |
-| /api/orders | GET | 查询用户订单列表（分页） |
-| /api/orders/:id | GET | 查询订单详情及支付状态 |
-| /api/orders/:id/cancel | POST | 取消未支付订单 |
-| /api/orders/:id/refund | POST | 申请退款 |
-| /api/payment/wechat/callback | POST | 微信支付结果回调（无需鉴权） |
+**Web 管理后台调用：**
+```javascript
+app.callFunction({
+  name: '函数名',
+  data: { action: '操作名', ...参数 }
+})
+```
+
+返回格式统一: `{ success: boolean, data: any, message: string }`
+
+**云函数与 action 映射表**：
+
+| 云函数 | action | 调用方 | 说明 |
+|--------|--------|--------|------|
+| user | login | 小程序 | 登录/注册 |
+| user | signIn | 小程序 | 每日签到 |
+| user | getProfile | 小程序 | 获取个人信息 |
+| user | updateProfile | 小程序 | 更新个人信息 |
+| user | getPointLogs | 小程序 | 积分明细列表 |
+| event | list | 小程序 | 活动列表(分页) |
+| event | detail | 小程序 | 活动详情 |
+| event | enrollFree | 小程序 | 免费报名 |
+| event | enrollPoints | 小程序 | 积分报名 |
+| event | myEvents | 小程序 | 我的活动列表 |
+| event | verify | 小程序 | 扫码核销(管理员) |
+| pay | createOrder | 小程序 | 创建订单+统一下单 |
+| pay | queryOrder | 小程序 | 查询订单状态 |
+| pay | cancelOrder | 小程序 | 取消未支付订单 |
+| pay | requestRefund | 小程序 | 申请退款 |
+| pay | refundCallback | 云托管 | 退款回调处理 |
+| admin | getUsers | Web后台 | 用户列表/搜索/筛选 |
+| admin | adjustPoints | Web后台 | 调整积分(含事务) |
+| admin | manageEvent | Web后台 | 活动增删改 |
+| admin | getOrders | Web后台 | 订单列表/筛选/导出 |
+| admin | approveRefund | Web后台 | 退款审批 |
+| admin | getRegistrations | Web后台 | 报名名单/核销记录 |
+| admin | manageContent | Web后台 | 轮播/推荐管理 |
+| admin | getDashboard | Web后台 | 财务看板数据 |
+
+**云函数权限校验**：
+- 小程序端云函数通过 `cloud.getWXContext()` 获取 openid 鉴权
+- Web 后台云函数（admin）需额外校验管理员身份：维护管理员邮箱白名单，Web 端登录后传入身份信息，云函数内比对验证

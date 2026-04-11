@@ -1,0 +1,146 @@
+.register-page {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Step 1 */
+.step-wechat {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 80rpx 120rpx;
+}
+
+.welcome-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30vh;
+}
+
+.welcome-logo {
+  width: 180rpx;
+  height: 180rpx;
+  margin-bottom: 40rpx;
+}
+
+.welcome-title {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 16rpx;
+}
+
+.welcome-subtitle {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.wx-auth-btn {
+  width: 100%;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #07C160;
+  border-radius: 999rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ffffff;
+  border: none;
+}
+
+.wx-auth-btn::after {
+  border: none;
+}
+
+.wx-icon-wrap {
+  width: 44rpx;
+  height: 44rpx;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+}
+
+.wx-icon-text {
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+/* Step 2 */
+.step-form {
+  min-height: 100vh;
+  padding: 0 48rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-header {
+  margin-top: 180rpx;
+  margin-bottom: 64rpx;
+}
+
+.form-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 12rpx;
+}
+
+.form-desc {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.form-body {
+  flex: 1;
+}
+
+.form-field {
+  margin-bottom: 40rpx;
+}
+
+.field-label {
+  display: block;
+  font-size: 24rpx;
+  font-weight: bold;
+  color: var(--text-muted);
+  margin-bottom: 12rpx;
+  margin-left: 16rpx;
+}
+
+.field-input {
+  background: #ffffff;
+  border: 2rpx solid var(--border);
+  border-radius: 24rpx;
+  padding: 28rpx 32rpx;
+  font-size: 28rpx;
+}
+
+.submit-btn {
+  margin: 48rpx 0 80rpx;
+  width: 100%;
+  height: 96rpx;
+  background: var(--primary);
+  color: #ffffff;
+  border-radius: 999rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  border: none;
+}
+
+.submit-btn::after {
+  border: none;
+}

@@ -52,8 +52,7 @@ function handleSave() {
     ElMessage.warning('昵称不能为空')
     return
   }
-  emit('confirm', { ...form })
-  ElMessage.success('用户信息已更新')
+  emit('confirm', { userId: props.user?._id, data: { nickname: form.nickname, role: form.role, level: form.level } })
   emit('update:modelValue', false)
 }
 </script>

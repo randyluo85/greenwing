@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>青翼读书会 | 好书推荐</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="tailwind-config.js"></script>
+    <link rel="stylesheet" href="base.css">
+</head>
+
+<body class="bg-white pb-20">
+
+    <!-- Header -->
+    <header class="bg-white px-4 h-12 flex items-center justify-between sticky top-0 z-50 border-b border-gray-50">
+        <a href="javascript:history.back()" class="text-gray-800 text-lg p-1 w-8 flex justify-start">
+            <i class="fas fa-chevron-left text-[16px]"></i>
+        </a>
+        <h1 class="text-[17px] font-bold text-gray-800">好书推荐</h1>
+        <div class="flex items-center p-1 justify-end mr-1">
+            <div class="flex items-center bg-white border border-gray-200 rounded-full px-2.5 py-1 justify-between w-[72px] h-[30px]">
+                 <i class="fas fa-ellipsis-h text-gray-800 text-[14px]"></i>
+                 <div class="w-[1px] h-3 bg-gray-200"></div>
+                 <i class="far fa-dot-circle text-gray-800 text-[14px]"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-4 space-y-6">
+        <!-- Book Item 1 -->
+        <div onclick="location.href='book-detail.html'" class="flex pb-5 border-b border-gray-100 last:border-0 cursor-pointer active:scale-[0.98] transition-transform">
+            <div class="relative w-[116px] h-[160px] flex-shrink-0 rounded-[4px] overflow-hidden shadow-sm bg-gray-100">
+                <img src="images/book1.png" alt="咸的玩笑" class="w-full h-full object-cover">
+                <div class="absolute top-0 left-0 bg-[#f59e0b] text-white text-[11px] px-1.5 py-0.5 font-bold rounded-br-[6px]">9.8</div>
+            </div>
+            <div class="ml-4 flex-grow flex flex-col justify-start pt-1">
+                <h3 class="text-[18px] font-bold text-gray-800 leading-tight">咸的玩笑</h3>
+                <div class="text-[12px] text-gray-400 mt-2 flex items-center">
+                    推荐指数 <span class="text-[#14b8a6] ml-1 font-medium text-[13px]">9.8</span>
+                </div>
+                <div class="text-[#f59e0b] text-[12px] mt-0.5 space-x-0.5 mb-2">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <div class="text-[12px] text-gray-400 mt-2 space-y-1.5 leading-relaxed">
+                    <p>作者：刘震云</p>
+                    <p>出版社：人民文学出版社</p>
+                    <p>出版年：2025-12</p>
+                    <p>页数：475</p>
+                </div>
+                <div class="mt-auto pt-2">
+                    <span class="bg-gray-100 text-gray-500 text-[10px] font-medium px-2 py-0.5 rounded-sm">小说</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Item 2 -->
+        <div onclick="location.href='book-detail.html'" class="flex pb-5 border-b border-gray-100 last:border-0 cursor-pointer active:scale-[0.98] transition-transform">
+            <div class="relative w-[116px] h-[160px] flex-shrink-0 rounded-[4px] overflow-hidden shadow-sm bg-gray-100">
+                <img src="images/book2.png" alt="天色已晚" class="w-full h-full object-cover">
+                <div class="absolute top-0 left-0 bg-[#f59e0b] text-white text-[11px] px-1.5 py-0.5 font-bold rounded-br-[6px]">9.5</div>
+            </div>
+            <div class="ml-4 flex-grow flex flex-col justify-start pt-1">
+                <h3 class="text-[18px] font-bold text-gray-800 leading-tight">天色已晚</h3>
+                <div class="text-[12px] text-gray-400 mt-2 flex items-center">
+                    推荐指数 <span class="text-[#14b8a6] ml-1 font-medium text-[13px]">9.5</span>
+                </div>
+                <div class="text-[#f59e0b] text-[12px] mt-0.5 space-x-0.5 mb-2">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                </div>
+                <div class="text-[12px] text-gray-400 mt-2 space-y-1.5 leading-relaxed">
+                    <p>作者：[爱尔兰]克莱尔·吉根</p>
+                    <p>出版社：太白文艺出版社</p>
+                    <p>出版年：2026-1</p>
+                    <p>页数：116</p>
+                </div>
+                <div class="mt-auto pt-2">
+                    <span class="bg-gray-100 text-gray-500 text-[10px] font-medium px-2 py-0.5 rounded-sm">小说</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Item 3 -->
+        <div onclick="location.href='book-detail.html'" class="flex pb-5 border-b border-gray-100 last:border-0 cursor-pointer active:scale-[0.98] transition-transform">
+            <div class="relative w-[116px] h-[160px] flex-shrink-0 rounded-[4px] overflow-hidden shadow-sm bg-gray-100">
+                <img src="images/book1.png" alt="只剩你一个" class="w-full h-full object-cover">
+                <div class="absolute top-0 left-0 bg-[#f59e0b] text-white text-[11px] px-1.5 py-0.5 font-bold rounded-br-[6px]">8.2</div>
+            </div>
+            <div class="ml-4 flex-grow flex flex-col justify-start pt-1">
+                <h3 class="text-[18px] font-bold text-gray-800 leading-tight">只剩你一个</h3>
+                <div class="text-[12px] text-gray-400 mt-2 flex items-center">
+                    推荐指数 <span class="text-[#14b8a6] ml-1 font-medium text-[13px]">8.2</span>
+                </div>
+                <div class="text-[#f59e0b] text-[12px] mt-0.5 space-x-0.5 mb-2">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                </div>
+                <div class="text-[12px] text-gray-400 mt-2 space-y-1.5 leading-relaxed">
+                    <p>作者：赖利·萨格</p>
+                    <p>出版社：未名出版社</p>
+                    <p>出版年：2026-2</p>
+                    <p>页数：320</p>
+                </div>
+                <div class="mt-auto pt-2">
+                    <span class="bg-gray-100 text-gray-500 text-[10px] font-medium px-2 py-0.5 rounded-sm">悬疑</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 h-[68px] bg-white border-t border-gray-100 px-8 flex items-center justify-between z-50 pt-2 pb-1 text-center">
+        <a href="index.html" class="flex flex-col items-center space-y-1 text-[#14b8a6]">
+            <i class="fas fa-home text-[22px]"></i>
+            <span class="text-[10px] font-bold">首页</span>
+        </a>
+        <a href="events.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="far fa-flag text-[20px]"></i>
+            <span class="text-[10px] font-medium">活动</span>
+        </a>
+        <a href="placeholder.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-shopping-bag text-[20px]"></i>
+            <span class="text-[10px] font-medium">商城</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="far fa-smile text-[20px]"></i>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+        <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1/3 h-1 bg-black rounded-full"></div>
+    </nav>
+
+</body>
+
+</html>

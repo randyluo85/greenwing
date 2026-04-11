@@ -1,0 +1,73 @@
+.page { background: var(--bg); min-height: 100vh; }
+
+.tabs {
+  display: flex;
+  background: #fff;
+  padding: 16rpx 24rpx;
+  border-bottom: 1rpx solid #F1F5F9;
+  gap: 12rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  font-size: 26rpx;
+  color: #64748B;
+  padding: 10rpx 0;
+  border-bottom: 4rpx solid transparent;
+}
+
+.tab.active { color: var(--primary); font-weight: bold; border-bottom-color: var(--primary); }
+
+.list { padding: 20rpx 24rpx; }
+
+.order-card { padding: 24rpx; }
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.order-no { font-size: 22rpx; color: #94A3B8; }
+
+.status-tag { font-size: 20rpx; padding: 4rpx 12rpx; border-radius: 999rpx; }
+.status-pending { background: #FFFBEB; color: #D97706; }
+.status-paid { background: #ECFDF5; color: #059669; }
+.status-refunded { background: #EFF6FF; color: #2563EB; }
+.status-closed { background: #F1F5F9; color: #94A3B8; }
+.status-refunding { background: #FEF3C7; color: #B45309; }
+
+.order-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.order-title { font-size: 28rpx; font-weight: bold; color: #1E293B; flex: 1; }
+
+.order-amount { font-size: 30rpx; font-weight: bold; color: var(--primary); }
+
+.order-meta { font-size: 22rpx; color: #94A3B8; margin-bottom: 12rpx; }
+
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #F1F5F9;
+}
+
+.btn-sm {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+}
+
+.btn-pay { background: var(--primary); color: #fff; }
+.btn-refund { background: #EFF6FF; color: #2563EB; }
+.btn-cancel { background: #F1F5F9; color: #94A3B8; }
+
+.load-end { text-align: center; padding: 32rpx 0; font-size: 24rpx; color: #94A3B8; }

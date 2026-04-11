@@ -24,7 +24,14 @@
         <span class="page-title">{{ pageTitle }}</span>
         <div class="topbar-right">
           <span class="topbar-date">{{ today }}</span>
-          <div class="topbar-avatar">A</div>
+          <el-dropdown @command="onDropdownCommand">
+            <div class="topbar-avatar">{{ adminInitial }}</div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </header>
       <main class="content">
@@ -36,13 +43,28 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { formatDate } from '../utils/format'
+import { logout } from '../utils/auth'
 
 const route = useRoute()
+const router = useRouter()
 const activeMenu = computed(() => route.path)
 const pageTitle = computed(() => route.name || 'Dashboard')
 const today = formatDate(new Date())
+const adminInitial = computed(() => {
+  const name = localStorage.getItem('admin_user')
+  return name ? name[0].toUpperCase() : 'A'
+})
+
+function onDropdownCommand(cmd) {
+  if (cmd === 'logout') {
+    logout()
+    ElMessage.success('已退出登录')
+    router.push('/login')
+  }
+}
 </script>
 
 <style scoped>

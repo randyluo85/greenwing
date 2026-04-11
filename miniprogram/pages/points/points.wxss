@@ -1,0 +1,184 @@
+.page { 
+  position: relative;
+  min-height: 100vh;
+}
+
+/* 全屏背景图 */
+.full-page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  background: var(--bg);
+}
+
+.main-content {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 80rpx;
+}
+
+/* 概览区 */
+.overview-section {
+  padding: 40rpx 40rpx 60rpx;
+}
+
+.overview-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.overview-label {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #374151;
+  font-weight: bold;
+}
+
+.star-icon-wrap {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12rpx;
+  border: 1rpx solid rgba(255,255,255,0.4);
+  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.05);
+}
+
+.icon-text {
+  font-size: 18rpx;
+  color: #fff;
+}
+
+.rules-btn {
+  background: #fbbf24;
+  color: #ffffff;
+  font-size: 22rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 999rpx;
+  font-weight: bold;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+}
+
+/* 大数字展示 */
+.large-points-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 60rpx;
+}
+
+.coin-icon-wrap {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #fbbf24;
+  border: 4rpx solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  box-shadow: 0 4rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.coin-symbol {
+  font-size: 20rpx;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.points-value {
+  font-size: 104rpx;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1;
+  letter-spacing: -2rpx;
+  font-family: Impact, sans-serif;
+}
+
+/* 列表区 */
+.list-section {
+  padding: 0 40rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 24rpx;
+  letter-spacing: 2rpx;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24rpx;
+  padding: 0 40rpx;
+  box-shadow: 0 4rpx 16rpx -4rpx rgba(0,0,0,0.05);
+}
+
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 36rpx 0;
+  border-bottom: 1rpx solid rgba(243, 244, 246, 0.8);
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.log-desc {
+  font-size: 28rpx;
+  color: #1f2937;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+}
+
+.log-time {
+  font-size: 24rpx;
+  color: #9ca3af;
+  margin-top: 8rpx;
+}
+
+.log-amount {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.log-amount.income { color: #fbbf24; }
+.log-amount.expense { color: #9ca3af; }
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  justify-content: center;
+  padding: 80rpx 0;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #9ca3af;
+}
+
+.load-end { 
+  text-align: center; 
+  padding: 40rpx 0; 
+  font-size: 24rpx; 
+  color: #9ca3af; 
+}

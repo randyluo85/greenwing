@@ -1,0 +1,52 @@
+<!--pages/order-confirm/order-confirm.wxml-->
+<view class="page">
+
+  <!-- 活动摘要 -->
+  <view class="card summary-card" wx:if="{{event}}">
+    <text class="summary-title">{{event.title}}</text>
+    <view class="summary-row">
+      <text class="summary-label">活动时间</text>
+      <text class="summary-value">{{formattedTime}}</text>
+    </view>
+    <view class="summary-row" wx:if="{{event.location}}">
+      <text class="summary-label">活动地点</text>
+      <text class="summary-value">{{event.location}}</text>
+    </view>
+  </view>
+
+  <!-- 价格明细 -->
+  <view class="card price-card">
+    <text class="card-label">价格明细</text>
+    <view class="price-row">
+      <text class="price-label">报名费</text>
+      <text class="price-value">{{priceText}} 元</text>
+    </view>
+    <view class="divider"></view>
+    <view class="price-row total">
+      <text class="price-label">合计</text>
+      <text class="price-total">{{priceText}} 元</text>
+    </view>
+  </view>
+
+  <!-- 倒计时 -->
+  <view class="countdown-wrap" wx:if="{{countdown > 0 && orderStatus === 'pending'}}">
+    <text class="countdown-text">请在 {{countdownStr}} 内完成支付</text>
+  </view>
+
+  <!-- 订单状态 -->
+  <view class="status-card card" wx:if="{{orderStatus}}">
+    <text class="status-text status-{{orderStatus}}">{{statusText}}</text>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar" wx:if="{{orderStatus === 'pending' || !orderStatus}}">
+    <view class="price-summary">
+      <text class="summary-price">{{priceText}}</text>
+      <text class="summary-unit">元</text>
+    </view>
+    <view class="btn-primary pay-btn {{countdown <= 0 && orderStatus ? 'disabled' : ''}}" bindtap="onPay">
+      <text>{{paying ? '支付中...' : '确认支付'}}</text>
+    </view>
+  </view>
+
+</view>

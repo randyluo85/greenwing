@@ -1,0 +1,129 @@
+<!--pages/event-detail/event-detail.wxml-->
+<view class="page" wx:if="{{event}}">
+
+  <!-- 封面区: 图片 + 渐变遮罩 + 标题叠加 -->
+  <view class="cover-wrap">
+    <image src="{{event.cover_image || '/images/event.jpg'}}" mode="aspectFill" class="cover" />
+    <view class="cover-overlay"></view>
+    <view class="cover-content">
+      <text class="cover-title">{{event.title}}</text>
+      <view class="cover-tags">
+        <text class="cover-tag tag-status" wx:if="{{event.status === 'published'}}">报名中</text>
+        <text class="cover-tag tag-points" wx:if="{{event.registration_mode === 'points_only'}}">{{event.points_cost}}积分</text>
+        <text class="cover-tag tag-paid" wx:if="{{event.registration_mode === 'paid'}}">{{priceText}}元</text>
+        <text class="cover-tag tag-free" wx:if="{{event.registration_mode === 'free'}}">免费</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 信息卡片 (上移覆盖封面底部) -->
+  <view class="info-card">
+    <!-- 时间 -->
+    <view class="info-row">
+      <view class="info-icon-wrap">
+        <image src="/images/svg/clock.svg" class="info-icon-img" />
+      </view>
+      <view class="info-text-wrap">
+        <text class="info-primary">{{formattedTime}}</text>
+        <text class="info-sub" wx:if="{{formattedTimeSub}}">{{formattedTimeSub}}</text>
+      </view>
+    </view>
+    <!-- 地点 -->
+    <view class="info-row" wx:if="{{event.location}}">
+      <view class="info-icon-wrap">
+        <image src="/images/svg/location.svg" class="info-icon-img" />
+      </view>
+      <view class="info-text-wrap">
+        <text class="info-primary">{{event.location}}</text>
+        <text class="info-sub" wx:if="{{event.address}}">{{event.address}}</text>
+      </view>
+    </view>
+    <!-- 主讲人 -->
+    <view class="info-row" wx:if="{{event.speaker}}">
+      <view class="info-icon-wrap">
+        <image src="/images/svg/user.svg" class="info-icon-img" />
+      </view>
+      <view class="info-text-wrap">
+        <text class="info-primary">{{event.speaker}}</text>
+        <text class="info-sub" wx:if="{{event.speaker_title}}">{{event.speaker_title}}</text>
+      </view>
+    </view>
+    <!-- 名额 -->
+    <view class="info-row">
+      <view class="info-icon-wrap">
+        <image src="/images/svg/users.svg" class="info-icon-img" />
+      </view>
+      <view class="info-text-wrap">
+        <text class="info-primary">{{event.quota || '不限'}}人</text>
+        <text class="info-sub">已报名{{event.enrolled_count || 0}}人</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 报名条件 -->
+  <view class="card condition-card" wx:if="{{event.registration_mode !== 'free'}}">
+    <text class="card-label">报名条件</text>
+    <view class="condition-list">
+      <view class="condition-item" wx:if="{{event.registration_mode === 'points_only'}}">
+        <text class="condition-text">需要 {{event.points_cost}} 积分</text>
+        <text class="condition-status {{userPoints >= event.points_cost ? 'ok' : 'fail'}}">
+          当前 {{userPoints}} 积分
+        </text>
+      </view>
+      <view class="condition-item" wx:if="{{event.tier_threshold && event.tier_threshold !== 'none'}}">
+        <text class="condition-text">需要{{tierText}}及以上</text>
+        <text class="condition-status {{tierOk ? 'ok' : 'fail'}}">{{tierOk ? '已满足' : '未满足'}}</text>
+      </view>
+      <view class="condition-item" wx:if="{{event.registration_mode === 'paid'}}">
+        <text class="condition-text">报名费</text>
+        <text class="price-text">{{priceText}} 元</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 活动详情 -->
+  <view class="card detail-card">
+    <text class="card-label">活动详情</text>
+    <rich-text nodes="{{event.description || '暂无详情'}}" class="detail-content" />
+  </view>
+
+  <!-- 底部浮动操作栏 -->
+  <view class="bottom-bar-wrap">
+    <view class="bottom-bar">
+      <view class="bottom-left">
+        <view class="price-row" wx:if="{{event.registration_mode === 'paid'}}">
+          <text class="price-value">{{priceText}}</text>
+          <text class="price-unit">元</text>
+        </view>
+        <view class="price-row" wx:elif="{{event.registration_mode === 'points_only'}}">
+          <text class="price-value">{{event.points_cost}}</text>
+          <text class="price-unit">积分</text>
+        </view>
+        <view class="enrolled-info">
+          <text class="enrolled-text">已报名{{event.enrolled_count || 0}}人</text>
+        </view>
+      </view>
+      <view class="btn-primary enroll-btn {{canEnroll ? '' : 'disabled'}}" bindtap="onEnroll">
+        <text>{{enrollBtnText}}</text>
+      </view>
+    </view>
+  </view>
+
+</view>
+
+<!-- 报名成功弹窗 -->
+<view class="modal-mask {{showSuccessModal ? '' : 'hidden'}}" bindtap="closeSuccessModal">
+  <view class="modal-card" catchtap>
+    <view class="modal-top">
+      <image src="/images/sign.png" mode="aspectFill" class="modal-top-img" />
+    </view>
+    <view class="modal-bottom">
+      <text class="modal-title">报名成功</text>
+      <text class="modal-hint">可在【我的】里面查看</text>
+      <text class="modal-hint-amber">活动当日可凭券码参加活动</text>
+    </view>
+  </view>
+  <view class="modal-close" bindtap="closeSuccessModal">
+    <text class="modal-close-text">x</text>
+  </view>
+</view>

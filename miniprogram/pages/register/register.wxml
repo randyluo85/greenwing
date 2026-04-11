@@ -1,0 +1,38 @@
+<view class="register-page">
+  <!-- Step 1: WeChat Welcome -->
+  <view class="step-wechat {{step === 1 ? '' : 'hidden'}}">
+    <view class="welcome-section">
+      <image src="/images/logo.png" mode="aspectFit" class="welcome-logo animate-fade-scale" />
+      <text class="welcome-title animate-fade-up stagger-1">欢迎来到青翼</text>
+      <text class="welcome-subtitle animate-fade-up stagger-2">阅读，让我们发现更大的世界</text>
+    </view>
+    <button class="wx-auth-btn btn-active animate-fade-up stagger-3" bindtap="onWxAuth" loading="{{loading}}">
+      <view class="wx-icon-wrap">
+        <text class="wx-icon-text">W</text>
+      </view>
+      <text>微信一键登录</text>
+    </button>
+  </view>
+
+  <!-- Step 2: Profile Form -->
+  <view class="step-form {{step === 2 ? '' : 'hidden'}}">
+    <view class="form-header">
+      <text class="form-title">完善个人信息</text>
+      <text class="form-desc">帮助我们更好地为您服务</text>
+    </view>
+
+    <view class="form-body">
+      <view class="form-field">
+        <text class="field-label">真实姓名</text>
+        <input class="field-input" placeholder="输入真实姓名以获取勋章" value="{{nickname}}" bindinput="onNicknameInput" />
+      </view>
+
+      <view class="form-field">
+        <text class="field-label">手机号码</text>
+        <input class="field-input" type="number" maxlength="11" placeholder="用于活动入场核验" value="{{phone}}" bindinput="onPhoneInput" />
+      </view>
+    </view>
+
+    <button class="submit-btn btn-active" bindtap="onSubmit" loading="{{submitting}}">开启探索之旅</button>
+  </view>
+</view>
