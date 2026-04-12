@@ -1,0 +1,311 @@
+<h2>模块 3/6: 活动管理</h2>
+<p class="subtitle">活动 CRUD + 报名模式配置 + 报名名单 + 核销记录</p>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 活动管理 - 列表页</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:460px;font-size:12px;display:flex;flex-direction:column;">
+      <div style="height:48px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;flex-shrink:0;">
+        <span style="color:#374151;font-weight:600;">活动管理</span>
+      </div>
+      <div style="flex:1;display:flex;">
+        <div style="width:190px;background:#00695C;color:white;padding:16px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.15);">
+            <div style="width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📖</div>
+            <span style="font-weight:600;font-size:13px;">青翼读书会</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div style="padding:10px 12px;opacity:0.7;">📊 Dashboard</div>
+            <div style="padding:10px 12px;opacity:0.7;">👤 用户管理</div>
+            <div style="background:rgba(255,255,255,0.2);padding:10px 12px;border-radius:6px;font-weight:500;">📅 活动管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">💰 订单管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">🖼️ 内容管理</div>
+            <div style="padding:10px 12px;opacity:0.7;">⚙️ 系统设置</div>
+          </div>
+        </div>
+        <div style="flex:1;background:#f0f2f5;padding:20px;overflow-y:auto;">
+          <!-- 操作栏 -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="display:flex;gap:8px;">
+              <div style="background:#00897B;color:white;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;">全部 (12)</div>
+              <div style="background:white;color:#374151;padding:6px 16px;border-radius:6px;font-size:12px;cursor:pointer;">已发布 (5)</div>
+              <div style="background:white;color:#374151;padding:6px 16px;border-radius:6px;font-size:12px;cursor:pointer;">草稿 (4)</div>
+              <div style="background:white;color:#374151;padding:6px 16px;border-radius:6px;font-size:12px;cursor:pointer;">已结束 (3)</div>
+            </div>
+            <button style="background:#00897B;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;font-weight:500;">+ 创建活动</button>
+          </div>
+          <!-- 活动卡片列表 -->
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <!-- 活动1 -->
+            <div style="background:white;border-radius:8px;padding:16px;display:flex;gap:16px;border-left:4px solid #00897B;">
+              <div style="width:100px;height:70px;background:#e0f2f1;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#00897B;font-size:11px;">封面图</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-weight:600;color:#1f2937;font-size:13px;">《活着》读书会</span>
+                    <span style="background:#e8f5e9;color:#2e7d32;padding:1px 8px;border-radius:4px;font-size:10px;">已发布</span>
+                    <span style="background:#e0f2f1;color:#00897B;padding:1px 8px;border-radius:4px;font-size:10px;">免费</span>
+                  </div>
+                  <div style="display:flex;gap:8px;">
+                    <span style="color:#00897B;font-size:11px;cursor:pointer;">报名名单</span>
+                    <span style="color:#374151;font-size:11px;cursor:pointer;">编辑</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:16px;color:#6b7280;font-size:11px;">
+                  <span>4月15日 14:00</span>
+                  <span>青翼书屋</span>
+                  <span>主讲: 李老师</span>
+                  <span>报名: <b style="color:#00897B;">28/30</b></span>
+                  <span>核销: <b style="color:#374151;">0</b></span>
+                </div>
+              </div>
+            </div>
+            <!-- 活动2 -->
+            <div style="background:white;border-radius:8px;padding:16px;display:flex;gap:16px;border-left:4px solid #26A69A;">
+              <div style="width:100px;height:70px;background:#e0f2f1;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#00897B;font-size:11px;">封面图</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-weight:600;color:#1f2937;font-size:13px;">特邀沙龙: AI时代的阅读</span>
+                    <span style="background:#e8f5e9;color:#2e7d32;padding:1px 8px;border-radius:4px;font-size:10px;">已发布</span>
+                    <span style="background:#fff3e0;color:#e65100;padding:1px 8px;border-radius:4px;font-size:10px;">积分</span>
+                  </div>
+                  <div style="display:flex;gap:8px;">
+                    <span style="color:#00897B;font-size:11px;cursor:pointer;">报名名单</span>
+                    <span style="color:#374151;font-size:11px;cursor:pointer;">编辑</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:16px;color:#6b7280;font-size:11px;">
+                  <span>4月20日 19:00</span>
+                  <span>线上会议</span>
+                  <span>主讲: 王教授</span>
+                  <span>报名: <b style="color:#00897B;">15/50</b></span>
+                  <span>消耗: <b style="color:#e65100;">200积分</b></span>
+                </div>
+              </div>
+            </div>
+            <!-- 活动3 -->
+            <div style="background:white;border-radius:8px;padding:16px;display:flex;gap:16px;border-left:4px solid #EF5350;">
+              <div style="width:100px;height:70px;background:#e0f2f1;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#00897B;font-size:11px;">封面图</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-weight:600;color:#1f2937;font-size:13px;">《三体》深度共读</span>
+                    <span style="background:#e8f5e9;color:#2e7d32;padding:1px 8px;border-radius:4px;font-size:10px;">已发布</span>
+                    <span style="background:#fce4ec;color:#c62828;padding:1px 8px;border-radius:4px;font-size:10px;">付费 ¥19.90</span>
+                  </div>
+                  <div style="display:flex;gap:8px;">
+                    <span style="color:#00897B;font-size:11px;cursor:pointer;">报名名单</span>
+                    <span style="color:#374151;font-size:11px;cursor:pointer;">编辑</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:16px;color:#6b7280;font-size:11px;">
+                  <span>4月25日 10:00</span>
+                  <span>城市图书馆</span>
+                  <span>报名: <b style="color:#EF5350;">42/40 (超额)</b></span>
+                  <span>收入: <b style="color:#374151;">¥835.80</b></span>
+                  <span>退款: <b style="color:#EF5350;">1笔</b></span>
+                </div>
+              </div>
+            </div>
+            <!-- 草稿 -->
+            <div style="background:white;border-radius:8px;padding:16px;display:flex;gap:16px;border-left:4px solid #d1d5db;opacity:0.7;">
+              <div style="width:100px;height:70px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:11px;">封面图</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-weight:600;color:#6b7280;font-size:13px;">亲子阅读会 (草稿)</span>
+                    <span style="background:#f3f4f6;color:#6b7280;padding:1px 8px;border-radius:4px;font-size:10px;">草稿</span>
+                  </div>
+                  <div style="display:flex;gap:8px;">
+                    <span style="color:#374151;font-size:11px;cursor:pointer;">编辑</span>
+                    <span style="color:#EF5350;font-size:11px;cursor:pointer;">删除</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:16px;color:#9ca3af;font-size:11px;">
+                  <span>草稿 - 未设置时间</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;">
+  <h3 style="color:#1f2937;">操作交互: 创建/编辑活动</h3>
+  <p class="subtitle">点击「创建活动」或「编辑」触发，使用抽屉式侧栏而非弹窗，因为字段较多</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 创建活动 - 右侧抽屉</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:500px;font-size:12px;display:flex;">
+      <!-- 背景遮罩 + 表格内容（模糊表示被遮挡） -->
+      <div style="flex:1;background:rgba(0,0,0,0.2);display:flex;flex-direction:column;">
+        <div style="height:48px;background:white;display:flex;align-items:center;padding:0 20px;"><span style="color:#374151;font-weight:600;">活动管理</span></div>
+        <div style="flex:1;background:#f0f2f5;padding:20px;filter:blur(2px);">
+          <div style="background:white;border-radius:8px;height:200px;"></div>
+        </div>
+      </div>
+      <!-- 右侧抽屉 -->
+      <div style="width:520px;background:white;display:flex;flex-direction:column;box-shadow:-4px 0 16px rgba(0,0,0,0.1);flex-shrink:0;">
+        <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+          <span style="font-weight:600;color:#1f2937;font-size:14px;">创建活动</span>
+          <span style="color:#9ca3af;cursor:pointer;font-size:16px;">x</span>
+        </div>
+        <div style="flex:1;padding:24px;overflow-y:auto;">
+          <!-- 基本信息 -->
+          <div style="margin-bottom:20px;">
+            <div style="color:#00897B;font-weight:600;font-size:12px;margin-bottom:12px;">基本信息</div>
+            <div style="margin-bottom:12px;">
+              <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">活动标题 *</label>
+              <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;" placeholder="例: 《活着》读书会">
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:12px;">
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">分类 *</label>
+                <select style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;">
+                  <option>读书会</option><option>特邀沙龙</option><option>其他</option>
+                </select>
+              </div>
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">活动人数 *</label>
+                <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;" placeholder="30">
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:12px;">
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">活动时间 *</label>
+                <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;" type="datetime-local">
+              </div>
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">报名截止 *</label>
+                <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;" type="datetime-local">
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:12px;">
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">活动地点</label>
+                <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;" placeholder="例: 青翼书屋">
+              </div>
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">主讲人</label>
+                <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;" placeholder="例: 李老师">
+              </div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">封面图</label>
+              <div style="border:2px dashed #d1d5db;border-radius:6px;padding:20px;text-align:center;color:#9ca3af;font-size:11px;">点击或拖拽上传封面图</div>
+            </div>
+            <div>
+              <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">活动详情 (富文本)</label>
+              <div style="border:1px solid #d1d5db;border-radius:6px;height:80px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:11px;">富文本编辑器区域</div>
+            </div>
+          </div>
+          <!-- 报名模式 -->
+          <div style="margin-bottom:20px;">
+            <div style="color:#00897B;font-weight:600;font-size:12px;margin-bottom:12px;">报名模式</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+              <div style="flex:1;padding:10px;text-align:center;border:2px solid #00897B;border-radius:6px;background:#e0f2f1;font-size:11px;">
+                <div style="font-weight:600;color:#00897B;">免费报名</div>
+              </div>
+              <div style="flex:1;padding:10px;text-align:center;border:1px solid #d1d5db;border-radius:6px;font-size:11px;">
+                <div style="font-weight:500;color:#6b7280;">积分兑换</div>
+              </div>
+              <div style="flex:1;padding:10px;text-align:center;border:1px solid #d1d5db;border-radius:6px;font-size:11px;">
+                <div style="font-weight:500;color:#6b7280;">付费报名</div>
+              </div>
+            </div>
+          </div>
+          <!-- 其他设置 -->
+          <div style="margin-bottom:20px;">
+            <div style="color:#00897B;font-weight:600;font-size:12px;margin-bottom:12px;">其他设置</div>
+            <div style="display:flex;gap:12px;margin-bottom:12px;">
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">活动奖励积分</label>
+                <input style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;" placeholder="签到后获得的积分" value="20">
+              </div>
+              <div style="flex:1;">
+                <label style="display:block;color:#374151;font-size:11px;margin-bottom:4px;font-weight:500;">初始状态</label>
+                <select style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:12px;box-sizing:border-box;">
+                  <option>草稿</option><option>发布</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 24px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;">
+          <button style="background:white;color:#374151;border:1px solid #d1d5db;padding:8px 20px;border-radius:6px;font-size:12px;">取消</button>
+          <button style="background:#f3f4f6;color:#374151;border:none;padding:8px 20px;border-radius:6px;font-size:12px;">保存草稿</button>
+          <button style="background:#00897B;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;">发布活动</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;">
+  <h3 style="color:#1f2937;">操作交互: 报名名单</h3>
+  <p class="subtitle">点击「报名名单」触发 - 查看报名详情 + 核销状态</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: 报名名单 - 抽屉</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:400px;font-size:12px;display:flex;">
+      <div style="flex:1;background:rgba(0,0,0,0.2);"></div>
+      <div style="width:520px;background:white;display:flex;flex-direction:column;box-shadow:-4px 0 16px rgba(0,0,0,0.1);flex-shrink:0;">
+        <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+          <span style="font-weight:600;color:#1f2937;font-size:14px;">报名名单 - 《活着》读书会</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="color:#00897B;font-size:11px;cursor:pointer;">导出 Excel</span>
+            <span style="color:#9ca3af;cursor:pointer;font-size:16px;">x</span>
+          </div>
+        </div>
+        <!-- 统计 -->
+        <div style="padding:16px 24px;background:#f8f9fa;display:flex;gap:16px;flex-shrink:0;">
+          <div style="text-align:center;flex:1;"><div style="color:#00897B;font-weight:700;font-size:18px;">28</div><div style="color:#6b7280;font-size:10px;">已报名</div></div>
+          <div style="text-align:center;flex:1;"><div style="color:#4DB6AC;font-weight:700;font-size:18px;">0</div><div style="color:#6b7280;font-size:10px;">已核销</div></div>
+          <div style="text-align:center;flex:1;"><div style="color:#EF5350;font-weight:700;font-size:18px;">2</div><div style="color:#6b7280;font-size:10px;">已取消</div></div>
+          <div style="text-align:center;flex:1;"><div style="color:#9ca3af;font-weight:700;font-size:18px;">2</div><div style="color:#6b7280;font-size:10px;">剩余名额</div></div>
+        </div>
+        <!-- 名单列表 -->
+        <div style="flex:1;overflow-y:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:#f8f9fa;border-bottom:1px solid #e5e7eb;text-align:left;">
+                <th style="padding:10px 24px;color:#6b7280;font-weight:500;">用户</th>
+                <th style="padding:10px;color:#6b7280;font-weight:500;">报名方式</th>
+                <th style="padding:10px;color:#6b7280;font-weight:500;">报名时间</th>
+                <th style="padding:10px;color:#6b7280;font-weight:500;">核销状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #f3f4f6;">
+                <td style="padding:10px 24px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:24px;height:24px;background:#e0f2f1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;">张</div>张三</div></td>
+                <td style="padding:10px;color:#6b7280;">免费</td>
+                <td style="padding:10px;color:#9ca3af;">04-01 10:23</td>
+                <td style="padding:10px;"><span style="background:#f3f4f6;color:#6b7280;padding:2px 6px;border-radius:3px;font-size:10px;">待核销</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid #f3f4f6;">
+                <td style="padding:10px 24px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:24px;height:24px;background:#fff3e0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;">李</div>李四</div></td>
+                <td style="padding:10px;color:#6b7280;">免费</td>
+                <td style="padding:10px;color:#9ca3af;">04-02 14:12</td>
+                <td style="padding:10px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 6px;border-radius:3px;font-size:10px;">已核销</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid #f3f4f6;">
+                <td style="padding:10px 24px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:24px;height:24px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;">王</div>王五</div></td>
+                <td style="padding:10px;color:#6b7280;">免费</td>
+                <td style="padding:10px;color:#9ca3af;">04-03 09:45</td>
+                <td style="padding:10px;"><span style="background:#fce4ec;color:#c62828;padding:2px 6px;border-radius:3px;font-size:10px;">已取消</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

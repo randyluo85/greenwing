@@ -17,15 +17,21 @@ function generateOrderNo() {
 }
 function generateVerifyCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = 'QY-'
-  const now = new Date()
-  code += String(now.getMonth() + 1).padStart(2, '0')
-  code += String(now.getDate()).padStart(2, '0')
-  code += '-'
-  for (let i = 0; i < 5; i++) {
+  let code = ''
+  for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length))
   }
   return code
+}
+
+// 带唯一性校验的核销码生成
+async function generateUniqueVerifyCode(collection) {
+  for (let i = 0; i < 3; i++) {
+    const code = generateVerifyCode()
+    const exist = await collection.where({ verify_code: code }).count()
+    if (exist.total === 0) return code
+  }
+  return generateVerifyCode() + Date.now().toString(36).slice(-3)
 }
 
 exports.main = async (event, context) => {
@@ -267,7 +273,7 @@ async function handlePayCallback(event) {
         }
       })
 
-      const verifyCode = generateVerifyCode()
+      const verifyCode = await generateUniqueVerifyCode(db.collection('registrations'))
       await transaction.collection('registrations').add({
         data: {
           user_id: order.user_id,

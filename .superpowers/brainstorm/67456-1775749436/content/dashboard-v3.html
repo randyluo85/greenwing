@@ -1,0 +1,47 @@
+<h2>模块 1/6: Dashboard 数据概览 (v3)</h2>
+<p class="subtitle">4 个卡片保持社区视角，收入卡片支持切换时间范围</p>
+
+<div class="mockup">
+  <div class="mockup-header">Preview: Dashboard - 收入卡片支持切换</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="height:180px;font-size:12px;background:#f0f2f5;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+      <div style="background:white;border-radius:8px;padding:20px;border-left:4px solid #00897B;">
+        <div style="color:#6b7280;font-size:11px;margin-bottom:4px;">社区成员</div>
+        <div style="font-size:28px;font-weight:700;color:#1f2937;">1,234</div>
+        <div style="color:#00897B;font-size:11px;margin-top:4px;">+12 本周新增</div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:20px;border-left:4px solid #26A69A;">
+        <div style="color:#6b7280;font-size:11px;margin-bottom:4px;">本周签到</div>
+        <div style="font-size:28px;font-weight:700;color:#1f2937;">386</div>
+        <div style="color:#26A69A;font-size:11px;margin-top:4px;">日均 55 人</div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:20px;border-left:4px solid #4DB6AC;">
+        <div style="color:#6b7280;font-size:11px;margin-bottom:4px;">本月活动参与</div>
+        <div style="font-size:28px;font-weight:700;color:#1f2937;">156</div>
+        <div style="color:#4DB6AC;font-size:11px;margin-top:4px;">人次报名</div>
+      </div>
+      <!-- 收入卡片 - 带时间切换 -->
+      <div style="background:white;border-radius:8px;padding:20px;border-left:4px solid #80CBC4;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="color:#6b7280;font-size:11px;">累计收入</span>
+          <div style="display:flex;gap:2px;background:#f3f4f6;border-radius:4px;padding:1px;">
+            <span style="background:#00897B;color:white;padding:1px 6px;border-radius:3px;font-size:10px;">月</span>
+            <span style="color:#6b7280;padding:1px 6px;font-size:10px;">年</span>
+            <span style="color:#6b7280;padding:1px 6px;font-size:10px;">全部</span>
+          </div>
+        </div>
+        <div style="font-size:28px;font-weight:700;color:#1f2937;">¥12,800</div>
+        <div style="color:#80CBC4;font-size:11px;margin-top:4px;">本月收入</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:16px;padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #00897B;">
+  <h4 style="margin:0 0 8px;color:#1f2937;">交互说明</h4>
+  <ul style="margin:0;padding-left:20px;color:#4b5563;font-size:13px;line-height:1.8;">
+    <li>收入卡片右上角有「月 / 年 / 全部」三个切换按钮</li>
+    <li>点击切换时金额和底部文案同步变化 (如 "本月收入" → "本年收入" → "累计收入")</li>
+    <li>其余 3 张卡片不变: 社区成员 / 本周签到 / 活动参与人次</li>
+  </ul>
+</div>
