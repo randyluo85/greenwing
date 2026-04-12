@@ -74,4 +74,13 @@ export async function uploadFile(cloudPath, file) {
   return res.fileID
 }
 
+/**
+ * 批量将 cloud:// fileID 转为 HTTPS 临时 URL
+ */
+export async function getTempFileURL(fileIDs) {
+  if (!fileIDs || fileIDs.length === 0) return []
+  const result = await app.getTempFileURL({ fileList: fileIDs })
+  return result.fileList || []
+}
+
 export { app }

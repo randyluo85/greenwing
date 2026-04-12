@@ -10,7 +10,7 @@
           <div v-for="(b, i) in banners" :key="b._id" :class="['banner-row', { offline: b.status === 'offline' }]">
             <span class="banner-idx">{{ i + 1 }}</span>
             <div class="banner-thumb">
-              <img v-if="b.image_url" :src="b.image_url" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />
+              <img v-if="b.image_url" :src="b._httpUrl || b.image_url" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />
               <span v-else>轮播图片</span>
             </div>
             <div class="banner-info">
@@ -44,7 +44,11 @@
         </div>
         <div class="book-grid" v-if="books.length">
           <div v-for="book in books" :key="book._id" class="book-card">
-            <div class="book-cover">封面</div>
+            <div class="book-cover">
+              <img v-if="book._httpUrl" :src="book._httpUrl" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />
+              <span v-else>封面</span>
+              <span v-if="book.rating" class="book-rating-badge">{{ book.rating }}</span>
+            </div>
             <div class="book-info">
               <div class="book-title">{{ book.title }}</div>
               <div class="book-author">{{ book.author }}</div>
@@ -73,7 +77,7 @@
         </el-form-item>
         <el-form-item label="图片">
           <div class="upload-placeholder" @click="handleImageUpload">
-            <img v-if="bannerForm.image_url" :src="bannerForm.image_url" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
+            <img v-if="bannerFormImageUrl" :src="bannerFormImageUrl" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
             <span v-else>+ 上传图片</span>
           </div>
         </el-form-item>
@@ -114,12 +118,18 @@
         </el-form-item>
         <el-form-item label="封面">
           <div class="upload-placeholder" @click="handleBookCoverUpload">
-            <img v-if="bookForm.cover_url" :src="bookForm.cover_url" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
+            <img v-if="bookFormImageUrl" :src="bookFormImageUrl" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
             <span v-else>+ 上传封面</span>
           </div>
         </el-form-item>
         <el-form-item label="评分">
-          <el-input-number v-model="bookForm.rating" :min="0" :max="5" :step="0.1" />
+          <el-input-number v-model="bookForm.rating" :min="1" :max="10" :step="1" :precision="0" />
+        </el-form-item>
+        <el-form-item label="排序">
+          <el-input-number v-model="bookForm.sort_order" :min="0" :max="99" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-switch v-model="bookForm.statusPublished" active-text="上架" inactive-text="下架" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -133,7 +143,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { callFunction, uploadFile } from '../utils/cloud'
+import { callFunction, uploadFile, getTempFileURL } from '../utils/cloud'
 
 const activeTab = ref('banners')
 const banners = ref([])
@@ -147,25 +157,42 @@ const bannerForm = reactive({ title: '', subtitle: '', image_url: '', redirect_t
 // Book drawer
 const bookDrawerVisible = ref(false)
 const editingBook = ref(null)
-const bookForm = reactive({ title: '', author: '', description: '', cover_url: '', rating: 4.0 })
+const bookForm = reactive({ title: '', author: '', description: '', cover_image: '', rating: 5, sort_order: 1, statusPublished: true })
+
+const bannerFormImageUrl = ref('')
+const bookFormImageUrl = ref('')
 
 function redirectTypeLabel(type) { return { event: '活动', article: '文章', page: '页面' }[type] || type || '' }
 
 async function loadBanners() {
   try {
     const res = await callFunction('admin', { action: 'manageContent', type: 'banner', method: 'list' })
-    banners.value = res.data || []
+    const list = res.data || []
+    const fileIDs = list.map(b => b.image_url).filter(u => u && u.startsWith('cloud://'))
+    if (fileIDs.length) {
+      const urls = await getTempFileURL(fileIDs)
+      const urlMap = Object.fromEntries(urls.map(u => [u.fileID, u.tempFileURL]))
+      list.forEach(b => { if (b.image_url) b._httpUrl = urlMap[b.image_url] || b.image_url })
+    }
+    banners.value = list
   } catch (e) { /* ignore */ }
 }
 
 async function loadBooks() {
   try {
     const res = await callFunction('admin', { action: 'manageContent', type: 'book', method: 'list' })
-    books.value = res.data || []
+    const list = res.data || []
+    const fileIDs = list.map(b => b.cover_image).filter(u => u && u.startsWith('cloud://'))
+    if (fileIDs.length) {
+      const urls = await getTempFileURL(fileIDs)
+      const urlMap = Object.fromEntries(urls.map(u => [u.fileID, u.tempFileURL]))
+      list.forEach(b => { if (b.cover_image) b._httpUrl = urlMap[b.cover_image] || b.cover_image })
+    }
+    books.value = list
   } catch (e) { /* ignore */ }
 }
 
-function openBannerDrawer(banner = null) {
+async function openBannerDrawer(banner = null) {
   editingBanner.value = banner
   if (banner) {
     Object.assign(bannerForm, {
@@ -173,8 +200,16 @@ function openBannerDrawer(banner = null) {
       redirect_type: banner.redirect_type || '', redirect_url: banner.redirect_url || '',
       sort_order: banner.sort_order || 1, statusOnline: banner.status === 'online'
     })
+    const url = banner.image_url || ''
+    if (url.startsWith('cloud://')) {
+      const urls = await getTempFileURL([url])
+      bannerFormImageUrl.value = urls[0]?.tempFileURL || url
+    } else {
+      bannerFormImageUrl.value = url
+    }
   } else {
     Object.assign(bannerForm, { title: '', subtitle: '', image_url: '', redirect_type: '', redirect_url: '', sort_order: banners.value.length + 1, statusOnline: true })
+    bannerFormImageUrl.value = ''
   }
   drawerVisible.value = true
 }
@@ -226,18 +261,28 @@ function handleImageUpload() {
       const cloudPath = `banners/${Date.now()}_${file.name}`
       const fileID = await uploadFile(cloudPath, file)
       bannerForm.image_url = fileID
+      const urls = await getTempFileURL([fileID])
+      bannerFormImageUrl.value = urls[0]?.tempFileURL || fileID
     } catch (err) { ElMessage.error('上传失败') }
   }
   input.click()
 }
 
 // Book
-function openBookDrawer(book = null) {
+async function openBookDrawer(book = null) {
   editingBook.value = book
   if (book) {
-    Object.assign(bookForm, { title: book.title || '', author: book.author || '', description: book.description || '', cover_url: book.cover_url || '', rating: book.rating || 4.0 })
+    Object.assign(bookForm, { title: book.title || '', author: book.author || '', description: book.description || '', cover_image: book.cover_image || '', rating: book.rating ?? 5, sort_order: book.sort_order ?? 1, statusPublished: book.status === 'published' })
+    const url = book.cover_image || ''
+    if (url.startsWith('cloud://')) {
+      const urls = await getTempFileURL([url])
+      bookFormImageUrl.value = urls[0]?.tempFileURL || url
+    } else {
+      bookFormImageUrl.value = url
+    }
   } else {
-    Object.assign(bookForm, { title: '', author: '', description: '', cover_url: '', rating: 4.0 })
+    Object.assign(bookForm, { title: '', author: '', description: '', cover_image: '', rating: 5, sort_order: books.value.length + 1, statusPublished: true })
+    bookFormImageUrl.value = ''
   }
   bookDrawerVisible.value = true
 }
@@ -251,7 +296,9 @@ function handleBookCoverUpload() {
     try {
       const cloudPath = `books/${Date.now()}_${file.name}`
       const fileID = await uploadFile(cloudPath, file)
-      bookForm.cover_url = fileID
+      bookForm.cover_image = fileID
+      const urls = await getTempFileURL([fileID])
+      bookFormImageUrl.value = urls[0]?.tempFileURL || fileID
     } catch (err) { ElMessage.error('上传失败') }
   }
   input.click()
@@ -259,7 +306,7 @@ function handleBookCoverUpload() {
 
 async function submitBook() {
   try {
-    const data = { title: bookForm.title, author: bookForm.author, description: bookForm.description, cover_url: bookForm.cover_url, rating: bookForm.rating }
+    const data = { title: bookForm.title, author: bookForm.author, description: bookForm.description, cover_image: bookForm.cover_image, rating: bookForm.rating ?? 5, sort_order: bookForm.sort_order ?? 1, status: bookForm.statusPublished ? 'published' : 'draft' }
     if (editingBook.value) {
       await callFunction('admin', { action: 'manageContent', type: 'book', method: 'update', id: editingBook.value._id, data })
     } else {
@@ -296,7 +343,8 @@ onMounted(() => { loadBanners(); loadBooks() })
 .banner-actions { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
 .book-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
 .book-card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 14px; display: flex; gap: var(--sp-3); }
-.book-cover { width: 50px; height: 66px; background: var(--color-primary-light); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-size: 9px; flex-shrink: 0; }
+.book-cover { width: 50px; height: 66px; background: var(--color-primary-light); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-size: 9px; flex-shrink: 0; position: relative; overflow: hidden; }
+.book-rating-badge { position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.55); color: #fff; font-size: 9px; padding: 1px 4px; border-radius: 0 0 0 4px; font-weight: 500; }
 .book-info { flex: 1; min-width: 0; }
 .book-title { color: var(--color-text-primary); font-weight: 500; font-size: var(--fs-base); margin-bottom: 2px; }
 .book-author { color: var(--color-text-secondary); font-size: var(--fs-xs); margin-bottom: 6px; }
