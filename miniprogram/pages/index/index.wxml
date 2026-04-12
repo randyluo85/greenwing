@@ -134,18 +134,20 @@
         <text class="section-more" bindtap="goBooks">更多 ></text>
       </view>
 
-      <view class="book-grid">
-        <view class="book-item" wx:for="{{books}}" wx:key="_id" bindtap="onBookTap" data-id="{{item._id}}">
-          <view class="book-cover-wrap">
-            <image src="{{item.cover_image}}" mode="aspectFill" class="book-cover" />
-            <view class="book-rating" wx:if="{{item.rating}}">
-              <text>{{item.rating}}</text>
+      <scroll-view scroll-x class="book-scroll" enhanced show-scrollbar="{{false}}">
+        <view class="book-scroll-inner">
+          <view class="book-item" wx:for="{{books}}" wx:key="_id" bindtap="onBookTap" data-id="{{item._id}}">
+            <view class="book-cover-wrap">
+              <image src="{{item.cover_image}}" mode="aspectFill" class="book-cover" />
+              <view class="book-rating" wx:if="{{item.rating}}">
+                <text>{{item.rating}}</text>
+              </view>
             </view>
+            <text class="book-title ellipsis">{{item.title}}</text>
+            <text class="book-author ellipsis">{{item.author}}</text>
           </view>
-          <text class="book-title ellipsis">{{item.title}}</text>
-          <text class="book-author ellipsis">{{item.author}}</text>
         </view>
-      </view>
+      </scroll-view>
     </view>
 
   </view>

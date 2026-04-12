@@ -25,14 +25,8 @@ Page({
 
       const books = res.data.map(b => {
         const r = b.rating || 0
-        let fullStars = 0
-        let halfStar = false
-        if (r >= 9.5) { fullStars = 5 }
-        else if (r >= 8.5) { fullStars = 4; halfStar = true }
-        else if (r >= 7.5) { fullStars = 4 }
-        else if (r >= 6.5) { fullStars = 3; halfStar = true }
-        else if (r >= 5.5) { fullStars = 3 }
-        else { fullStars = 2; halfStar = r >= 4.5 }
+        const fullStars = Math.floor(r / 2)
+        const halfStar = r % 2 === 1
         return { ...b, _fullStars: fullStars, _halfStar: halfStar }
       })
 

@@ -130,7 +130,8 @@
 }
 
 .star-half {
-  color: #f59e0b;
+  color: #fbbf24;
+  opacity: 0.65;
 }
 
 .star-empty {

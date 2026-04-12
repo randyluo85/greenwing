@@ -438,16 +438,23 @@
   color: var(--text-muted);
 }
 
-/* Book Grid */
-.book-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20rpx;
+/* Book Horizontal Scroll */
+.book-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.book-scroll-inner {
+  display: inline-flex;
+  gap: 24rpx;
+  padding-bottom: 8rpx;
 }
 
 .book-item {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
+  width: 200rpx;
+  flex-shrink: 0;
 }
 
 .book-cover-wrap {
@@ -488,6 +495,25 @@
   font-size: 20rpx;
   color: var(--text-muted);
   margin-top: 4rpx;
+}
+
+.book-stars {
+  margin-top: 4rpx;
+  display: flex;
+  gap: 2rpx;
+}
+.book-stars .star {
+  font-size: 20rpx;
+}
+.book-stars .star-full {
+  color: #f59e0b;
+}
+.book-stars .star-half {
+  color: #fbbf24;
+  opacity: 0.65;
+}
+.book-stars .star-empty {
+  color: #d1d5db;
 }
 
 /* Sign-in Modal */

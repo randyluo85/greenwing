@@ -49,11 +49,15 @@ Page({
       console.warn('登录失败，使用游客模式')
     }
 
-    await Promise.all([
-      this.loadBanners(),
-      this.loadEvents(),
-      this.loadBooks()
-    ])
+    try {
+      await Promise.all([
+        this.loadBanners(),
+        this.loadEvents(),
+        this.loadBooks()
+      ])
+    } catch (e) {
+      console.warn('部分数据加载失败:', e)
+    }
 
     this.setData({ loading: false })
   },
@@ -91,11 +95,16 @@ Page({
 
   async loadEvents() {
     try {
-      const res = await callFunction('event', { action: 'list', pageSize: 5 })
-      const events = res.data.list.map(e => ({
-        ...e,
-        _formattedTime: formatDate(e.event_time, 'MM/DD/DD HH:mm')
-      }))
+      const res = await callFunction('event', { action: 'list', pageSize: 10 })
+      const now = new Date()
+      const events = res.data.list
+        .filter(e => new Date(e.event_time) >= now)
+        .sort((a, b) => new Date(a.event_time) - new Date(b.event_time))
+        .slice(0, 3)
+        .map(e => ({
+          ...e,
+          _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm')
+        }))
       if (events.length > 0) {
         this.setData({ events })
         return
@@ -104,22 +113,29 @@ Page({
     // 云端无数据，使用本地默认活动
     this.setData({
       events: [
-        { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', _formattedTime: '04/18 15:30' },
-        { _id: 'e2', cover_image: '/images/event.jpg', title: '博尔赫斯的迷宫：《小径分岔的花园》', status: 'published', registration_mode: 'free', points_cost: 0, location: '青翼读书会·影音室', _formattedTime: '04/25 15:30' }
+        { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', event_time: '2099-04-18T15:30:00', _formattedTime: '04/18 15:30' },
+        { _id: 'e2', cover_image: '/images/event.jpg', title: '博尔赫斯的迷宫：《小径分岔的花园》', status: 'published', registration_mode: 'free', points_cost: 0, location: '青翼读书会·影音室', event_time: '2099-04-25T15:30:00', _formattedTime: '04/25 15:30' }
       ]
     })
   },
 
   async loadBooks() {
-    const db = wx.cloud.database()
-    const res = await db.collection('books')
-      .where({ status: 'published' })
-      .orderBy('sort_order', 'desc')
-      .limit(10)
-      .get()
-    if (res.data.length > 0) {
-      this.setData({ books: res.data })
-    }
+    try {
+      const db = wx.cloud.database()
+      const res = await db.collection('books')
+        .where({ status: 'published' })
+        .orderBy('sort_order', 'desc')
+        .limit(10)
+        .get()
+      if (res.data.length > 0) {
+        const books = res.data.map(b => ({
+          ...b,
+          _fullStars: Math.floor((b.rating || 0) / 2),
+          _halfStar: (b.rating || 0) % 2 === 1
+        }))
+        this.setData({ books })
+      }
+    } catch (e) { /* 集合不存在 */ }
   },
 
   // 签到
