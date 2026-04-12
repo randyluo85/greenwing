@@ -35,7 +35,10 @@
           </el-form-item>
         </div>
         <el-form-item label="封面图">
-          <div class="upload-placeholder">点击或拖拽上传封面图</div>
+          <div class="upload-placeholder" @click="handleCoverUpload">
+            <img v-if="coverImageUrl" :src="coverImageUrl" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md);" />
+            <span v-else>点击上传封面图</span>
+          </div>
         </el-form-item>
         <el-form-item label="活动详情">
           <el-input v-model="form.description" type="textarea" :rows="4" placeholder="活动详情描述" />
@@ -77,7 +80,9 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
+import { uploadFile, getTempFileURL } from '../utils/cloud'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({ modelValue: Boolean, event: Object })
 const emit = defineEmits(['update:modelValue', 'submit'])
@@ -88,14 +93,23 @@ const modes = [
   { key: 'paid', label: '付费报名' }
 ]
 
-const defaultForm = { title: '', category: '读书会', quota: 30, event_time: '', registration_deadline: '', location: '', speaker: '', description: '', registration_mode: 'free', points_cost: 0, priceYuan: 0, reward_points: 20, status: 'draft' }
+const defaultForm = { title: '', category: '读书会', quota: 30, event_time: '', registration_deadline: '', location: '', speaker: '', description: '', cover_image: '', registration_mode: 'free', points_cost: 0, priceYuan: 0, reward_points: 20, status: 'draft' }
 const form = reactive({ ...defaultForm })
+const coverImageUrl = ref('')
 
-watch(() => props.event, (e) => {
+watch(() => props.event, async (e) => {
   if (e) {
     Object.assign(form, { ...defaultForm, ...e, priceYuan: (e.price || 0) / 100 })
+    const url = e.cover_image || ''
+    if (url.startsWith('cloud://')) {
+      const urls = await getTempFileURL([url])
+      coverImageUrl.value = urls[0]?.tempFileURL || url
+    } else {
+      coverImageUrl.value = url
+    }
   } else {
     Object.assign(form, defaultForm)
+    coverImageUrl.value = ''
   }
 }, { immediate: true })
 
@@ -104,6 +118,23 @@ function submit(status) {
   delete data.priceYuan
   emit('submit', data)
   emit('update:modelValue', false)
+}
+
+function handleCoverUpload() {
+  const input = document.createElement('input')
+  input.type = 'file'; input.accept = 'image/*'
+  input.onchange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    try {
+      const cloudPath = `events/${Date.now()}_${file.name}`
+      const fileID = await uploadFile(cloudPath, file)
+      form.cover_image = fileID
+      const urls = await getTempFileURL([fileID])
+      coverImageUrl.value = urls[0]?.tempFileURL || fileID
+    } catch (err) { ElMessage.error('封面图上传失败') }
+  }
+  input.click()
 }
 </script>
 

@@ -24,7 +24,8 @@ Page({
         .get()
 
       const books = res.data.map(b => {
-        return { ...b, _stars: computeStars(b.rating) }
+        const r = b.rating || 0
+        return { ...b, _fullStars: Math.floor(r / 2), _halfStar: r % 2 === 1 }
       })
 
       this.setData({

@@ -15,7 +15,9 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('books').doc(id).get()
       const book = res.data
-      book._stars = computeStars(book.rating)
+      const r = book.rating || 0
+      book._fullStars = Math.floor(r / 2)
+      book._halfStar = r % 2 === 1
       this.setData({ book, loading: false })
       wx.setNavigationBarTitle({ title: book.title || '好书推荐' })
     } catch (e) {

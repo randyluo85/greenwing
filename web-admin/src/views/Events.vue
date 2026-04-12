@@ -10,7 +10,10 @@
     </div>
     <div class="event-list" v-if="filteredEvents.length">
       <div v-for="evt in filteredEvents" :key="evt._id" :class="['event-card', { draft: evt.status === 'draft' }]" :style="{ borderLeftColor: borderColor(evt) }">
-        <div class="event-cover">封面图</div>
+        <div class="event-cover">
+          <img v-if="evt._httpUrl" :src="evt._httpUrl" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />
+          <span v-else>封面图</span>
+        </div>
         <div class="event-info">
           <div class="event-header">
             <div style="display:flex;align-items:center;gap:8px;">
@@ -50,7 +53,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { callFunction } from '../utils/cloud'
+import { callFunction, getTempFileURL } from '../utils/cloud'
 import { formatDateTime, formatMoney } from '../utils/format'
 import EventDrawer from '../components/EventDrawer.vue'
 import RegistrationDrawer from '../components/RegistrationDrawer.vue'
@@ -96,7 +99,14 @@ async function loadEvents() {
   loading.value = true
   try {
     const res = await callFunction('admin', { action: 'getEvents', pageSize: 100 })
-    allEvents.value = res.data.list || []
+    const list = res.data.list || []
+    const fileIDs = list.map(e => e.cover_image).filter(u => u && u.startsWith('cloud://'))
+    if (fileIDs.length) {
+      const urls = await getTempFileURL(fileIDs)
+      const urlMap = Object.fromEntries(urls.map(u => [u.fileID, u.tempFileURL]))
+      list.forEach(e => { if (e.cover_image) e._httpUrl = urlMap[e.cover_image] || e.cover_image })
+    }
+    allEvents.value = list
   } catch (err) {
     ElMessage.error(err.message || '加载活动失败')
   } finally {

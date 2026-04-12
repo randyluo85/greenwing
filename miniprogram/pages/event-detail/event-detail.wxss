@@ -136,6 +136,7 @@
 /* 报名条件 */
 .condition-card {
   padding: 24rpx;
+  margin: 16rpx 0 0 0;
 }
 
 .condition-list {
