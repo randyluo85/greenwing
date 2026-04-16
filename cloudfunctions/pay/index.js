@@ -38,6 +38,21 @@ exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
   const { action } = event
 
+  // 检查是否是微信支付回调（HTTP POST 请求，可能没有 action 参数）
+  const isPayCallback = !action && event.outTradeNo && event.transactionId
+  const isRefundCallback = !action && event.outTradeNo && !event.transactionId
+
+  if (isPayCallback) {
+    console.log('[pay] 检测到微信支付回调，参数:', JSON.stringify(event))
+    return handlePayCallback(event)
+  }
+
+  if (isRefundCallback) {
+    console.log('[pay] 检测到微信退款回调，参数:', JSON.stringify(event))
+    return handleRefundCallback(event)
+  }
+
+  // 正常的云函数调用路由
   switch (action) {
     case 'createOrder':
       return handleCreateOrder(OPENID, event)
@@ -114,17 +129,23 @@ async function handleCreateOrder(openid, event) {
 
     // 调用云托管统一下单
     try {
+      console.log('[pay] 开始统一下单, orderNo:', orderNo, 'price:', eventDoc.price, 'totalFee:', eventDoc.price)
+      console.log('[pay] 当前环境ID:', cloud.DYNAMIC_CURRENT_ENV)
+      console.log('[pay] 配置的envId:', 'cloud1-8gax523s60b70149')
+
       const payRes = await cloud.cloudPay.unifiedOrder({
         body: `青翼读书会 - ${eventDoc.title}`,
         outTradeNo: orderNo,
         spbillCreateIp: '127.0.0.1',
         totalFee: eventDoc.price,
-        envId: cloud.DYNAMIC_CURRENT_ENV,
+        envId: 'cloud1-8gax523s60b70149',
         functionName: 'pay',
+        subMchId: '1705849497',
         nonceStr: Math.random().toString(36).slice(2, 17),
         tradeType: 'JSAPI'
       })
 
+      console.log('[pay] 统一下单成功, payment:', payRes)
       return {
         success: true,
         data: {
@@ -136,6 +157,7 @@ async function handleCreateOrder(openid, event) {
       }
     } catch (payErr) {
       // 统一下单失败，关闭订单
+      console.error('[pay] 统一下单失败:', payErr)
       await db.collection('orders').doc(addRes._id).update({
         data: { status: 'failed', updated_at: db.serverDate() }
       })
@@ -251,16 +273,29 @@ async function handleMyOrders(openid, event) {
 // 支付回调 (云托管调用)
 async function handlePayCallback(event) {
   try {
+    console.log('[payCallback] 收到支付回调，参数:', JSON.stringify(event))
     const { outTradeNo, transactionId } = event
-    if (!outTradeNo) return { errcode: -1, errmsg: 'missing outTradeNo' }
+    if (!outTradeNo) {
+      console.error('[payCallback] 缺少 outTradeNo')
+      return { errcode: -1, errmsg: 'missing outTradeNo' }
+    }
 
+    console.log('[payCallback] 查询订单，orderNo:', outTradeNo)
     const orderRes = await db.collection('orders').where({ order_no: outTradeNo }).get()
-    if (orderRes.data.length === 0) return { errcode: -1, errmsg: 'order not found' }
+    if (orderRes.data.length === 0) {
+      console.error('[payCallback] 订单不存在，orderNo:', outTradeNo)
+      return { errcode: -1, errmsg: 'order not found' }
+    }
     const order = orderRes.data[0]
+    console.log('[payCallback] 订单当前状态:', order.status)
 
     // 幂等检查
-    if (order.status === 'paid') return { errcode: 0 }
+    if (order.status === 'paid') {
+      console.log('[payCallback] 订单已支付，跳过处理')
+      return { errcode: 0 }
+    }
 
+    console.log('[payCallback] 开始处理支付成功，orderId:', order._id)
     // 使用事务保证原子性
     const transaction = await db.startTransaction()
     try {
@@ -272,6 +307,11 @@ async function handlePayCallback(event) {
           updated_at: db.serverDate()
         }
       })
+      console.log('[payCallback] 订单状态已更新为 paid')
+
+      // 获取用户信息，用于填写报名记录中的真实姓名和联系电话
+      const userRes = await transaction.collection('users').doc(order.user_id).get()
+      const user = userRes.data
 
       const verifyCode = await generateUniqueVerifyCode(db.collection('registrations'))
       await transaction.collection('registrations').add({
@@ -281,6 +321,8 @@ async function handlePayCallback(event) {
           event_id: order.event_id,
           order_id: order._id,
           verify_code: verifyCode,
+          real_name: user.real_name || '',
+          contact_phone: user.phone || '',
           status: 'pending',
           verified_by: '',
           verified_at: null,
@@ -288,18 +330,23 @@ async function handlePayCallback(event) {
           updated_at: db.serverDate()
         }
       })
+      console.log('[payCallback] 报名记录已创建，verifyCode:', verifyCode)
 
       await transaction.collection('events').doc(order.event_id).update({
         data: { enrolled_count: _.inc(1) }
       })
+      console.log('[payCallback] 活动报名人数已增加')
 
       await transaction.commit()
+      console.log('[payCallback] 事务提交成功')
       return { errcode: 0 }
     } catch (txErr) {
+      console.error('[payCallback] 事务失败，回滚:', txErr)
       await transaction.rollback()
       return { errcode: -1, errmsg: txErr.message }
     }
   } catch (err) {
+    console.error('[payCallback] 处理失败:', err)
     return { errcode: -1, errmsg: err.message }
   }
 }
