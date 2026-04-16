@@ -39,6 +39,7 @@
             <img v-if="coverImageUrl" :src="coverImageUrl" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md);" />
             <span v-else>点击上传封面图</span>
           </div>
+          <div class="upload-tip">建议尺寸为 4:5 (800x1000)</div>
         </el-form-item>
         <el-form-item label="活动详情">
           <el-input v-model="form.description" type="textarea" :rows="4" placeholder="活动详情描述" />
@@ -113,6 +114,15 @@ watch(() => props.event, async (e) => {
   }
 }, { immediate: true })
 
+// 监听抽屉打开状态，创建模式时重置表单
+watch(() => props.modelValue, (newValue) => {
+  if (newValue && !props.event) {
+    // 抽屉打开且是创建模式时，确保表单被重置
+    Object.assign(form, defaultForm)
+    coverImageUrl.value = ''
+  }
+})
+
 function submit(status) {
   const data = { ...form, price: Math.round(form.priceYuan * 100), status }
   delete data.priceYuan
@@ -143,6 +153,7 @@ function handleCoverUpload() {
 .section-title { color: var(--color-primary); font-weight: 600; font-size: var(--fs-base); margin: 20px 0 var(--sp-3); }
 .section-title:first-child { margin-top: 0; }
 .upload-placeholder { border: 2px dashed var(--color-border-medium); border-radius: var(--radius-md); padding: var(--sp-5); text-align: center; color: var(--color-text-tertiary); font-size: var(--fs-sm); cursor: pointer; }
+.upload-tip { margin-top: 8px; font-size: 12px; color: var(--color-text-tertiary); line-height: 1.2; }
 .mode-cards { display: flex; gap: var(--sp-2); }
 .mode-card { flex: 1; padding: 10px; text-align: center; border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); cursor: pointer; font-size: var(--fs-base); }
 .mode-card.active { border: 2px solid var(--color-primary); background: var(--color-primary-light); }
