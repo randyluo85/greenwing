@@ -1,7 +1,7 @@
 import cloudbase from '@cloudbase/js-sdk'
 
 const app = cloudbase.init({
-  env: 'cloud1-8gax523s60b70149'
+  env: import.meta.env.VITE_CLOUD_ENV_ID
 })
 
 const TOKEN_KEY = 'admin_token'
@@ -15,12 +15,7 @@ export async function callFunction(name, data = {}) {
     // 匿名登录以保证 callFunction 可用
     const auth = app.auth()
     if (!auth.hasLoginState()) {
-      try {
-        await auth.anonymousAuthProvider().signIn()
-      } catch (authErr) {
-        console.error('[cloud.js] 匿名登录失败:', authErr)
-        throw new Error('CloudBase 匿名登录失败，请在云开发控制台开启匿名登录（设置-登录方式），并确认 Web 安全域名包含当前域名')
-      }
+      await auth.anonymousAuthProvider().signIn()
     }
 
     // 非 login 操作自动带 token

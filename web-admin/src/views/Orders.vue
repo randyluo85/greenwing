@@ -109,6 +109,14 @@
           >
             审批
           </el-button>
+          <el-button
+            v-if="row.status === 'paid'"
+            link
+            type="danger"
+            @click="openAdminRefund(row)"
+          >
+            退款
+          </el-button>
           <el-button link @click="openDetail(row)">
             详情
           </el-button>
@@ -116,10 +124,11 @@
       </BaseTable>
     </BaseCard>
 
-    <!-- 退款审批对话框 -->
+    <!-- 退款对话框（兼容审批模式和管理员主动退款模式） -->
     <RefundDialog
       v-model="refundVisible"
       :order="selectedOrder"
+      :mode="refundMode"
       @action="onRefundAction"
     />
 
@@ -170,6 +179,8 @@ const dateRange = ref(null)
 const refundVisible = ref(false)
 const detailVisible = ref(false)
 const selectedOrder = ref(null)
+// 退款模式：'approve'（审批用户申请）| 'admin'（管理员主动退款）
+const refundMode = ref('approve')
 
 // Tab 配置
 const tabs = computed(() => {
@@ -385,9 +396,17 @@ function maskUserId(userId) {
   return userId.slice(-6)
 }
 
-// 打开退款审批对话框
+// 打开退款审批对话框（用户申请 -> 管理员审批）
 function openRefund(order) {
   selectedOrder.value = order
+  refundMode.value = 'approve'
+  refundVisible.value = true
+}
+
+// 打开管理员主动退款对话框
+function openAdminRefund(order) {
+  selectedOrder.value = order
+  refundMode.value = 'admin'
   refundVisible.value = true
 }
 
@@ -397,17 +416,28 @@ function openDetail(order) {
   detailVisible.value = true
 }
 
-// 处理退款审批
+// 处理退款审批或主动退款
 async function onRefundAction({ action, note }) {
   try {
-    const approved = action === 'approve'
-    await callFunction('admin', {
-      action: 'approveRefund',
-      orderId: selectedOrder.value._id,
-      approved,
-      reason: note
-    })
-    ElMessage.success(approved ? '退款已发起' : '退款已拒绝')
+    if (refundMode.value === 'admin') {
+      // 管理员主动退款路径
+      await callFunction('admin', {
+        action: 'adminRefund',
+        orderId: selectedOrder.value._id,
+        reason: note
+      })
+      ElMessage.success('退款已发起，款项将在 1-5 个工作日内原路退回')
+    } else {
+      // 用户申请审批路径
+      const approved = action === 'approve'
+      await callFunction('admin', {
+        action: 'approveRefund',
+        orderId: selectedOrder.value._id,
+        approved,
+        reason: note
+      })
+      ElMessage.success(approved ? '退款已发起，款项将在 1-5 个工作日内原路退回' : '退款已拒绝')
+    }
     refundVisible.value = false
     loadOrders()
   } catch (err) {

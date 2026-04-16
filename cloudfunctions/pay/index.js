@@ -337,6 +337,23 @@ async function handlePayCallback(event) {
       })
       console.log('[payCallback] 活动报名人数已增加')
 
+      // 获取活动详情以下发通知
+      const eventInfoRes = await transaction.collection('events').doc(order.event_id).get()
+      const eventInfo = eventInfoRes.data
+      
+      await transaction.collection('notifications').add({
+        data: {
+          open_id: order.open_id,
+          title: '报名成功',
+          body: `您已成功报名《${eventInfo.title}》，请准时参加。`,
+          icon_bg_color: '#5c8deb',
+          icon_text: '报',
+          is_read: false,
+          type: 'event_register',
+          created_at: db.serverDate()
+        }
+      })
+
       await transaction.commit()
       console.log('[payCallback] 事务提交成功')
       return { errcode: 0 }
@@ -374,6 +391,20 @@ async function handleRefundCallback(event) {
 
       await transaction.collection('events').doc(order.event_id).update({
         data: { enrolled_count: _.inc(-1) }
+      })
+
+      // 下发退款消息
+      await transaction.collection('notifications').add({
+        data: {
+          open_id: order.open_id,
+          title: '退款成功',
+          body: `您报名的活动订单 ${order.order_no} 微信退款已到账，金额 ${order.amount} 元。`,
+          icon_bg_color: '#10b981',
+          icon_text: '退',
+          is_read: false,
+          type: 'refund_success',
+          created_at: db.serverDate()
+        }
       })
 
       await transaction.commit()

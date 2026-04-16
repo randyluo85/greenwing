@@ -4,13 +4,13 @@
   <!-- 工具栏: Logo + 搜索 + 消息 -->
   <view class="toolbar">
     <image src="/images/logo.png" mode="aspectFit" class="toolbar-logo" />
-    <view class="toolbar-search" bindtap="goEventList">
+    <view class="toolbar-search" bindtap="goSearch">
       <image src="/images/icons/search.svg" class="toolbar-search-icon" />
       <text class="toolbar-search-text">活动搜索</text>
     </view>
     <view class="toolbar-bell" bindtap="goNotifications">
       <image src="/images/icons/bell.svg" class="toolbar-bell-icon" />
-      <view class="toolbar-dot"></view>
+      <view class="toolbar-dot" wx:if="{{unreadCount > 0}}"></view>
     </view>
   </view>
 

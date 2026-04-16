@@ -1,0 +1,48 @@
+<view class="page">
+  <!-- 搜索头 -->
+  <view class="search-header">
+    <view class="search-bar">
+      <image src="/images/icons/search.svg" class="search-icon" />
+      <input class="search-input" placeholder="搜索活动名称" value="{{keyword}}" focus confirm-type="search" bindconfirm="onSearch" bindinput="onInput" />
+      <view class="clear-icon" wx:if="{{keyword}}" bindtap="clearInput">
+        <text>×</text>
+      </view>
+    </view>
+    <view class="cancel-btn" bindtap="goBack">取消</view>
+  </view>
+
+  <!-- 搜索历史 -->
+  <view class="search-history" wx:if="{{!keyword && history.length > 0}}">
+    <view class="history-header">
+      <text class="history-title">搜索历史</text>
+      <text class="history-clear" bindtap="clearHistory">清空</text>
+    </view>
+    <view class="history-list">
+      <view class="history-tag" wx:for="{{history}}" wx:key="*this" bindtap="tapHistory" data-kw="{{item}}">{{item}}</view>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{keyword}}">
+    <view class="loading" wx:if="{{loading}}">搜索中...</view>
+    
+    <view wx:if="{{!loading && results.length > 0}}" class="event-list">
+      <view class="event-item" wx:for="{{results}}" wx:key="_id" bindtap="goEventDetail" data-id="{{item._id}}">
+        <view class="event-cover-wrap">
+          <image src="{{item.cover_image || '/images/event.jpg'}}" mode="aspectFill" class="event-cover" />
+        </view>
+        <view class="event-info">
+          <text class="event-title ellipsis-2">{{item.title}}</text>
+          <view class="event-meta-list">
+            <text class="event-meta-text">{{item._formattedTime}}</text>
+            <text class="event-meta-text">{{item.location || '线上'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="empty-state" wx:if="{{!loading && results.length === 0 && hasSearched}}">
+      <text>未找到相关活动</text>
+    </view>
+  </view>
+</view>

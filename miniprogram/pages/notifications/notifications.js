@@ -12,7 +12,7 @@ Page({
   },
 
   onShow() {
-    // Refresh on show
+    this.loadNotifications()
   },
 
   async loadNotifications() {
@@ -40,48 +40,10 @@ Page({
 
       this.setData({ newMessages, oldMessages, loading: false })
     } catch (e) {
-      // notifications collection may not exist yet - show mock data
+      console.warn('获取通知失败:', e)
       this.setData({
-        newMessages: [
-          {
-            _id: 'mock1',
-            title: '活动报名成功',
-            body: '您已成功报名《百年孤独》精读研讨会',
-            icon_bg_color: '#5c8deb',
-            icon_text: '签',
-            _timeAgo: '刚刚',
-            is_read: false
-          },
-          {
-            _id: 'mock2',
-            title: '积分奖励发放',
-            body: '您已连续签到7天，系统已发放50额积分奖励',
-            icon_bg_color: '#fb923c',
-            icon_text: '奖',
-            _timeAgo: '1小时前',
-            is_read: false
-          }
-        ],
-        oldMessages: [
-          {
-            _id: 'mock3',
-            title: '系统维护公告',
-            body: '服务器将于本周进行维护，届时服务可能短暂不可用',
-            icon_bg_color: '#f05232',
-            icon_text: '系',
-            _timeAgo: '昨天',
-            is_read: true
-          },
-          {
-            _id: 'mock4',
-            title: '欢迎加入',
-            body: '欢迎注册青翼读书会会员！社群活动与精彩内容等你探索',
-            icon_bg_color: '#14b8a6',
-            icon_text: '公',
-            _timeAgo: '2月21日',
-            is_read: true
-          }
-        ],
+        newMessages: [],
+        oldMessages: [],
         loading: false
       })
     }
@@ -91,16 +53,29 @@ Page({
     const { id, index } = e.currentTarget.dataset
     if (id && id.startsWith('mock')) return
 
+    const message = this.data.newMessages.find(m => m._id === id) || this.data.oldMessages.find(m => m._id === id)
+    if (!message) return
+
+    wx.setStorageSync('currentNotification', message)
+
     // Mark as read
     try {
       const db = wx.cloud.database()
-      await db.collection('notifications').doc(id).update({
+      db.collection('notifications').doc(id).update({
         data: { is_read: true }
-      })
-      const key = `newMessages[${index}].is_read`
-      this.setData({ [key]: true })
+      }).catch(e => {}) // non-blocking
+
+      const isNew = typeof index === 'number' && index < this.data.newMessages.length
+      if (isNew && this.data.newMessages[index]._id === id) {
+        const key = `newMessages[${index}].is_read`
+        this.setData({ [key]: true })
+      }
     } catch (e) {
       // silent
     }
+
+    wx.navigateTo({
+      url: `/pages/notification-detail/notification-detail?id=${id}`
+    })
   }
 })

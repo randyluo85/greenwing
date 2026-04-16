@@ -159,10 +159,35 @@ async function handleEnrollFree(openid, event) {
       data: { enrolled_count: _.inc(1) }
     })
 
-    // 如果用户没有真实姓名，更新用户表（下次报名时无需重复填写）
-    if (!user.real_name && realName) {
+    // 下发报名成功通知
+    await transaction.collection('notifications').add({
+      data: {
+        open_id: openid,
+        title: '报名成功',
+        body: `您已成功报名免费活动《${eventDoc.title}》，请准时参加。`,
+        icon_bg_color: '#5c8deb',
+        icon_text: '报',
+        is_read: false,
+        type: 'event_register',
+        created_at: db.serverDate()
+      }
+    })
+
+    // 更新用户表资料（回填真实姓名和手机号到用户资料）
+    const userUpdateData = {}
+    let needUpdateUser = false
+    if (realName && user.real_name !== realName) {
+      userUpdateData.real_name = realName
+      needUpdateUser = true
+    }
+    if (contactPhone && user.phone !== contactPhone) {
+      userUpdateData.phone = contactPhone
+      needUpdateUser = true
+    }
+    if (needUpdateUser) {
+      userUpdateData.updated_at = db.serverDate()
       await transaction.collection('users').doc(user._id).update({
-        data: { real_name: realName, updated_at: db.serverDate() }
+        data: userUpdateData
       })
     }
 
@@ -267,6 +292,40 @@ async function handleEnrollPoints(openid, event) {
 
     await transaction.collection('events').doc(eventId).update({
       data: { enrolled_count: _.inc(1) }
+    })
+
+    // 更新用户表资料（回填真实姓名和手机号）
+    const userUpdateData = {}
+    let needUpdateUser = false
+    if (realName && user.real_name !== realName) {
+      userUpdateData.real_name = realName
+      needUpdateUser = true
+    }
+    if (contactPhone && user.phone !== contactPhone) {
+      userUpdateData.phone = contactPhone
+      needUpdateUser = true
+    }
+    if (needUpdateUser) {
+      userUpdateData.updated_at = db.serverDate()
+      // 注意：我们在前面246行可能已经扣除了积分，如果前面的transaction.collection('users').doc(user._id).update也修改了用户，
+      // 这里会再次触发更新。为了合并，我们可以分别执行这两个逻辑或者分开。为了安全起见分开执行不影响逻辑。
+      await transaction.collection('users').doc(user._id).update({
+        data: userUpdateData
+      })
+    }
+
+    // 下发报名成功通知
+    await transaction.collection('notifications').add({
+      data: {
+        open_id: openid,
+        title: '报名成功',
+        body: `您已成功报名活动《${eventDoc.title}》，消耗了 ${pointsCost} 积分，请准时参加。`,
+        icon_bg_color: '#5c8deb',
+        icon_text: '报',
+        is_read: false,
+        type: 'event_register',
+        created_at: db.serverDate()
+      }
     })
 
     // 如果用户没有真实姓名，更新用户表（下次报名时无需重复填写）

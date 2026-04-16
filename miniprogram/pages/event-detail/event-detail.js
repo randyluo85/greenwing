@@ -206,6 +206,23 @@ Page({
       const res = await callFunction('event', { action, ...params })
       wx.hideLoading()
 
+      // Update local userInfo cache
+      const app = getApp()
+      const cached = app.globalData.userInfo || wx.getStorageSync('userInfo') || {}
+      let isUpdated = false
+      if (realName && cached.real_name !== realName) {
+        cached.real_name = realName
+        isUpdated = true
+      }
+      if (contactPhone && cached.phone !== contactPhone) {
+        cached.phone = contactPhone
+        isUpdated = true
+      }
+      if (isUpdated) {
+        app.globalData.userInfo = cached
+        wx.setStorageSync('userInfo', cached)
+      }
+
       this.setData({
         showSuccessModal: true,
         verifyCode: res.data.verify_code,
