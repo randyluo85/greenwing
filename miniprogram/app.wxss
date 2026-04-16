@@ -130,6 +130,52 @@ page {
   padding: 48rpx 0;
 }
 
+/* Loading 动画组件 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 24rpx;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 8rpx;
+  align-items: center;
+  height: 24rpx;
+}
+
+.loading-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background-color: var(--primary);
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: loadingPulse 1.4s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(1) { animation-delay: 0s; }
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loadingPulse {
+  0%, 80%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.loading-text {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: var(--text-muted);
+}
+
 /* 分割线 */
 .divider {
   height: 1rpx;

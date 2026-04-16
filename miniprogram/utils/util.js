@@ -49,16 +49,13 @@ const timeAgo = (date) => {
 }
 
 /**
- * 生成核销码
+ * 生成核销码（6位随机码）
+ * 注意：云函数中也定义了相同的逻辑，保持一致
  */
 const generateVerifyCode = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = 'QY-'
-  const now = new Date()
-  code += String(now.getMonth() + 1).padStart(2, '0')
-  code += String(now.getDate()).padStart(2, '0')
-  code += '-'
-  for (let i = 0; i < 5; i++) {
+  let code = ''
+  for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length))
   }
   return code

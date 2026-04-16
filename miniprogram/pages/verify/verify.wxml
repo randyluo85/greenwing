@@ -13,7 +13,7 @@
     <view class="manual-card card">
       <text class="manual-title">手动输入核销码</text>
       <view class="manual-input-wrap">
-        <input class="manual-input" placeholder="请输入核销码，如 QY-0411-A8K3M" bindinput="onCodeInput" value="{{manualCode}}" />
+        <input class="manual-input" placeholder="请输入6位核销码，如 6UYWGU" bindinput="onCodeInput" value="{{manualCode}}" />
         <view class="btn-primary manual-btn" bindtap="manualVerify">
           <text>核销</text>
         </view>

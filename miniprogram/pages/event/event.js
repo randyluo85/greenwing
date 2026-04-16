@@ -62,7 +62,7 @@ Page({
     this.setData({ currentTab: tab })
     if (tab === 'list' && this.data.events.length === 0) {
       this.loadEvents()
-    } else if (tab === 'mine' && this.data.pendingList.length === 0 && this.data.historyList.length === 0) {
+    } else if (tab === 'mine') {
       this.loadMyEvents()
     }
   },

@@ -169,6 +169,46 @@
 
 </view>
 
+<!-- 真实姓名填写弹窗 -->
+<view class="modal-mask {{showNameModal ? '' : 'hidden'}}" bindtap="closeNameModal">
+  <view class="modal-card name-modal-card" catchtap>
+    <view class="name-modal-header">
+      <text class="name-modal-title">完善报名信息</text>
+      <text class="name-modal-subtitle">请填写真实姓名，用于活动签到</text>
+    </view>
+    <view class="name-modal-body">
+      <view class="name-input-group">
+        <text class="name-input-label">真实姓名 *</text>
+        <input
+          class="name-input-field"
+          placeholder="请输入真实姓名"
+          value="{{enrollRealName}}"
+          bindinput="onEnrollNameInput"
+        />
+      </view>
+      <view class="name-input-group">
+        <text class="name-input-label">联系电话</text>
+        <input
+          class="name-input-field"
+          placeholder="选填，便于活动通知"
+          value="{{enrollContactPhone}}"
+          bindinput="onEnrollPhoneInput"
+          type="number"
+          maxlength="11"
+        />
+      </view>
+    </view>
+    <view class="name-modal-footer">
+      <view class="name-modal-btn name-modal-btn-cancel" bindtap="closeNameModal">
+        <text>取消</text>
+      </view>
+      <view class="name-modal-btn name-modal-btn-confirm" bindtap="confirmEnrollWithName">
+        <text>确认报名</text>
+      </view>
+    </view>
+  </view>
+</view>
+
 <!-- 报名成功弹窗 -->
 <view class="modal-mask {{showSuccessModal ? '' : 'hidden'}}" bindtap="closeSuccessModal">
   <view class="modal-card" catchtap>

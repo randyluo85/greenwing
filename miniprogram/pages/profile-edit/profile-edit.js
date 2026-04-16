@@ -4,6 +4,7 @@ Page({
   data: {
     userInfo: {},
     nickname: '',
+    realName: '',
     bio: '',
     genderIndex: 2,
     genderOptions: ['男', '女', '隐私'],
@@ -33,6 +34,7 @@ Page({
     this.setData({
       userInfo,
       nickname: userInfo.nickname || '',
+      realName: userInfo.real_name || '',
       bio: userInfo.bio || '',
       genderIndex,
       birthday: userInfo.birthday || '',
@@ -43,6 +45,51 @@ Page({
 
   onNicknameInput(e) {
     this.setData({ nickname: e.detail.value })
+  },
+
+  onRealNameInput(e) {
+    this.setData({ realName: e.detail.value })
+  },
+
+  async onGetPhoneNumber(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      wx.showToast({ title: '授权取消', icon: 'none' })
+      return
+    }
+
+    try {
+      wx.showLoading({ title: '绑定中...' })
+
+      // 调用云函数解密手机号
+      const res = await callFunction('user', {
+        action: 'bindPhone',
+        cloudID: e.detail.cloudID
+      })
+
+      wx.hideLoading()
+
+      if (res.success) {
+        const phone = res.data.phone || ''
+        const masked = phone.length >= 11
+          ? phone.slice(0, 3) + '****' + phone.slice(7)
+          : phone
+
+        this.setData({ maskedPhone: masked })
+
+        // 更新本地存储
+        const stored = wx.getStorageSync('userInfo') || {}
+        stored.phone = phone
+        wx.setStorageSync('userInfo', stored)
+        getApp().globalData.userInfo = stored
+
+        wx.showToast({ title: '绑定成功', icon: 'success' })
+      } else {
+        wx.showToast({ title: res.message || '绑定失败', icon: 'none' })
+      }
+    } catch (e) {
+      wx.hideLoading()
+      wx.showToast({ title: '绑定失败', icon: 'none' })
+    }
   },
 
   onBioInput(e) {
@@ -83,7 +130,7 @@ Page({
   },
 
   async onSave() {
-    const { nickname, bio, genderIndex, genderOptions, birthday, userInfo } = this.data
+    const { nickname, realName, bio, genderIndex, genderOptions, birthday, userInfo } = this.data
     const gender = genderIndex === 0 ? 'male' : genderIndex === 1 ? 'female' : 'private'
 
     if (!nickname.trim()) {
@@ -95,6 +142,7 @@ Page({
     try {
       const updateData = {
         nickname: nickname.trim(),
+        real_name: realName.trim(),
         bio,
         gender,
         birthday
