@@ -21,6 +21,7 @@
   "open_id": "oZp5njTTsWaCeEoXi14oeOVCKlik",
   "phone": "13800138000",
   "nickname": "张三",
+  "real_name": "张小三",
   "avatar_url": "cloud://xxx/avatar.png",
   "member_no": "QY20260409001",
   "role": "user",
@@ -37,8 +38,9 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | open_id | string | Y | 微信 OpenID，唯一标识 |
-| phone | string | N | 绑定手机号 |
+| phone | string | N | 绑定手机号（云开发授权） |
 | nickname | string | N | 用户昵称 |
+| real_name | string | N | 真实姓名（用户报名时填写） |
 | avatar_url | string | N | 头像地址 |
 | member_no | string | Y | 会员号，唯一，注册时生成 |
 | role | string | Y | 枚举: `user` / `admin` / `verifier` |
@@ -117,6 +119,8 @@
   "event_id": "events集合的_id",
   "order_id": "orders集合的_id（付费活动时关联）",
   "verify_code": "QY-20260420-A8K3M",
+  "real_name": "张小三",
+  "contact_phone": "13800138000",
   "status": "pending",
   "qrcode_url": "cloud://xxx/qrcodes/QY-0420-A8K3M.png",
   "verified_by": "核销管理员的open_id",
@@ -133,6 +137,8 @@
 | event_id | string | Y | 关联 events._id |
 | order_id | string | N | 付费活动关联 orders._id |
 | verify_code | string | Y | 核销码，唯一 |
+| real_name | string | N | 报名时的真实姓名（冗余，便于核销） |
+| contact_phone | string | N | 报名时的联系电话（冗余，便于核销） |
 | qrcode_url | string | N | 小程序码图片云存储 fileID，懒加载生成 |
 | status | string | Y | `pending` / `cancelled` / `verified` |
 | verified_by | string | N | 核销人 open_id |
