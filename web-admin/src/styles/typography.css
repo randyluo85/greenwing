@@ -1,0 +1,207 @@
+/**
+ * 字体系统统一规范
+ *
+ * 确保所有组件和页面使用统一的字体大小变量
+ * 而不是硬编码的像素值
+ */
+
+/* ============================================
+   HTML 元素字体规范
+   ============================================ */
+
+html {
+  font-size: var(--fs-base);
+}
+
+/* 标题层级 */
+h1, .h1 {
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+}
+
+h2, .h2 {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+}
+
+h3, .h3 {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: var(--lh-normal);
+}
+
+h4, .h4 {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  line-height: var(--lh-normal);
+}
+
+/* 正文 */
+p {
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+}
+
+/* 小文本 */
+small, .small {
+  font-size: var(--fs-sm);
+}
+
+/* 辅助文本 */
+.text-muted {
+  color: var(--color-text-tertiary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+/* 字体重量辅助类 */
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* 文本对齐 */
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* 文本换行控制 */
+.text-nowrap {
+  white-space: nowrap;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 文本换行 */
+.text-wrap {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* ============================================
+   常用组件字体覆盖
+   ============================================ */
+
+/* 卡片标题 */
+.card-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* 表格内容 */
+.table-cell-text {
+  font-size: var(--fs-sm);
+  color: var(--color-text-primary);
+}
+
+.table-label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* 按钮文本 */
+.btn-text {
+  font-size: var(--fs-base);
+  font-weight: 500;
+}
+
+/* 表单标签 */
+.form-label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.form-hint {
+  font-size: var(--fs-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--sp-1);
+}
+
+/* 链接 */
+a {
+  color: var(--color-text-link);
+  font-size: inherit;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* 徽章和标签 */
+.badge {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.tag {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+/* 统计数字 */
+.stat-number {
+  font-size: var(--fs-display-md);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.stat-label {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   响应式字体调整
+   ============================================ */
+
+/* 大屏幕可以适当增大字体 */
+@media (min-width: 1440px) {
+  html {
+    font-size: 15px; /* 从 14px 增加到 15px */
+  }
+}
+
+/* 小屏幕保持可读性 */
+@media (max-width: 767px) {
+  .page-title {
+    font-size: var(--fs-lg);
+  }
+
+  .stat-number {
+    font-size: var(--fs-display-sm);
+  }
+}
