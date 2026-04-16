@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/search/search",
     "pages/event/event",
     "pages/my/my",
     "pages/event-detail/event-detail",
@@ -14,6 +15,7 @@
     "pages/books/books",
     "pages/book-detail/book-detail",
     "pages/notifications/notifications",
+    "pages/notification-detail/notification-detail",
     "pages/profile-edit/profile-edit",
     "pages/shop/shop"
   ],

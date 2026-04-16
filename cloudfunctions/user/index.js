@@ -160,6 +160,20 @@ async function handleSignIn(openid) {
       }
     })
 
+    // 下发积分到账通知
+    await db.collection('notifications').add({
+      data: {
+        open_id: openid,
+        title: '积分奖励发放',
+        body: `您今日已成功签到，系统发放了 ${totalEarned} 积分奖励。连续签到可得更多奖励哦！`,
+        icon_bg_color: '#fb923c',
+        icon_text: '奖',
+        is_read: false,
+        type: 'points_reward',
+        created_at: db.serverDate()
+      }
+    })
+
     return {
       success: true,
       data: {

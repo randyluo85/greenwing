@@ -228,14 +228,48 @@
             placeholder="选择跳转类型"
             clearable
             style="width: 100%;"
+            @change="bannerForm.redirect_url = ''"
           >
             <el-option label="活动页" value="event" />
+            <el-option label="图书页" value="book" />
             <el-option label="文章页" value="article" />
             <el-option label="自定义页面" value="page" />
           </el-select>
         </el-form-item>
         <el-form-item label="跳转地址">
+          <!-- 活动选择 -->
+          <el-select
+            v-if="bannerForm.redirect_type === 'event'"
+            v-model="bannerForm.redirect_url"
+            placeholder="请选择跳转的活动"
+            style="width: 100%;"
+            filterable
+          >
+            <el-option
+              v-for="evt in events"
+              :key="evt._id"
+              :label="evt.title"
+              :value="'/pages/event-detail/event-detail?id=' + evt._id"
+            />
+          </el-select>
+          <!-- 图书选择 -->
+          <el-select
+            v-else-if="bannerForm.redirect_type === 'book'"
+            v-model="bannerForm.redirect_url"
+            placeholder="请选择跳转的图书"
+            style="width: 100%;"
+            filterable
+          >
+            <el-option
+              v-for="book in books"
+              :key="book._id"
+              :label="book.title"
+              :value="'/pages/book-detail/book-detail?id=' + book._id"
+            />
+          </el-select>
+          <!-- 默认自定义输入 -->
           <el-input
+            v-else
             v-model="bannerForm.redirect_url"
             placeholder="/pages/event-detail/event-detail?id=xxx"
           />
@@ -324,6 +358,43 @@
         </el-button>
       </template>
     </el-drawer>
+    <!-- 消息群发 -->
+    <div v-if="activeTab === 'messages'" class="tab-content message-tab">
+      <BaseCard :shadow="'sm'" class="message-card">
+        <h3 class="message-title">发送全站系统消息</h3>
+        <p class="message-desc">系统消息将直接下发至所有已注册的小程序用户（测试环境若用户达千级发送较慢），请谨慎操作。</p>
+
+        <el-form :model="messageForm" label-width="80px" class="message-form">
+          <el-form-item label="消息标题" required>
+            <el-input 
+              v-model="messageForm.title" 
+              placeholder="例如：青翼读书会重装上线公告" 
+              maxlength="30" 
+              show-word-limit
+            />
+          </el-form-item>
+          <el-form-item label="消息正文" required>
+            <el-input 
+              v-model="messageForm.body" 
+              type="textarea" 
+              :rows="5"
+              placeholder="请输入正文内容，尽量简明扼要..." 
+              maxlength="200" 
+              show-word-limit
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button 
+              type="danger" 
+              :loading="messageSubmitting"
+              @click="submitMessage"
+            >
+              确认群发
+            </el-button>
+          </el-form-item>
+        </el-form>
+      </BaseCard>
+    </div>
   </div>
 </template>
 
@@ -350,12 +421,21 @@ import { callFunction, uploadFile, getTempFileURL } from '@/utils/cloud'
 const activeTab = ref('banners')
 const banners = ref([])
 const books = ref([])
+const events = ref([]) // 用于 Banner 的活动选择
 
 // Tab 配置
 const tabs = computed(() => [
   { key: 'banners', label: '轮播管理', count: banners.value.length },
-  { key: 'books', label: '推荐图书', count: books.value.length }
+  { key: 'books', label: '推荐图书', count: books.value.length },
+  { key: 'messages', label: '消息群发', count: 'Push' }
 ])
+
+// 消息群发表单
+const messageForm = reactive({
+  title: '',
+  body: ''
+})
+const messageSubmitting = ref(false)
 
 // Banner drawer
 const drawerVisible = ref(false)
@@ -392,19 +472,33 @@ function switchTab(key) {
 
 // 获取 Tab 徽章类型
 function getTabBadgeType(key) {
+  if (key === 'messages') return 'danger'
   return key === 'banners' ? 'primary' : 'success'
 }
 
 // 获取跳转类型颜色
 function getRedirectTypeColor(type) {
-  const colors = { event: 'success', article: 'info', page: 'warning' }
+  const colors = { event: 'success', book: 'primary', article: 'info', page: 'warning' }
   return colors[type] || 'info'
 }
 
 // 获取跳转类型标签
 function redirectTypeLabel(type) {
-  const labels = { event: '活动', article: '文章', page: '页面' }
+  const labels = { event: '活动', book: '图书', article: '文章', page: '页面' }
   return labels[type] || type || ''
+}
+
+// 加载用作选项的活动列表
+async function loadEvents() {
+  try {
+    const res = await callFunction('admin', {
+      action: 'getEvents',
+      pageSize: 100
+    })
+    events.value = res.data.list || []
+  } catch (e) {
+    // ignore
+  }
 }
 
 // 加载轮播列表
@@ -740,9 +834,45 @@ async function deleteBook(book) {
   }
 }
 
+// ====== MESSAGE =================
+async function submitMessage() {
+  if (!messageForm.title.trim() || !messageForm.body.trim()) {
+    ElMessage.warning('请填写完整的消息标题和正文')
+    return
+  }
+  
+  if (!confirm('确定要向全体用户群发该消息吗？一旦发送无法撤回！')) return
+  
+  messageSubmitting.value = true
+  try {
+    const res = await callFunction('admin', {
+      action: 'manageContent',
+      type: 'broadcast',
+      data: {
+        title: messageForm.title.trim(),
+        body: messageForm.body.trim()
+      }
+    })
+    
+    if (res.success) {
+      ElMessage.success(res.message || '群发成功')
+      messageForm.title = ''
+      messageForm.body = ''
+    } else {
+      ElMessage.error(res.message || '群发失败')
+    }
+  } catch (e) {
+    ElMessage.error('系统异常: ' + e.message)
+  } finally {
+    messageSubmitting.value = false
+  }
+}
+
+// 初始化
 onMounted(() => {
   loadBanners()
   loadBooks()
+  loadEvents()
 })
 </script>
 
@@ -1044,6 +1174,30 @@ onMounted(() => {
 
 .upload-placeholder i {
   font-size: 24px;
+}
+
+/* 消息功能样式 */
+.message-tab {
+  padding: var(--sp-4);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.message-card {
+  padding: var(--sp-6);
+}
+
+.message-title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--sp-2) 0;
+}
+
+.message-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+  margin: 0 0 var(--sp-6) 0;
 }
 
 /* 响应式调整 */

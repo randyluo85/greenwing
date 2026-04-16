@@ -13,6 +13,7 @@ Page({
     showSignModal: false,
     signResult: {},
     loading: true,
+    unreadCount: 0,
     levelName: '青铜会员',
     modeTextMap: {
       free: '免费报名',
@@ -28,6 +29,22 @@ Page({
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 })
+    }
+    this.checkUnreadNotifications()
+  },
+
+  async checkUnreadNotifications() {
+    try {
+      const openid = getApp().globalData.openid || wx.getStorageSync('userInfo')?.open_id
+      if (!openid) return
+
+      const db = wx.cloud.database()
+      const res = await db.collection('notifications')
+        .where({ open_id: openid, is_read: false })
+        .count()
+      this.setData({ unreadCount: res.total })
+    } catch (e) {
+      // collection may not exist yet
     }
   },
 
@@ -176,6 +193,10 @@ Page({
   },
 
   // 跳转
+  goSearch() {
+    wx.navigateTo({ url: '/pages/search/search' })
+  },
+
   goEventList() {
     wx.switchTab({ url: '/pages/event/event' })
   },

@@ -15,7 +15,12 @@ Page({
   },
 
   onLoad() {
-    const userInfo = getApp().globalData.userInfo || wx.getStorageSync('userInfo') || {}
+    this.initData()
+    this.fetchLatestProfile()
+  },
+
+  initData(userCache) {
+    const userInfo = userCache || getApp().globalData.userInfo || wx.getStorageSync('userInfo') || {}
     const phone = userInfo.phone || ''
     const masked = phone.length >= 11
       ? phone.slice(0, 3) + '****' + phone.slice(7)
@@ -41,6 +46,20 @@ Page({
       maskedPhone: masked,
       joinDays
     })
+  },
+
+  async fetchLatestProfile() {
+    try {
+      const res = await callFunction('user', { action: 'getProfile' })
+      if (res.success && res.data) {
+        const userInfo = res.data
+        getApp().globalData.userInfo = userInfo
+        wx.setStorageSync('userInfo', userInfo)
+        this.initData(userInfo)
+      }
+    } catch (e) {
+      console.warn('获取最新用户信息失败', e)
+    }
   },
 
   onNicknameInput(e) {

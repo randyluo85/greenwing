@@ -1,0 +1,19 @@
+<view class="page">
+  <view class="detail-container" wx:if="{{message}}">
+    <view class="header">
+      <view class="title">{{message.title}}</view>
+      <view class="time">{{message._formattedTime}}</view>
+    </view>
+    <view class="content">
+      <text user-select="true">{{message.body}}</text>
+    </view>
+  </view>
+  
+  <view class="loading-state" wx:elif="{{loading}}">
+    <text>加载中...</text>
+  </view>
+  
+  <view class="error-state" wx:else>
+    <text>消息不存在或已被删除</text>
+  </view>
+</view>
