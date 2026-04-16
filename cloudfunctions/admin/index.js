@@ -72,6 +72,8 @@ exports.main = async (event, context) => {
       return handleGetOrders(event)
     case 'approveRefund':
       return handleApproveRefund(event)
+    case 'cancelOrder':
+      return handleCancelOrder(event)
     case 'getRegistrations':
       return handleGetRegistrations(event)
     case 'manageContent':
@@ -263,6 +265,7 @@ async function handleGetOrders(event) {
       where.created_at = conditions.length === 1 ? conditions[0] : _.and(conditions)
     }
 
+    // 获取订单列表
     const countRes = await db.collection('orders').where(where).count()
     const listRes = await db.collection('orders')
       .where(where)
@@ -271,9 +274,50 @@ async function handleGetOrders(event) {
       .limit(pageSize)
       .get()
 
+    // 批量获取用户信息
+    const userIds = listRes.data.map(o => o.user_id).filter(id => id)
+    const userMap = {}
+    if (userIds.length > 0) {
+      const userRes = await db.collection('users')
+        .where({ _id: _.in(userIds) })
+        .get()
+      userRes.data.forEach(u => {
+        userMap[u._id] = {
+          _id: u._id,
+          member_no: u.member_no,
+          nickname: u.nickname,
+          real_name: u.real_name,
+          phone: u.phone
+        }
+      })
+    }
+
+    // 批量获取活动信息
+    const eventIds = listRes.data.map(o => o.event_id).filter(id => id)
+    const eventMap = {}
+    if (eventIds.length > 0) {
+      const distinctEventIds = [...new Set(eventIds)]
+      const eventRes = await db.collection('events')
+        .where({ _id: _.in(distinctEventIds) })
+        .get()
+      eventRes.data.forEach(e => {
+        eventMap[e._id] = {
+          _id: e._id,
+          title: e.title
+        }
+      })
+    }
+
+    // 组合数据
+    const list = listRes.data.map(order => ({
+      ...order,
+      user: userMap[order.user_id] || null,
+      event: eventMap[order.event_id] || null
+    }))
+
     return {
       success: true,
-      data: { list: listRes.data, total: countRes.total, hasMore: page * pageSize < countRes.total }
+      data: { list, total: countRes.total, hasMore: page * pageSize < countRes.total }
     }
   } catch (err) {
     return { success: false, message: err.message }
@@ -330,6 +374,7 @@ async function handleGetRegistrations(event) {
     const where = {}
     if (eventId) where.event_id = eventId
 
+    // 获取报名列表
     const countRes = await db.collection('registrations').where(where).count()
     const listRes = await db.collection('registrations')
       .where(where)
@@ -338,9 +383,35 @@ async function handleGetRegistrations(event) {
       .limit(pageSize)
       .get()
 
+    // 批量获取用户信息
+    const userIds = listRes.data.map(r => r.user_id).filter(id => id)
+    const userMap = {}
+    if (userIds.length > 0) {
+      const userRes = await db.collection('users')
+        .where({ _id: _.in(userIds) })
+        .get()
+      userRes.data.forEach(u => {
+        userMap[u._id] = {
+          _id: u._id,
+          member_no: u.member_no,
+          nickname: u.nickname,
+          avatar_url: u.avatar_url,
+          phone: u.phone,
+          real_name: u.real_name,
+          level: u.level
+        }
+      })
+    }
+
+    // 组合数据
+    const list = listRes.data.map(r => ({
+      ...r,
+      user: userMap[r.user_id] || null
+    }))
+
     return {
       success: true,
-      data: { list: listRes.data, total: countRes.total }
+      data: { list, total: countRes.total }
     }
   } catch (err) {
     return { success: false, message: err.message }
@@ -402,15 +473,28 @@ async function handleManageContent(event) {
 async function handleGetDashboard(event) {
   try {
     // 总收入 - 使用 aggregate 聚合，无数据量上限
+    // 核心财务统计：计算累计总收入（包含所有现金流入状态：paid, refunding, refunded）
     let totalRevenue = 0
     let totalOrders = 0
     try {
       const aggRes = await db.collection('orders')
         .aggregate()
-        .match({ status: 'paid' })
-        .group({ _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } })
+        .match({ 
+          status: _.in(['paid', 'refunding', 'refunded']) 
+        })
+        .project({
+          amount: { $convert: { input: '$amount', to: 'double', onError: 0, onNull: 0 } }
+        })
+        .group({ 
+          _id: null, 
+          total: { $sum: '$amount' }, 
+          count: { $sum: 1 } 
+        })
         .end()
-      if (aggRes.data.length > 0) {
+      
+      console.log('Revenue Aggregation Result:', JSON.stringify(aggRes.data))
+      
+      if (aggRes.data && aggRes.data.length > 0) {
         totalRevenue = aggRes.data[0].total || 0
         totalOrders = aggRes.data[0].count || 0
       }
@@ -424,9 +508,19 @@ async function handleGetDashboard(event) {
       const refundAgg = await db.collection('orders')
         .aggregate()
         .match({ status: 'refunded' })
-        .group({ _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } })
+        .project({
+          amount: { $convert: { input: '$amount', to: 'double', onError: 0, onNull: 0 } }
+        })
+        .group({ 
+          _id: null, 
+          total: { $sum: '$amount' }, 
+          count: { $sum: 1 } 
+        })
         .end()
-      if (refundAgg.data.length > 0) {
+      
+      console.log('Refund Aggregation Result:', JSON.stringify(refundAgg.data))
+      
+      if (refundAgg.data && refundAgg.data.length > 0) {
         totalRefund = refundAgg.data[0].total || 0
         refundCount = refundAgg.data[0].count || 0
       }

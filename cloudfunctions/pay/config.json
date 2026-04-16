@@ -1,5 +1,13 @@
 {
   "permissions": {
     "openapi": []
-  }
+  },
+  "triggers": [{
+    "name": "payCallback",
+    "type": "http",
+    "config": {
+      "methods": ["POST"],
+      "authRequired": false
+    }
+  }]
 }
