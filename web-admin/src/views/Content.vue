@@ -258,7 +258,8 @@ function handleImageUpload() {
     const file = e.target.files[0]
     if (!file) return
     try {
-      const cloudPath = `banners/${Date.now()}_${file.name}`
+      const safeName = file.name.replace(/[^\w.\-]/g, '_')
+      const cloudPath = `banners/${Date.now()}_${safeName}`
       const fileID = await uploadFile(cloudPath, file)
       bannerForm.image_url = fileID
       const urls = await getTempFileURL([fileID])
@@ -294,7 +295,8 @@ function handleBookCoverUpload() {
     const file = e.target.files[0]
     if (!file) return
     try {
-      const cloudPath = `books/${Date.now()}_${file.name}`
+      const safeName = file.name.replace(/[^\w.\-]/g, '_')
+      const cloudPath = `books/${Date.now()}_${safeName}`
       const fileID = await uploadFile(cloudPath, file)
       bookForm.cover_image = fileID
       const urls = await getTempFileURL([fileID])

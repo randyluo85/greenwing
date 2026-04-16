@@ -32,7 +32,7 @@
 .profile-header {
   position: relative;
   z-index: 1;
-  height: 420rpx;
+  height: 300rpx;
   padding: 0 32rpx 48rpx;
   display: flex;
   flex-direction: column;
@@ -115,7 +115,7 @@
   padding: 8rpx 24rpx;
   border-radius: 999rpx;
   font-size: 22rpx;
-  color: #ffffff;
+  color: #1f2937;
   font-weight: 500;
   box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
   border: 1rpx solid rgba(255,255,255,0.2);
@@ -256,7 +256,6 @@
 
 .menu-text-wrap {
   flex: 1;
-  margin-left: 28rpx;
 }
 
 /* 菜单文字 - 原型 text-[15px] font-bold */
@@ -264,6 +263,7 @@
   font-size: 30rpx;
   font-weight: bold;
   color: #1f2937;
+  margin-left: 24rpx;
 }
 
 /* 子文字 - 原型 text-[13px] text-gray-400 font-medium ml-0.5 */

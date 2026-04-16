@@ -1,9 +1,8 @@
 <view class="login-page">
   <view class="login-content">
     <image src="/images/logo.png" mode="aspectFit" class="logo" />
-    <text class="title">青翼读书会</text>
     <view class="deco-line"></view>
-    <text class="subtitle">赋能你的知识</text>
+    <text class="subtitle">重庆出版社官方阅读社群</text>
   </view>
 
   <view class="login-actions">

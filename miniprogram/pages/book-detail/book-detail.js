@@ -1,3 +1,5 @@
+const { resolveCloudUrls } = require('../../utils/cloud')
+
 Page({
   data: {
     book: null,
@@ -18,9 +20,20 @@ Page({
       const r = book.rating || 0
       book._fullStars = Math.floor(r / 2)
       book._halfStar = r % 2 === 1
+      book._stars = computeStars(book.rating)
+
+      // 转换 cloud:// URL
+      await resolveCloudUrls([book], 'cover_image')
+      // 转换失败则使用默认图
+      if (book.cover_image && book.cover_image.startsWith('cloud://')) {
+        console.warn('[book-detail] 封面转换失败，使用默认图')
+        book.cover_image = '/images/book1.jpg'
+      }
+
       this.setData({ book, loading: false })
       wx.setNavigationBarTitle({ title: book.title || '好书推荐' })
     } catch (e) {
+      console.error('[book-detail] 加载失败:', e)
       this.setData({ loading: false })
       wx.showToast({ title: '加载失败', icon: 'none' })
     }

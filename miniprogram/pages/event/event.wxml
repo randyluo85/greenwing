@@ -57,27 +57,22 @@
         <text class="past-title">往期活动</text>
       </view>
       <view class="event-list">
-        <view class="event-card card-past" wx:for="{{events}}" wx:key="_id" wx:if="{{item._isPast}}">
-          <view class="card-header bg-gray">
-            <view class="header-top">
-              <view class="header-date">
-                <text class="date-text">{{item._formattedDate}}</text>
-                <text class="time-text">{{item._formattedTime}}</text>
-              </view>
-              <view class="status-badge badge-ended">已结束</view>
-            </view>
-            <text class="card-title">{{item.title}}</text>
-            <view class="card-divider"></view>
-            <view class="card-location">
-              <text class="location-icon">@</text>
-              <text class="location-text">{{item.location || '线上'}}</text>
-            </view>
+        <view class="event-card card-past card-compact" wx:for="{{events}}" wx:key="_id" wx:if="{{item._isPast}}">
+          <view class="compact-header">
+            <text class="compact-title">{{item.title}}</text>
+            <view class="status-badge badge-ended">已结束</view>
           </view>
-          <view class="card-footer">
-            <view class="footer-actions">
-              <view class="btn-detail" bindtap="goDetail" data-id="{{item._id}}">
-                <text>查看详情</text>
+          <view class="compact-footer">
+            <view class="compact-info">
+              <view class="compact-info-item">
+                <text>{{item._formattedDate}} {{item._formattedTime}}</text>
               </view>
+              <view class="compact-info-item">
+                <text>{{item.location || '线上'}}</text>
+              </view>
+            </view>
+            <view class="btn-detail btn-compact" bindtap="goDetail" data-id="{{item._id}}">
+              <text>查看详情</text>
             </view>
           </view>
         </view>
@@ -150,28 +145,24 @@
         <text class="section-title">历史足迹</text>
       </view>
       <view class="event-list" wx:if="{{historyList.length}}">
-        <view class="event-card card-history" wx:for="{{historyList}}" wx:key="_id">
-          <view class="card-header bg-gray">
-            <view class="header-top">
-              <view class="header-date">
-                <text class="date-text">{{item.event._formattedDate || ''}}</text>
-                <text class="time-text">{{item.event._formattedTime || ''}}</text>
-              </view>
-              <view class="status-badge badge-ended">已结束</view>
-            </view>
-            <text class="card-title">{{item.event.title || '活动'}}</text>
-            <view class="card-divider"></view>
-            <view class="card-location">
-              <text class="location-icon">@</text>
-              <text class="location-text">{{item.event.location || '线上'}}</text>
-            </view>
+        <view class="event-card card-history card-compact" wx:for="{{historyList}}" wx:key="_id">
+          <view class="compact-header">
+            <text class="compact-title">{{item.event.title || '活动'}}</text>
+            <view class="status-badge badge-ended">已结束</view>
           </view>
-          <view class="card-footer">
-            <text class="footer-time">{{item.event._enrollDate || ''}}</text>
-            <view class="footer-actions">
-              <view class="btn-review" bindtap="goDetail" data-id="{{item.event._id}}">
-                <text>活动回顾</text>
+          <view class="compact-footer">
+            <view class="compact-info">
+              <view class="compact-info-item">
+                <text class="compact-icon">@</text>
+                <text>{{item.event._formattedDate || ''}} {{item.event._formattedTime || ''}}</text>
               </view>
+              <view class="compact-info-item">
+                <text class="compact-icon">地</text>
+                <text>{{item.event.location || '线上'}}</text>
+              </view>
+            </view>
+            <view class="btn-detail btn-compact" bindtap="goDetail" data-id="{{item.event._id}}">
+              <text>活动回顾</text>
             </view>
           </view>
         </view>

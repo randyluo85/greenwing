@@ -1,4 +1,4 @@
-const { callFunction } = require('../../utils/cloud')
+const { callFunction, resolveCloudUrls } = require('../../utils/cloud')
 const auth = require('../../utils/auth')
 const { formatDate, formatMoney, timeAgo } = require('../../utils/util')
 
@@ -69,6 +69,7 @@ Page({
       wx.showLoading({ title: '加载中...' })
       const res = await callFunction('event', { action: 'detail', eventId: id })
       const event = res.data
+      await resolveCloudUrls([event], 'cover_image')
 
       const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
       const tierMap = { bronze: '青铜会员', silver: '白银会员', gold: '黄金会员' }

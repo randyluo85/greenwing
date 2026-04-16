@@ -1,5 +1,5 @@
 Page({
   onLoad() {
-    wx.showToast({ title: '敬请期待', icon: 'none' })
+    // 商城页面待开发
   }
 })

@@ -1,4 +1,4 @@
-const { callFunction } = require('../../utils/cloud')
+const { callFunction, resolveCloudUrls } = require('../../utils/cloud')
 const auth = require('../../utils/auth')
 const { formatDate, getLevelName } = require('../../utils/util')
 
@@ -76,6 +76,7 @@ Page({
         .limit(5)
         .get()
       if (res.data.length > 0) {
+        await resolveCloudUrls(res.data, 'image_url')
         this.setData({ banners: res.data })
         return
       }
@@ -106,6 +107,7 @@ Page({
           _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm')
         }))
       if (events.length > 0) {
+        await resolveCloudUrls(events, 'cover_image')
         this.setData({ events })
         return
       }
@@ -134,20 +136,7 @@ Page({
           _halfStar: (b.rating || 0) % 2 === 1
         }))
         // cloud:// 在 DevTools 下可能无法解析，转为 HTTP URL
-        const cloudIds = books.filter(b => b.cover_image && b.cover_image.startsWith('cloud://'))
-          .map(b => b.cover_image)
-        if (cloudIds.length > 0) {
-          try {
-            const urlRes = await wx.cloud.getTempFileURL({ fileList: cloudIds })
-            const urlMap = {}
-            urlRes.fileList.forEach(f => { urlMap[f.fileID] = f.tempFileURL })
-            books.forEach(b => {
-              if (b.cover_image && urlMap[b.cover_image]) {
-                b.cover_image = urlMap[b.cover_image]
-              }
-            })
-          } catch (e) { /* 转换失败则保留原值，真机可用 */ }
-        }
+        await resolveCloudUrls(books, 'cover_image')
         this.setData({ books })
       }
     } catch (e) { /* ignore */ }

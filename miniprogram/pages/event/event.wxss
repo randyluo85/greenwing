@@ -90,7 +90,81 @@
   box-shadow: 0 4rpx 20rpx -8rpx rgba(0,0,0,0.1);
 }
 
-.card-past, .card-history { opacity: 0.9; }
+.card-past {
+  opacity: 0.85;
+}
+
+/* 紧凑型卡片（往期活动） */
+.card-compact {
+  border-radius: 16rpx;
+  border: 1rpx solid #f3f4f6;
+  box-shadow: 0 2rpx 8rpx -4rpx rgba(0,0,0,0.08);
+}
+
+.compact-header {
+  background: rgba(243,244,246,0.8);
+  padding: 14rpx 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.compact-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #374151;
+  letter-spacing: 4rpx;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 16rpx;
+}
+
+.compact-footer {
+  background: #ffffff;
+  padding: 24rpx 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.compact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.compact-info-item {
+  font-size: 22rpx;
+  color: #9ca3af;
+  font-weight: 300;
+  letter-spacing: 2rpx;
+  display: flex;
+  align-items: center;
+}
+
+.compact-icon {
+  width: 14rpx;
+  text-align: center;
+  margin-right: 4rpx;
+  font-size: 20rpx;
+}
+
+.btn-compact {
+  padding: 12rpx 24rpx;
+  border: 1rpx solid #e5e7eb;
+  color: #6b7280;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  white-space: nowrap;
+}
+
+.btn-compact:active {
+  background: #f9fafb;
+}
 
 /* 卡片头部 */
 .card-header { padding: 28rpx; color: #ffffff; }

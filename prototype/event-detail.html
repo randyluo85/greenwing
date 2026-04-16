@@ -137,6 +137,93 @@
                 </div>
             </div>
         </div>
+
+        <!-- Comments Section -->
+        <div id="comments-section" class="bg-white rounded-[10px] px-4 py-4 shadow-sm mb-4">
+            <!-- Locked State (未报名状态) -->
+            <div id="comments-locked" class="flex items-start py-3">
+                <div class="w-7 h-7 rounded-full bg-[#1ab6a2]/10 text-[#1ab6a2] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i class="fas fa-lock text-[12px]"></i>
+                </div>
+                <div class="ml-3.5 flex-1">
+                    <div class="text-[15px] font-medium text-gray-800 tracking-wide mb-1">活动讨论</div>
+                    <div class="flex items-center space-x-2">
+                        <div class="h-[1px] flex-1 bg-gradient-to-r from-gray-200 to-transparent"></div>
+                        <span class="text-[11px] text-gray-400 whitespace-nowrap">报名后解锁</span>
+                        <div class="h-[1px] flex-1 bg-gradient-to-l from-gray-200 to-transparent"></div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 ml-3">
+                    <div class="bg-gradient-to-br from-[#1ab6a2]/5 to-[#1ab6a2]/10 rounded-lg px-3 py-2 text-center border border-[#1ab6a2]/20">
+                        <i class="fas fa-comment-dots text-[#1ab6a2] text-lg"></i>
+                        <div class="text-[10px] text-gray-500 mt-1">参与讨论</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active State (已报名状态 - 默认隐藏) -->
+            <div id="comments-active" class="hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-[16px] font-bold text-gray-800 tracking-wider">活动讨论</h3>
+                    <span class="text-[12px] text-gray-400">3条评论</span>
+                </div>
+
+                <!-- Comment List -->
+                <div class="space-y-4 mb-4">
+                    <!-- Comment Item 1 -->
+                    <div class="flex space-x-3">
+                        <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=150"
+                            class="w-8 h-8 rounded-full flex-shrink-0" alt="Avatar">
+                        <div class="flex-1">
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-[13px] font-medium text-gray-800 mb-1">张明</div>
+                                <div class="text-[13px] text-gray-600 leading-relaxed">非常期待这次活动，维吉尔的作品一直想深入了解！</div>
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1 ml-1">2小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- Comment Item 2 -->
+                    <div class="flex space-x-3">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150"
+                            class="w-8 h-8 rounded-full flex-shrink-0" alt="Avatar">
+                        <div class="flex-1">
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-[13px] font-medium text-gray-800 mb-1">李娜</div>
+                                <div class="text-[13px] text-gray-600 leading-relaxed">王教授的课每次都很精彩，这次一定不能错过～</div>
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1 ml-1">1小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- Comment Item 3 -->
+                    <div class="flex space-x-3">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150"
+                            class="w-8 h-8 rounded-full flex-shrink-0" alt="Avatar">
+                        <div class="flex-1">
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="text-[13px] font-medium text-gray-800 mb-1">王芳</div>
+                                <div class="text-[13px] text-gray-600 leading-relaxed">有飞花令环节吗？太有意思了！</div>
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1 ml-1">30分钟前</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment Input -->
+                <div class="border-t border-gray-100 pt-4">
+                    <textarea id="comment-input"
+                        class="w-full p-3 bg-gray-50 rounded-lg text-[13px] text-gray-800 placeholder-gray-400 resize-none border-0 focus:ring-0 focus:bg-white transition-colors"
+                        placeholder="分享你的想法..." rows="2"></textarea>
+                    <div class="flex justify-end mt-2">
+                        <button onclick="postComment()"
+                            class="bg-[#1ab6a2] text-white text-[13px] font-medium px-5 py-2 rounded-full active:bg-teal-600 transition-colors">
+                            发表评论
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Action Sticky Footer -->
@@ -231,12 +318,43 @@
             const modal = document.getElementById('success-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+
+            // 解锁评论区
+            document.getElementById('comments-locked').classList.add('hidden');
+            document.getElementById('comments-active').classList.remove('hidden');
+
+            // 延迟滚动到评论区（让用户先看到成功弹窗）
+            setTimeout(() => {
+                scrollToComments();
+            }, 500);
         }
 
         function closeSuccessModal() {
             const modal = document.getElementById('success-modal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+        }
+
+        function scrollToComments() {
+            const commentsSection = document.getElementById('comments-section');
+            commentsSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        function postComment() {
+            const input = document.getElementById('comment-input');
+            const content = input.value.trim();
+
+            if (!content) {
+                alert('请输入评论内容');
+                return;
+            }
+
+            // 模拟添加评论
+            alert('评论发表成功！');
+            input.value = '';
         }
     </script>
 </body>
