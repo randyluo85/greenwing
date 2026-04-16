@@ -219,14 +219,14 @@ const userColumns = computed(() => [
   {
     prop: 'member_no',
     label: '会员号',
-    width: 230,
+    width: 160,
     slot: 'member_no',
     sortable: true
   },
   {
     prop: 'user',
     label: '用户',
-    minWidth: 260,
+    minWidth: 120,
     slot: 'user'
   },
   {

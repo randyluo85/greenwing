@@ -213,14 +213,14 @@ const orderColumns = computed(() => [
   {
     prop: 'order_no',
     label: '订单号',
-    width: 140,
+    width: 120,
     slot: 'order_no',
     sortable: true
   },
   {
     prop: 'user_info',
     label: '用户',
-    minWidth: 150,
+    minWidth: 120,
     slot: 'user_info'
   },
   {
@@ -232,13 +232,13 @@ const orderColumns = computed(() => [
   {
     prop: 'event',
     label: '活动',
-    minWidth: 180,
+    minWidth: 160,
     slot: 'event'
   },
   {
     prop: 'amount',
     label: '金额',
-    width: 90,
+    width: 120,
     slot: 'amount',
     sortable: true
   },
