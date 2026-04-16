@@ -127,7 +127,8 @@ function handleCoverUpload() {
     const file = e.target.files[0]
     if (!file) return
     try {
-      const cloudPath = `events/${Date.now()}_${file.name}`
+      const safeName = file.name.replace(/[^\w.\-]/g, '_')
+      const cloudPath = `events/${Date.now()}_${safeName}`
       const fileID = await uploadFile(cloudPath, file)
       form.cover_image = fileID
       const urls = await getTempFileURL([fileID])

@@ -33,10 +33,12 @@ Page({
         pageSize: 100
       })
 
+      const now = new Date()
+
       const allItems = (res.data.list || []).map(item => {
-        const now = new Date()
         const eventDate = item.event && item.event.event_time ? new Date(item.event.event_time) : null
         const isToday = eventDate && eventDate.toDateString() === now.toDateString()
+        const isExpired = eventDate && eventDate < now
         return {
           ...item,
           _isToday: isToday,
@@ -44,13 +46,25 @@ Page({
             ...item.event,
             _formattedDate: formatDate(item.event.event_time, 'YYYY年MM月DD日'),
             _formattedTime: formatDate(item.event.event_time, 'HH:mm'),
-            _enrollDate: formatDate(item.created_at, 'YYYY.MM.DD')
+            _enrollDate: formatDate(item.created_at, 'YYYY.MM.DD'),
+            _isExpired: isExpired
           } : {}
         }
       })
 
-      const pendingList = allItems.filter(i => i.status === 'pending')
-      const historyList = allItems.filter(i => i.status === 'verified' || i.status === 'cancelled')
+      // 待参加：状态为pending且活动未过期
+      const pendingList = allItems.filter(i => {
+        if (i.status !== 'pending') return false
+        if (i.event && i.event._isExpired) return false
+        return true
+      })
+
+      // 历史足迹：已核销/已取消，或活动已过期
+      const historyList = allItems.filter(i => {
+        if (i.status === 'verified' || i.status === 'cancelled') return true
+        if (i.status === 'pending' && i.event && i.event._isExpired) return true
+        return false
+      })
 
       this.setData({
         pendingList,

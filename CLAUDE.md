@@ -125,8 +125,15 @@
 - 登录鉴权: 云开发邮箱密码登录，管理员账号在云开发控制台预先创建。
 - 数据操作: 简单查询用 Web SDK 直连云数据库，业务逻辑（退款、积分调整）用 `app.callFunction()` 调用云函数。
 - 云函数 `admin` 是管理端专用的，内部必须校验调用者身份（通过 Web SDK 的 auth 获取用户信息，匹配管理员白名单）。
-- 部署: `npm run build` 后上传到云开发静态网站托管。
+- 部署: `npm run build` 后上传到云开发静态网站托管 `web-admin/` 子目录。
 - 样式: Element Plus 组件库，后台风格简洁高效。
+
+#### 部署踩坑记录
+
+1. **`base` 必须用相对路径**: `vite.config.js` 的 `base` 必须设为 `'./'`，**不能**用绝对路径如 `'/web-admin/'`。CloudBase 静态托管 CDN 对绝对路径子目录映射存在 404 问题。相对路径 `'./'` 让构建产物引用 `./assets/xxx`，部署到任意子目录都能正常加载。
+2. **路由用 Hash 模式**: 已使用 `createWebHashHistory()`，与相对路径 `base` 配合，刷新不 404。不要改 `createWebHistory()`。
+3. **上传文件名清理**: Web 后台上传图片到云存储时，`file.name` 可能含中文/特殊字符，导致 `cloudPath` 含 URL 编码，小程序解析 `cloud://` 时 500。必须用 `file.name.replace(/[^\w.\-]/g, '_')` 清理后再拼 `cloudPath`。
+4. **小程序 `cloud://` 转 HTTPS**: 微信开发者工具无法直接解析 `cloud://` 协议 URL，所有展示图片的页面（banner、活动封面、书籍封面）加载后都需调用 `wx.cloud.getTempFileURL()` 转为 HTTPS 临时链接。已在 `utils/cloud.js` 封装 `resolveCloudUrls(items, field)` 工具函数，各页面复用即可。
 
 ## 常用指令
 - 小程序: 微信开发者工具导入项目根目录
