@@ -11,9 +11,13 @@
         <div class="stat-item"><div class="stat-num gray">{{ stats.remaining }}</div><div class="stat-lbl">剩余名额</div></div>
       </div>
       <el-table :data="registrations" size="small" style="margin-top:12px;">
-        <el-table-column label="用户ID" min-width="100">
+        <el-table-column label="用户信息" min-width="160">
           <template #default="{ row }">
-            <span>{{ row.user_id?.slice(-6) || '-' }}</span>
+            <div class="user-info-cell">
+              <div class="user-nickname">{{ row.user?.nickname || '-' }}</div>
+              <div class="user-real-name" v-if="row.real_name">{{ row.real_name }}</div>
+              <div class="user-phone" v-if="row.contact_phone || row.user?.phone">{{ row.contact_phone || row.user?.phone }}</div>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="报名方式" width="90">
@@ -87,4 +91,10 @@ watch(() => props.modelValue, (val) => {
 .stat-num.red { color: var(--color-danger); }
 .stat-num.gray { color: var(--color-text-tertiary); }
 .stat-lbl { color: var(--color-text-secondary); font-size: var(--fs-xs); }
+
+/* 用户信息单元格 */
+.user-info-cell { display: flex; flex-direction: column; gap: 2px; }
+.user-nickname { font-weight: 500; color: var(--color-text-primary); }
+.user-real-name { font-size: var(--fs-xs); color: var(--color-primary); }
+.user-phone { font-size: var(--fs-xs); color: var(--color-text-secondary); }
 </style>

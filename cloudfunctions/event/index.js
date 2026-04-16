@@ -101,7 +101,7 @@ async function handleDetail(event) {
 async function handleEnrollFree(openid, event) {
   const transaction = await db.startTransaction()
   try {
-    const { eventId } = event
+    const { eventId, realName, contactPhone } = event
     if (!eventId) return { success: false, message: '缺少活动ID' }
 
     // 查用户
@@ -144,6 +144,8 @@ async function handleEnrollFree(openid, event) {
         event_id: eventId,
         order_id: '',
         verify_code: verifyCode,
+        real_name: realName || user.real_name || '',
+        contact_phone: contactPhone || user.phone || '',
         status: 'pending',
         verified_by: '',
         verified_at: null,
@@ -157,6 +159,13 @@ async function handleEnrollFree(openid, event) {
       data: { enrolled_count: _.inc(1) }
     })
 
+    // 如果用户没有真实姓名，更新用户表（下次报名时无需重复填写）
+    if (!user.real_name && realName) {
+      await transaction.collection('users').doc(user._id).update({
+        data: { real_name: realName, updated_at: db.serverDate() }
+      })
+    }
+
     await transaction.commit()
     return { success: true, data: { verify_code: verifyCode } }
   } catch (err) {
@@ -169,7 +178,7 @@ async function handleEnrollFree(openid, event) {
 async function handleEnrollPoints(openid, event) {
   const transaction = await db.startTransaction()
   try {
-    const { eventId } = event
+    const { eventId, realName, contactPhone } = event
     if (!eventId) return { success: false, message: '缺少活动ID' }
 
     const userRes = await db.collection('users').where({ open_id: openid }).get()
@@ -246,6 +255,8 @@ async function handleEnrollPoints(openid, event) {
         event_id: eventId,
         order_id: '',
         verify_code: verifyCode,
+        real_name: realName || user.real_name || '',
+        contact_phone: contactPhone || user.phone || '',
         status: 'pending',
         verified_by: '',
         verified_at: null,
@@ -257,6 +268,13 @@ async function handleEnrollPoints(openid, event) {
     await transaction.collection('events').doc(eventId).update({
       data: { enrolled_count: _.inc(1) }
     })
+
+    // 如果用户没有真实姓名，更新用户表（下次报名时无需重复填写）
+    if (!user.real_name && realName) {
+      await transaction.collection('users').doc(user._id).update({
+        data: { real_name: realName, updated_at: db.serverDate() }
+      })
+    }
 
     await transaction.commit()
     return { success: true, data: { verify_code: verifyCode, pointsUsed: pointsCost } }
@@ -445,18 +463,36 @@ async function handleVerify(openid, event) {
 async function handleGetQRCode(openid, event) {
   try {
     const { verifyCode } = event
-    if (!verifyCode) return { success: false, message: '缺少核销码' }
+    console.log('[event] 获取入场小程序码，verifyCode:', verifyCode)
+    console.log('[event] 当前用户 openid:', openid)
+
+    if (!verifyCode) {
+      console.error('[event] 缺少核销码参数')
+      return { success: false, message: '缺少核销码' }
+    }
 
     // 查找报名记录，校验归属
+    console.log('[event] 查询报名记录，verify_code:', verifyCode, 'open_id:', openid)
     const regRes = await db.collection('registrations')
       .where({ verify_code: verifyCode, open_id: openid })
       .get()
-    if (regRes.data.length === 0) return { success: false, message: '无权操作' }
+
+    console.log('[event] 查询结果数量:', regRes.data.length)
+
+    if (regRes.data.length === 0) {
+      console.error('[event] 无权操作：未找到匹配的报名记录')
+      return { success: false, message: '无权操作' }
+    }
+
     const reg = regRes.data[0]
+    console.log('[event] 找到报名记录，_id:', reg._id)
+    console.log('[event] 报名记录 qrcode_url:', reg.qrcode_url)
 
     // 缓存命中：已有小程序码
     if (reg.qrcode_url) {
+      console.log('[event] 缓存命中，已有小程序码:', reg.qrcode_url)
       const urlRes = await cloud.getTempFileURL({ fileList: [reg.qrcode_url] })
+      console.log('[event] 临时URL获取成功:', urlRes.fileList[0].tempFileURL)
       return {
         success: true,
         data: { qrcode_url: urlRes.fileList[0].tempFileURL }
@@ -464,6 +500,7 @@ async function handleGetQRCode(openid, event) {
     }
 
     // 调用 wxacode.getUnlimited 生成小程序码
+    console.log('[event] 开始生成小程序码，scene:', verifyCode)
     const result = await cloud.openapi.wxacode.getUnlimited({
       scene: verifyCode,
       page: 'pages/verify/verify',
@@ -472,26 +509,35 @@ async function handleGetQRCode(openid, event) {
       isHyaline: false
     })
 
+    console.log('[event] 小程序码生成成功，buffer长度:', result.buffer?.length)
+
     // 上传到云存储
     const cloudPath = `qrcodes/${verifyCode}.png`
+    console.log('[event] 上传到云存储，路径:', cloudPath)
     const uploadRes = await cloud.uploadFile({
       cloudPath,
       fileContent: result.buffer
     })
 
+    console.log('[event] 上传成功，fileID:', uploadRes.fileID)
+
     // 回写到报名记录
     await db.collection('registrations').doc(reg._id).update({
       data: { qrcode_url: uploadRes.fileID }
     })
+    console.log('[event] 已更新报名记录')
 
     // 获取临时 URL
     const urlRes = await cloud.getTempFileURL({ fileList: [uploadRes.fileID] })
+    console.log('[event] 最终临时URL:', urlRes.fileList[0].tempFileURL)
     return {
       success: true,
       data: { qrcode_url: urlRes.fileList[0].tempFileURL }
     }
   } catch (err) {
-    console.error('生成小程序码失败:', err)
+    console.error('[event] 生成小程序码失败:', err)
+    console.error('[event] 错误详情:', err.message)
+    console.error('[event] 错误堆栈:', err.stack)
     return { success: false, data: { fallback: true }, message: '生成小程序码失败，请使用核销码' }
   }
 }

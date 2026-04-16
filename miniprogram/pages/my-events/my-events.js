@@ -59,11 +59,11 @@ Page({
         return true
       })
 
-      // 历史足迹：已核销/已取消，或活动已过期
+      // 历史足迹：已核销，或活动已过期（已取消的不显示）
       const historyList = allItems.filter(i => {
-        if (i.status === 'verified' || i.status === 'cancelled') return true
-        if (i.status === 'pending' && i.event && i.event._isExpired) return true
-        return false
+        if (i.status === 'verified') return true  // 只显示已核销的
+        if (i.status === 'pending' && i.event && i.event._isExpired) return true  // 过期未参加的
+        return false  // 不显示已取消的
       })
 
       this.setData({
@@ -110,16 +110,31 @@ Page({
 
   async loadQRCode(verifyCode) {
     try {
+      // 调试日志：显示传入的核销码
+      console.log('[二维码生成] 传入的核销码:', verifyCode)
+      console.log('[二维码生成] 核销码类型:', typeof verifyCode)
+
       const res = await callFunction('event', {
         action: 'getQRCode',
         verifyCode
       })
+
+      // 调试日志：显示云函数返回的完整结果
+      console.log('[二维码生成] 云函数返回结果:', JSON.stringify(res))
+      console.log('[二维码生成] res.data:', res.data)
+      console.log('[二维码生成] res.data.qrcode_url:', res.data?.qrcode_url)
+
       if (res.data && res.data.qrcode_url) {
         this.setData({ qrcodeUrl: res.data.qrcode_url, qrLoading: false })
       } else {
+        // 调试日志：没有返回二维码URL
+        console.log('[二维码生成] 未返回二维码URL，使用降级方案')
         this.setData({ qrLoading: false })
       }
     } catch (e) {
+      // 调试日志：捕获到异常
+      console.error('[二维码生成] 调用云函数异常:', e)
+      console.error('[二维码生成] 错误消息:', e.message)
       this.setData({ qrLoading: false })
     }
   },

@@ -44,6 +44,8 @@ exports.main = async (event, context) => {
       return handleUpdateProfile(OPENID, event)
     case 'getPointLogs':
       return handleGetPointLogs(OPENID, event)
+    case 'bindPhone':
+      return handleBindPhone(OPENID, event)
     default:
       return { success: false, message: '未知操作' }
   }
@@ -191,11 +193,12 @@ async function handleGetProfile(openid) {
 // 更新个人信息
 async function handleUpdateProfile(openid, event) {
   try {
-    const { nickname, avatar_url, phone, bio, gender, birthday } = event
+    const { nickname, avatar_url, phone, real_name, bio, gender, birthday } = event
     const updateData = { updated_at: db.serverDate() }
     if (nickname) updateData.nickname = nickname
     if (avatar_url) updateData.avatar_url = avatar_url
     if (phone) updateData.phone = phone
+    if (real_name !== undefined) updateData.real_name = real_name
     if (bio !== undefined) updateData.bio = bio
     if (gender !== undefined) updateData.gender = gender
     if (birthday !== undefined) updateData.birthday = birthday
@@ -240,5 +243,45 @@ async function handleGetPointLogs(openid, event) {
     }
   } catch (err) {
     return { success: false, message: err.message }
+  }
+}
+
+// 绑定手机号
+async function handleBindPhone(openid, event) {
+  try {
+    const { cloudID } = event
+    if (!cloudID) {
+      return { success: false, message: '缺少 cloudID' }
+    }
+
+    // 解密手机号
+    const result = await cloud.getOpenData({
+      list: [cloudID]
+    })
+
+    if (!result || !result.dataList || result.dataList.length === 0) {
+      return { success: false, message: '解密失败' }
+    }
+
+    const phoneData = result.dataList[0]
+    const phone = phoneData?.data?.phoneNumber
+
+    if (!phone) {
+      return { success: false, message: '获取手机号失败' }
+    }
+
+    // 更新用户手机号
+    const userRes = await db.collection('users').where({ open_id: openid }).get()
+    if (userRes.data.length === 0) {
+      return { success: false, message: '用户不存在' }
+    }
+
+    await db.collection('users').doc(userRes.data[0]._id).update({
+      data: { phone, updated_at: db.serverDate() }
+    })
+
+    return { success: true, data: { phone } }
+  } catch (err) {
+    return { success: false, message: '绑定失败: ' + err.message }
   }
 }

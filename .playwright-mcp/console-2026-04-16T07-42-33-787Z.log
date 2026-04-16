@@ -1,0 +1,75 @@
+[   13354ms] [WARNING] Invalid prop: type check failed for prop "text". Expected String with value "undefined", got Undefined  null at <StatusBadge>
+at <ElTableColumn>
+at <ElTable>
+at <BaseTable>
+at <BaseCard>
+at <Users>
+at <RouterView>
+at <AppLayout>
+at <RouterView>
+at <App> [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ http://localhost:5182/@vite/client:509
+[   13384ms] [WARNING] Invalid prop: type check failed for prop "text". Expected String with value "undefined", got Undefined  null at <StatusBadge>
+at <ElTableColumn>
+at <ElTable>
+at <BaseTable>
+at <BaseCard>
+at <Users>
+at <RouterView>
+at <AppLayout>
+at <RouterView>
+at <App> [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ http://localhost:5182/@vite/client:509
+[   20051ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "text". Expected String with value "undefined", got Undefined  
+  at <StatusBadge type="info" text=undefined size="small" > 
+  at <ElTableColumn key=0 prop="status" label="状态"  ... > 
+  at <ElTable data= [Object, Object, Object, Object, Object, Object, Object, Object, Object] stripe=true border=true  ... > 
+  at <BaseTable data= [Object, Object, Object, Object, Object, Object, Object, Object, Object] columns= [Object, Object, Object, Object, Object, Object] loading=false  ... > 
+  at <BaseCard shadow="sm" > 
+  at <Events onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5182/@vite/client:509
+[   31199ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "text". Expected String with value "undefined", got Undefined  
+  at <StatusBadge type="info" text=undefined size="small" > 
+  at <ElTableColumn key=0 prop="status" label="状态"  ... > 
+  at <ElTable data= [Object, Object] stripe=true border=true  ... > 
+  at <BaseTable data= [Object, Object] columns= [Object, Object, Object, Object, Object, Object] loading=false  ... > 
+  at <BaseCard shadow="sm" > 
+  at <Orders onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5182/@vite/client:509
+[   71459ms] [WARNING] ElementPlusError: [props] [API] type.text is about to be deprecated in version 3.0.0, please use link instead.
+For more detail, please visit: https://element-plus.org/en-US/component/button.html#button-attributes
+
+    at debugWarn (http://localhost:5182/node_modules/.vite/deps/element-plus.js?v=c1504559:4749:35)
+    at watch.immediate (http://localhost:5182/node_modules/.vite/deps/element-plus.js?v=c1504559:5567:12)
+    at callWithErrorHandling (http://localhost:5182/node_modules/.vite/deps/vue.runtime.esm-bundler-7RPVkgMH.js?v=c1504559:1873:17)
+    at callWithAsyncErrorHandling (http://localhost:5182/node_modules/.vite/deps/vue.runtime.esm-bundler-7RPVkgMH.js?v=c1504559:1880:15)
+    at baseWatchOptions.call (http://localhost:5182/node_modules/.vite/deps/vue.runtime.esm-bundler-7RPVkgMH.js?v=c1504559:2372:46)
+    at job (http://localhost:5182/node_modules/.vite/deps/vue.runtime.esm-bundler-7RPVkgMH.js?v=c1504559:1654:13)
+    at watch$1 (http://localhost:5182/node_modules/.vite/deps/vue.runtime.esm-bundler-7RPVkgMH.js?v=c1504559:1675:25)
+    at doWatch (http://localhost:5182/node_modules/.vite/deps/vue.runtime.esm-bundler-7RPVkgMH.js?v=c1504559:2394:22)
+    at watch (http://localhost:5182/node_modules/.vite/deps/vue.runtime.esm-bundler-7RPVkgMH.js?v=c1504559:2346:9)
+    at useDeprecated (http://localhost:5182/node_modules/.vite/deps/element-plus.js?v=c1504559:5566:2) @ http://localhost:5182/@vite/client:509
+[   95697ms] [WARNING] Invalid prop: type check failed for prop "text". Expected String with value "undefined", got Undefined  null at <StatusBadge>
+at <ElTableColumn>
+at <ElTable>
+at <BaseTable>
+at <BaseCard>
+at <Users>
+at <RouterView>
+at <AppLayout>
+at <RouterView>
+at <App> [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ http://localhost:5182/@vite/client:509
+[   95721ms] [WARNING] Invalid prop: type check failed for prop "text". Expected String with value "undefined", got Undefined  null at <StatusBadge>
+at <ElTableColumn>
+at <ElTable>
+at <BaseTable>
+at <BaseCard>
+at <Users>
+at <RouterView>
+at <AppLayout>
+at <RouterView>
+at <App> [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ http://localhost:5182/@vite/client:509

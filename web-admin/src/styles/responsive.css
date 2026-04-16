@@ -1,0 +1,298 @@
+/* ============================================
+   RESPONSIVE DESIGN SYSTEM
+   Mobile-First Breakpoint System
+   ============================================ */
+
+/*
+  BREAKPOINTS
+  - Mobile First: < 768px (default styles)
+  - Tablet: 768px - 1023px
+  - Desktop: 1024px - 1439px
+  - Large Desktop: ≥ 1440px
+*/
+
+/* Container max widths by breakpoint */
+:root {
+  --container-max-width: 100%; /* Mobile default */
+}
+
+/* Tablet: 768px - 1023px */
+@media (min-width: 768px) {
+  :root {
+    --container-max-width: 720px;
+  }
+}
+
+/* Desktop: 1024px - 1439px */
+@media (min-width: 1024px) {
+  :root {
+    --container-max-width: 960px;
+  }
+}
+
+/* Large Desktop: ≥ 1440px */
+@media (min-width: 1440px) {
+  :root {
+    --container-max-width: 1280px;
+  }
+}
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--sp-4);
+}
+
+/* ============================================
+   SIDEBAR RESPONSIVE
+   ============================================ */
+
+/* Desktop: Full sidebar */
+@media (min-width: 1024px) {
+  .sidebar {
+    width: var(--sidebar-width);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: var(--z-fixed);
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+/* Tablet: Collapsible sidebar */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar {
+    width: var(--sidebar-collapsed-width);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: var(--z-fixed);
+  }
+
+  .sidebar:not(.collapsed) {
+    width: 160px;
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+
+  .sidebar:not(.collapsed) ~ .main-content {
+    margin-left: 160px;
+  }
+}
+
+/* Mobile: Sidebar hidden, use drawer */
+@media (max-width: 767px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+}
+
+/* ============================================
+   GRID RESPONSIVE
+   ============================================ */
+
+/* Stat cards grid */
+@media (max-width: 767px) {
+  .stats-grid .el-col {
+    margin-bottom: var(--sp-4);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .stats-grid .el-col {
+    margin-bottom: var(--sp-3);
+  }
+}
+
+/* ============================================
+   TABLE RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive table {
+    min-width: 600px;
+  }
+}
+
+/* ============================================
+   FILTER BAR RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .filter-bar {
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+
+  .filter-bar > * {
+    width: 100%;
+  }
+
+  .filter-bar .el-input,
+  .filter-bar .el-select,
+  .filter-bar .el-date-picker {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   PAGINATION RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .pagination {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .pagination .el-pagination {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================
+   CARD RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .card {
+    padding: var(--sp-4);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ============================================
+   MODAL RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .el-dialog {
+    width: 90% !important;
+    margin: 0 auto;
+  }
+
+  .el-drawer {
+    width: 85% !important;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES - RESPONSIVE
+   ============================================ */
+.hide-mobile {
+  display: block;
+}
+
+.hide-tablet {
+  display: block;
+}
+
+.hide-desktop {
+  display: block;
+}
+
+/* Mobile only */
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  .mobile-block {
+    display: block;
+  }
+}
+
+/* Tablet only */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hide-tablet {
+    display: none !important;
+  }
+
+  .tablet-only {
+    display: block !important;
+  }
+}
+
+/* Desktop only */
+@media (min-width: 1024px) {
+  .hide-desktop {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: block !important;
+  }
+}
+
+/* ============================================
+   TYPOGRAPHY RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .page-title {
+    font-size: var(--fs-lg);
+  }
+
+  .text-responsive-h1 {
+    font-size: var(--fs-2xl);
+  }
+
+  .text-responsive-h2 {
+    font-size: var(--fs-xl);
+  }
+}
+
+@media (min-width: 768px) {
+  .text-responsive-h1 {
+    font-size: var(--fs-3xl);
+  }
+
+  .text-responsive-h2 {
+    font-size: var(--fs-2xl);
+  }
+}
+
+/* ============================================
+   TOUCH TARGETS (Mobile)
+   ============================================ */
+@media (max-width: 767px) {
+  /* Ensure minimum touch target size of 44x44px */
+  .el-button,
+  .el-link,
+  .action-link {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Increase spacing for touch */
+  .filter-bar > *,
+  .pagination > * {
+    margin-bottom: var(--sp-2);
+  }
+}

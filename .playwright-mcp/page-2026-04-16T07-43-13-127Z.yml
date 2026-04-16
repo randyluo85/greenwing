@@ -1,0 +1,76 @@
+- generic [ref=e28]:
+  - complementary [ref=e29]:
+    - img "青翼读书会" [ref=e31]
+    - menubar [ref=e32]:
+      - menuitem " Dashboard" [ref=e33] [cursor=pointer]:
+        - generic [ref=e34]: 
+        - text: Dashboard
+      - menuitem " 用户管理" [ref=e35] [cursor=pointer]:
+        - generic [ref=e36]: 
+        - text: 用户管理
+      - menuitem " 活动管理" [ref=e37] [cursor=pointer]:
+        - generic [ref=e38]: 
+        - text: 活动管理
+      - menuitem " 订单管理" [ref=e39] [cursor=pointer]:
+        - generic [ref=e40]: 
+        - text: 订单管理
+      - menuitem " 内容管理" [active] [ref=e41] [cursor=pointer]:
+        - generic [ref=e42]: 
+        - text: 内容管理
+      - menuitem " 系统设置" [ref=e43] [cursor=pointer]:
+        - generic [ref=e44]: 
+        - text: 系统设置
+  - generic [ref=e45]:
+    - banner [ref=e46]:
+      - generic [ref=e47]:
+        - button "" [ref=e48] [cursor=pointer]:
+          - generic [ref=e50]: 
+        - heading "Content" [level=1] [ref=e946]
+      - generic [ref=e52]:
+        - generic [ref=e53]: 2026-04-16
+        - button "A" [ref=e55] [cursor=pointer]
+    - main [ref=e56]:
+      - generic [ref=e947]:
+        - generic [ref=e949]:
+          - generic [ref=e950] [cursor=pointer]:
+            - generic [ref=e951]: 轮播管理
+            - generic [ref=e953]: "2"
+          - generic [ref=e954] [cursor=pointer]:
+            - generic [ref=e955]: 推荐图书
+            - generic [ref=e957]: "6"
+        - generic [ref=e958]:
+          - button "+ 添加轮播" [ref=e960] [cursor=pointer]:
+            - generic [ref=e961]:
+              - generic [ref=e962]: +
+              - text: 添加轮播
+          - generic [ref=e965]:
+            - generic [ref=e966]:
+              - generic [ref=e967]: "1"
+              - img [ref=e969]
+              - generic [ref=e970]:
+                - generic [ref=e971]: 测试活动2
+                - generic [ref=e972]: 测试一下副标题
+                - generic [ref=e973]:
+                  - generic [ref=e975]: 活动
+                  - generic [ref=e976]: 无跳转
+              - generic [ref=e977]:
+                - generic [ref=e979]: 已上线
+                - button "编辑" [ref=e980] [cursor=pointer]:
+                  - generic [ref=e981]: 编辑
+                - button "下线" [ref=e982] [cursor=pointer]:
+                  - generic [ref=e983]: 下线
+            - generic [ref=e984]:
+              - generic [ref=e985]: "2"
+              - img [ref=e987]
+              - generic [ref=e988]:
+                - generic [ref=e989]: 测试活动
+                - generic [ref=e990]: 测试副标题
+                - generic [ref=e991]:
+                  - generic [ref=e993]: 活动
+                  - generic [ref=e994]: 无跳转
+              - generic [ref=e995]:
+                - generic [ref=e997]: 已上线
+                - button "编辑" [ref=e998] [cursor=pointer]:
+                  - generic [ref=e999]: 编辑
+                - button "下线" [ref=e1000] [cursor=pointer]:
+                  - generic [ref=e1001]: 下线

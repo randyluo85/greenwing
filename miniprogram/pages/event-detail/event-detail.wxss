@@ -328,6 +328,85 @@
   font-size: 28rpx;
 }
 
+/* 真实姓名填写弹窗 */
+.name-modal-card {
+  width: 600rpx;
+  padding: 0;
+}
+
+.name-modal-header {
+  padding: 40rpx 32rpx 24rpx;
+  text-align: center;
+  border-bottom: 1rpx solid #f3f4f6;
+}
+
+.name-modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #1E293B;
+  display: block;
+}
+
+.name-modal-subtitle {
+  font-size: 24rpx;
+  color: #94A3B8;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.name-modal-body {
+  padding: 32rpx;
+}
+
+.name-input-group {
+  margin-bottom: 24rpx;
+}
+
+.name-input-label {
+  font-size: 26rpx;
+  color: #475569;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.name-input-field {
+  width: 100%;
+  height: 80rpx;
+  background: #f9fafb;
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #1E293B;
+  box-sizing: border-box;
+}
+
+.name-modal-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 0 32rpx 32rpx;
+}
+
+.name-modal-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.name-modal-btn-cancel {
+  background: #f3f4f6;
+  color: #64748b;
+}
+
+.name-modal-btn-confirm {
+  background: var(--primary, #14b8a6);
+  color: #ffffff;
+}
+
 /* 评论讨论区 */
 .comment-card {
   padding: 24rpx;

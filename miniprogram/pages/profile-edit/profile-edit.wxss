@@ -79,6 +79,12 @@
   margin-left: 16rpx;
 }
 
+.field-label.required::before {
+  content: '*';
+  color: var(--danger, #ef4444);
+  margin-right: 4rpx;
+}
+
 .field-input {
   background: #ffffff;
   border: 2rpx solid var(--border);
@@ -108,6 +114,31 @@
 .field-input-disabled {
   background: #f9fafb;
   color: var(--text-muted);
+}
+
+.field-input-phone {
+  flex: 1;
+}
+
+.phone-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.auth-phone-btn {
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 26rpx;
+  border: none;
+  border-radius: 16rpx;
+  padding: 20rpx 32rpx;
+  width: auto;
+  align-self: flex-start;
+}
+
+.auth-phone-btn::after {
+  border: none;
 }
 
 .field-help {

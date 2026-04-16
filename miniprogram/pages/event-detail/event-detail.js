@@ -18,7 +18,10 @@ Page({
     platformStatus: 'open',  // 'open' | 'full' | 'closed'
     isEventPast: false,
     showSuccessModal: false,
+    showNameModal: false,     // 真实姓名填写弹窗
     verifyCode: '',
+    enrollRealName: '',       // 报名时填写的真实姓名
+    enrollContactPhone: '',   // 报名时填写的联系电话
     // 评论
     comments: [],
     commentTotal: 0,
@@ -36,6 +39,18 @@ Page({
       this.setData({ eventId: options.id })
       this.loadEvent(options.id)
       this.loadUserInfo().then(() => this.checkEnrollment())
+    }
+  },
+
+  onShow() {
+    // 更新 TabBar 状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 })
+    }
+
+    // 重新加载活动数据，确保数据是最新的
+    if (this.data.eventId) {
+      this.loadEvent(this.data.eventId)
     }
   },
 
@@ -67,8 +82,15 @@ Page({
   async loadEvent(id) {
     try {
       wx.showLoading({ title: '加载中...' })
+
+      // 调试日志：显示活动ID和原始数据
+      console.log('[DEBUG] 加载活动详情，eventId:', id)
       const res = await callFunction('event', { action: 'detail', eventId: id })
       const event = res.data
+      console.log('[DEBUG] 从服务器获取的原始数据:', event)
+      console.log('[DEBUG] event.price 原始值:', event.price, '(分)')
+      console.log('[DEBUG] formatMoney 后:', formatMoney(event.price), '(元)')
+
       await resolveCloudUrls([event], 'cover_image')
 
       const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
@@ -119,11 +141,69 @@ Page({
       return
     }
 
-    const action = event.registration_mode === 'free' ? 'enrollFree' : 'enrollPoints'
+    // 检查用户是否有真实姓名
+    const app = getApp()
+    const user = app.globalData.userInfo || {}
+    if (!user.real_name) {
+      // 弹出真实姓名填写弹窗
+      this.setData({
+        showNameModal: true,
+        enrollRealName: '',
+        enrollContactPhone: user.phone || ''
+      })
+      return
+    }
+
+    // 有真实姓名，直接报名
+    await this.doEnroll(user.real_name, user.phone)
+  },
+
+  closeSuccessModal() {
+    this.setData({ showSuccessModal: false })
+  },
+
+  // 真实姓名弹窗相关
+  closeNameModal() {
+    this.setData({ showNameModal: false })
+  },
+
+  onEnrollNameInput(e) {
+    this.setData({ enrollRealName: e.detail.value })
+  },
+
+  onEnrollPhoneInput(e) {
+    this.setData({ enrollContactPhone: e.detail.value })
+  },
+
+  async confirmEnrollWithName() {
+    const { enrollRealName, eventId } = this.data
+
+    if (!enrollRealName.trim()) {
+      wx.showToast({ title: '请输入真实姓名', icon: 'none' })
+      return
+    }
+
+    // 关闭姓名弹窗，继续报名流程
+    this.setData({ showNameModal: false })
+
+    // 调用报名接口，传入真实姓名
+    await this.doEnroll(enrollRealName.trim(), this.data.enrollContactPhone.trim())
+  },
+
+  async doEnroll(realName, contactPhone) {
+    const { eventId } = this.data
 
     try {
       wx.showLoading({ title: '报名中...' })
-      const res = await callFunction('event', { action, eventId })
+
+      const event = this.data.event
+      const action = event.registration_mode === 'free' ? 'enrollFree' : 'enrollPoints'
+
+      const params = { eventId }
+      if (realName) params.realName = realName
+      if (contactPhone) params.contactPhone = contactPhone
+
+      const res = await callFunction('event', { action, ...params })
       wx.hideLoading()
 
       this.setData({
@@ -137,10 +217,6 @@ Page({
       wx.hideLoading()
       wx.showToast({ title: e.message || '报名失败', icon: 'none' })
     }
-  },
-
-  closeSuccessModal() {
-    this.setData({ showSuccessModal: false })
   },
 
   goMyEvents() {

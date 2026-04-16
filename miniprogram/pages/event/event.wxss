@@ -102,7 +102,7 @@
 }
 
 .compact-header {
-  background: rgba(243,244,246,0.8);
+  background: #c8f6ec;
   padding: 14rpx 16rpx;
   display: flex;
   justify-content: space-between;
@@ -341,9 +341,7 @@
   color: #94A3B8;
 }
 
-/* 加载 */
-.loading-wrap { padding: 40rpx 0; text-align: center; }
-.loading-text { font-size: 24rpx; color: #94A3B8; }
+/* 加载 - 使用全局 loading-container 样式 */
 .empty-state { display: flex; justify-content: center; padding: 120rpx 0; }
 .empty-text { font-size: 28rpx; color: #94A3B8; }
 .load-end { text-align: center; padding: 32rpx 0; font-size: 24rpx; color: #94A3B8; }
