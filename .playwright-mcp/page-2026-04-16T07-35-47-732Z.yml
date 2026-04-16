@@ -1,0 +1,9 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - heading "青翼读书会" [level=1] [ref=e6]
+    - paragraph [ref=e7]: 管理后台
+  - generic [ref=e8]:
+    - textbox "管理员账号" [ref=e13]
+    - textbox "密码" [ref=e18]
+    - button "登 录" [ref=e21] [cursor=pointer]:
+      - generic [ref=e22]: 登 录
