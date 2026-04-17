@@ -78,8 +78,8 @@
         <!-- 状态 -->
         <template #status="{ row }">
           <StatusBadge
-            :type="getStatusType(row.status)"
-            :text="getStatusLabel(row.status)"
+            :type="getStatusType(getComputedStatus(row))"
+            :text="getStatusLabel(getComputedStatus(row))"
             size="small"
           />
         </template>
@@ -175,12 +175,23 @@ watch(drawerVisible, (newValue) => {
   }
 })
 
+// 获取活动的计算状态 (根据时间自动判断已结束)
+function getComputedStatus(evt) {
+  if (evt.status === 'published' && evt.event_time) {
+    const eventTime = new Date(evt.event_time).getTime()
+    if (Date.now() > eventTime) {
+      return 'ended'
+    }
+  }
+  return evt.status
+}
+
 // Tab 配置
 const tabs = computed(() => {
   const all = allEvents.value.length
-  const published = allEvents.value.filter(e => e.status === 'published').length
-  const draft = allEvents.value.filter(e => e.status === 'draft').length
-  const ended = allEvents.value.filter(e => e.status === 'ended').length
+  const published = allEvents.value.filter(e => getComputedStatus(e) === 'published').length
+  const draft = allEvents.value.filter(e => getComputedStatus(e) === 'draft').length
+  const ended = allEvents.value.filter(e => getComputedStatus(e) === 'ended').length
 
   return [
     { key: 'all', label: '全部', count: all },
@@ -233,10 +244,44 @@ const eventColumns = computed(() => [
 
 // 过滤后的活动列表
 const filteredEvents = computed(() => {
+  let events = allEvents.value
+
+  // 在"全部"标签页时应用特殊排序规则
   if (activeTab.value === 'all') {
-    return allEvents.value
+    const now = Date.now()
+    const notEnded = []
+    const ended = []
+
+    // 分组：未结束 vs 已结束
+    events.forEach(e => {
+      const status = getComputedStatus(e)
+      if (status === 'ended') {
+        ended.push(e)
+      } else {
+        notEnded.push(e)
+      }
+    })
+
+    // 未结束活动按时间升序（最近的在前）
+    notEnded.sort((a, b) => {
+      const timeA = a.event_time ? new Date(a.event_time).getTime() : 0
+      const timeB = b.event_time ? new Date(b.event_time).getTime() : 0
+      return timeA - timeB
+    })
+
+    // 已结束活动按时间降序（最近的在前）
+    ended.sort((a, b) => {
+      const timeA = a.event_time ? new Date(a.event_time).getTime() : 0
+      const timeB = b.event_time ? new Date(b.event_time).getTime() : 0
+      return timeB - timeA
+    })
+
+    // 未结束在前，已结束在后
+    return [...notEnded, ...ended]
   }
-  return allEvents.value.filter(e => e.status === activeTab.value)
+
+  // 其他标签页保持原有过滤逻辑
+  return events.filter(e => getComputedStatus(e) === activeTab.value)
 })
 
 // 切换 Tab

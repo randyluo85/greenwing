@@ -1,0 +1,115 @@
+.container {
+  padding: 30rpx;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.03);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f1f5f9;
+  margin-bottom: 20rpx;
+}
+
+.time {
+  font-size: 24rpx;
+  color: #64748b;
+}
+
+.status {
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.content {
+  margin-bottom: 30rpx;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.label {
+  color: #64748b;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.value {
+  color: #334155;
+  flex: 1;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-price {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.text-orange {
+  color: #f59e0b;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  border-top: 1rpx solid #f1f5f9;
+  padding-top: 20rpx;
+}
+
+.btn {
+  margin: 0;
+  padding: 0 30rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: 28rpx;
+  border-radius: 32rpx;
+  background: transparent;
+}
+
+.btn::after {
+  display: none;
+}
+
+.btn-outline {
+  color: #64748b;
+  border: 1rpx solid #cbd5e1;
+}
+
+.btn-primary {
+  background: #14b8a6;
+  color: #fff;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+  color: #94a3b8;
+  font-size: 28rpx;
+}

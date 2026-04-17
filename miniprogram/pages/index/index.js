@@ -41,7 +41,7 @@ Page({
       const db = wx.cloud.database()
       const res = await db.collection('notifications')
         .where({ open_id: openid, is_read: false })
-        .count()
+        .count({ timeout: 8000 })
       this.setData({ unreadCount: res.total })
     } catch (e) {
       // collection may not exist yet
@@ -91,7 +91,7 @@ Page({
         .where({ status: 'online' })
         .orderBy('sort_order', 'asc')
         .limit(5)
-        .get()
+        .get({ timeout: 10000 })
       if (res.data.length > 0) {
         await resolveCloudUrls(res.data, 'image_url')
         this.setData({ banners: res.data })
@@ -119,10 +119,14 @@ Page({
         .filter(e => new Date(e.event_time) >= now)
         .sort((a, b) => new Date(a.event_time) - new Date(b.event_time))
         .slice(0, 3)
-        .map(e => ({
-          ...e,
-          _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm')
-        }))
+        .map(e => {
+          const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
+          return {
+            ...e,
+            _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm'),
+            _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText
+          };
+        })
       if (events.length > 0) {
         await resolveCloudUrls(events, 'cover_image')
         this.setData({ events })
@@ -145,7 +149,7 @@ Page({
         .where({ status: 'published' })
         .orderBy('sort_order', 'desc')
         .limit(10)
-        .get()
+        .get({ timeout: 10000 })
       if (res.data.length > 0) {
         const books = res.data.map(b => ({
           ...b,

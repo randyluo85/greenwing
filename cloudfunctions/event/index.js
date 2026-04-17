@@ -396,6 +396,12 @@ async function handleCancelEnroll(openid, event) {
     if (reg.status === 'cancelled') return { success: false, message: '已取消' }
     if (reg.status === 'verified') return { success: false, message: '已核销，无法取消' }
 
+    // 严禁付费订单直接走取消路线。强制引导到“我的订单”申请退款
+    if (reg.order_id) {
+      await transaction.rollback()
+      return { success: false, message: '付费活动不支持直接取消，请前往「我的订单」申请退款' }
+    }
+
     await transaction.collection('registrations').doc(registrationId).update({
       data: { status: 'cancelled', updated_at: db.serverDate() }
     })
@@ -403,20 +409,26 @@ async function handleCancelEnroll(openid, event) {
       data: { enrolled_count: _.inc(-1) }
     })
 
-    // 如果是积分报名，退还积分
-    if (!reg.order_id) {
-      const eventRes = await db.collection('events').doc(reg.event_id).get()
-      if (eventRes.data.registration_mode === 'points_only' && eventRes.data.points_cost > 0) {
+    // 退还积分逻辑：确保精确退还这笔报名实际扣掉的积分数额，防止后台事后修改积分定价造成多退或少退
+    const pointLogsRes = await db.collection('point_logs')
+      .where({ user_id: user._id, type: 'event_enroll', related_id: reg.event_id })
+      .orderBy('created_at', 'desc')
+      .limit(1)
+      .get()
+
+    if (pointLogsRes.data.length > 0) {
+      const deductionAmount = Math.abs(pointLogsRes.data[0].amount) // 从扣除记录中提取绝对值
+      if (deductionAmount > 0) {
         await transaction.collection('users').doc(user._id).update({
-          data: { current_points: _.inc(eventRes.data.points_cost) }
+          data: { current_points: _.inc(deductionAmount), updated_at: db.serverDate() }
         })
         await transaction.collection('point_logs').add({
           data: {
             user_id: user._id, open_id: openid,
-            amount: eventRes.data.points_cost,
+            amount: deductionAmount,
             type: 'refund',
             related_id: registrationId,
-            description: `取消活动报名，退还 ${eventRes.data.points_cost} 积分`,
+            description: `取消报名，精确原路退还 ${deductionAmount} 积分`,
             created_at: db.serverDate()
           }
         })
@@ -565,6 +577,7 @@ async function handleGetQRCode(openid, event) {
       page: 'pages/verify/verify',
       width: 280,
       checkPath: false,
+      envVersion: 'trial', // 生成体验版二维码，便于测试核销功能
       isHyaline: false
     })
 

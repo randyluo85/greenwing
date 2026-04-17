@@ -344,35 +344,74 @@ async function handleGetOrders(event) {
 // 底层退款执行（被两种退款模式复用）
 async function executeRefund(order, notifyUser = true) {
   const refundRes = await cloud.cloudPay.refund({
-    outTradeNo: order.order_no,
-    outRefundNo: 'RF' + order.order_no,
-    totalFee: order.amount,
-    refundFee: order.amount,
-    envId: 'cloud1-8gax523s60b70149',
+    out_trade_no: order.order_no,
+    out_refund_no: 'RF' + order.order_no,
+    total_fee: order.amount,
+    refund_fee: order.amount,
+    envId: cloud.DYNAMIC_CURRENT_ENV,
     functionName: 'pay',
-    subMchId: '1705849497'
+    sub_mch_id: '1705849497'
   })
   console.log('[refund] cloud.cloudPay.refund 结果:', JSON.stringify(refundRes))
 
-  // 退款申请已提交给微信，状态暂设为 refunding，等待退款回调真正完成
-  await db.collection('orders').doc(order._id).update({
-    data: { status: 'refunding', updated_at: db.serverDate() }
-  })
+  // 退款已被微信受理，立即更新本地状态（不依赖回调）
+  const regRes = await db.collection('registrations').where({ order_id: order._id }).get()
+  const regId = regRes.data.length > 0 ? regRes.data[0]._id : null
+  const regNeedCancel = regRes.data.length > 0 && regRes.data[0].status !== 'cancelled'
 
-  // 通知用户退款已受理
-  if (notifyUser) {
-    await db.collection('notifications').add({
-      data: {
-        open_id: order.open_id,
-        title: '退款申请已受理',
-        body: `您的订单 ${order.order_no} 退款申请已通过审核，款项将在 1-5 个工作日内原路退回。`,
-        icon_bg_color: '#10b981',
-        icon_text: '退',
-        is_read: false,
-        type: 'refund_approved',
-        created_at: db.serverDate()
+  const transaction = await db.startTransaction()
+  try {
+    await transaction.collection('orders').doc(order._id).update({
+      data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
+    })
+
+    if (regId && regNeedCancel) {
+      await transaction.collection('registrations').doc(regId).update({
+        data: { status: 'cancelled', updated_at: db.serverDate() }
+      })
+      await transaction.collection('events').doc(order.event_id).update({
+        data: { enrolled_count: _.inc(-1) }
+      })
+    }
+
+    await transaction.commit()
+    console.log('[refund] ✅ 退款事务完成: 订单→refunded, 报名→cancelled')
+
+    // 发送通知放事务外
+    if (notifyUser) {
+      try {
+        await db.collection('notifications').add({
+          data: {
+            open_id: order.open_id,
+            title: '退款成功',
+            body: `您的订单 ${order.order_no} 退款已通过审核，款项将在 1-5 个工作日内原路退回。`,
+            icon_bg_color: '#10b981',
+            icon_text: '退',
+            is_read: false,
+            type: 'refund_approved',
+            created_at: db.serverDate()
+          }
+        })
+      } catch (noteErr) {
+        console.error('[refund] 发送退款通知失败:', noteErr)
       }
-    }).catch(e => console.error('[refund] 发送通知失败:', e))
+    }
+  } catch (txErr) {
+    await transaction.rollback()
+    console.error('[refund] 事务失败:', txErr)
+    // 事务失败但微信退款已受理，保底更新订单和报名状态
+    await db.collection('orders').doc(order._id).update({
+      data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
+    })
+    
+    if (regId && regNeedCancel) {
+      await db.collection('registrations').doc(regId).update({
+        data: { status: 'cancelled', updated_at: db.serverDate() }
+      })
+      await db.collection('events').doc(order.event_id).update({
+        data: { enrolled_count: _.inc(-1) }
+      })
+    }
   }
 
   return refundRes

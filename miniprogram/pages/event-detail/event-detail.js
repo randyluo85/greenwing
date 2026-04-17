@@ -51,6 +51,7 @@ Page({
     // 重新加载活动数据，确保数据是最新的
     if (this.data.eventId) {
       this.loadEvent(this.data.eventId)
+      this.loadUserInfo().then(() => this.checkEnrollment())
     }
   },
 

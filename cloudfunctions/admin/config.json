@@ -1,7 +1,6 @@
   "permissions": {
     "openapi": [
-      "wxacode.getUnlimited",
-      "security.msgSecCheck"
+      "cloudPay.refund"
     ]
   },
   "timeout": 20

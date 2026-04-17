@@ -6,6 +6,9 @@ const callFunction = (name, data = {}) => {
     wx.cloud.callFunction({
       name,
       data,
+      config: {
+        timeout: 20000 // 防止因为冷启动或者微信支付接口慢导致的前端 timeout
+      },
       success: res => {
         if (res.result && res.result.success) {
           resolve(res.result)

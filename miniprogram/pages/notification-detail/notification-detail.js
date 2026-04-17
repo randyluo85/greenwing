@@ -22,7 +22,7 @@ Page({
   async loadMessage(id) {
     try {
       const db = wx.cloud.database()
-      const res = await db.collection('notifications').doc(id).get()
+      const res = await db.collection('notifications').doc(id).get({ timeout: 8000 })
       const message = res.data
       
       message._formattedTime = message.created_at ? formatDate(new Date(message.created_at), 'YYYY-MM-DD HH:mm:ss') : ''

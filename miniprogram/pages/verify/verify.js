@@ -28,24 +28,23 @@ Page({
   startScan() {
     wx.scanCode({
       onlyFromCamera: true,
-      scanType: ['qrCode', 'barCode'],
       success: (res) => {
         // 核销码可能是扫码结果本身或 URL 参数
-        let code = res.result
+        let code = res.result || ''
         // 小程序内扫小程序码：path 字段包含 scene 参数
         if (res.path && res.path.includes('scene=')) {
           const match = res.path.match(/scene=([^&]+)/)
           if (match) code = decodeURIComponent(match[1])
         }
         // 兼容 URL 参数格式
-        else if (code.includes('verify_code=')) {
+        else if (code && code.includes('verify_code=')) {
           const match = code.match(/verify_code=([^&]+)/)
           if (match) code = match[1]
         }
         this.doVerify(code)
       },
-      fail: () => {
-        // 用户取消扫码，不做处理
+      fail: (err) => {
+        console.warn('扫码失败或取消:', err)
       }
     })
   },

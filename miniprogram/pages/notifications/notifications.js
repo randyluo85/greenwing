@@ -28,7 +28,7 @@ Page({
         .where({ open_id: openid })
         .orderBy('created_at', 'desc')
         .limit(50)
-        .get()
+        .get({ timeout: 10000 })
 
       const messages = res.data.map(m => ({
         ...m,

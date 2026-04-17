@@ -17,6 +17,7 @@
     "pages/notifications/notifications",
     "pages/notification-detail/notification-detail",
     "pages/profile-edit/profile-edit",
+    "pages/refund-manage/refund-manage",
     "pages/shop/shop"
   ],
   "window": {
@@ -59,6 +60,6 @@
     ]
   },
   "sitemapLocation": "sitemap.json",
-  "cloud": true,
+  "cloud": false,
   "lazyCodeLoading": "requiredComponents"
 }

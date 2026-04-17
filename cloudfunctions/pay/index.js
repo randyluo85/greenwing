@@ -1,7 +1,11 @@
 const cloud = require('wx-server-sdk')
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+const envId = cloud.DYNAMIC_CURRENT_ENV || 'cloud1-8gax523s60b70149'
+cloud.init({ env: envId })
 const db = cloud.database()
 const _ = db.command
+
+// 填写你的真实微信支付商户号 (如果不愿意写死，请去云开发控制台配置环境变量 MCH_ID)
+const MCH_ID = process.env.MCH_ID || '1705849497'
 
 // 内联工具函数
 function generateOrderNo() {
@@ -32,45 +36,6 @@ async function generateUniqueVerifyCode(collection) {
     if (exist.total === 0) return code
   }
   return generateVerifyCode() + Date.now().toString(36).slice(-3)
-}
-
-exports.main = async (event, context) => {
-  const { OPENID } = cloud.getWXContext()
-  const { action } = event
-
-  // 检查是否是微信支付回调（HTTP POST 请求，可能没有 action 参数）
-  const isPayCallback = !action && event.outTradeNo && event.transactionId
-  const isRefundCallback = !action && event.outTradeNo && !event.transactionId
-
-  if (isPayCallback) {
-    console.log('[pay] 检测到微信支付回调，参数:', JSON.stringify(event))
-    return handlePayCallback(event)
-  }
-
-  if (isRefundCallback) {
-    console.log('[pay] 检测到微信退款回调，参数:', JSON.stringify(event))
-    return handleRefundCallback(event)
-  }
-
-  // 正常的云函数调用路由
-  switch (action) {
-    case 'createOrder':
-      return handleCreateOrder(OPENID, event)
-    case 'queryOrder':
-      return handleQueryOrder(OPENID, event)
-    case 'cancelOrder':
-      return handleCancelOrder(OPENID, event)
-    case 'requestRefund':
-      return handleRequestRefund(OPENID, event)
-    case 'myOrders':
-      return handleMyOrders(OPENID, event)
-    case 'payCallback':
-      return handlePayCallback(event)
-    case 'refundCallback':
-      return handleRefundCallback(event)
-    default:
-      return { success: false, message: '未知操作' }
-  }
 }
 
 // 创建订单 + 统一下单
@@ -132,17 +97,16 @@ async function handleCreateOrder(openid, event) {
       console.log('[pay] 开始统一下单, orderNo:', orderNo, 'price:', eventDoc.price, 'totalFee:', eventDoc.price)
       console.log('[pay] 当前环境ID:', cloud.DYNAMIC_CURRENT_ENV)
       console.log('[pay] 配置的envId:', 'cloud1-8gax523s60b70149')
-
       const payRes = await cloud.cloudPay.unifiedOrder({
         body: `青翼读书会 - ${eventDoc.title}`,
-        outTradeNo: orderNo,
-        spbillCreateIp: '127.0.0.1',
-        totalFee: eventDoc.price,
-        envId: 'cloud1-8gax523s60b70149',
+        out_trade_no: orderNo,
+        spbill_create_ip: '127.0.0.1',
+        total_fee: eventDoc.price,
+        envId: cloud.getWXContext().ENV || 'cloud1-8gax523s60b70149',
         functionName: 'pay',
-        subMchId: '1705849497',
-        nonceStr: Math.random().toString(36).slice(2, 17),
-        tradeType: 'JSAPI'
+        sub_mch_id: MCH_ID,
+        nonce_str: Math.random().toString(36).slice(2, 17),
+        trade_type: 'JSAPI'
       })
 
       console.log('[pay] 统一下单成功, payment:', payRes)
@@ -222,6 +186,23 @@ async function handleRequestRefund(openid, event) {
       return { success: false, message: '该活动不支持退款' }
     }
 
+    // 检查微信真实状态，如果已经发生过退款，直接拦截并纠正数据库状态
+    try {
+      const crypto = require('crypto')
+      const queryRes = await cloud.cloudPay.queryOrder({
+        sub_mch_id: MCH_ID,
+        out_trade_no: order.order_no,
+        nonce_str: crypto.randomBytes(16).toString('hex')
+      })
+      
+      if (queryRes.tradeState === 'REFUND' || queryRes.tradeState === 'CLOSED') {
+        await syncRefundedOrder(order)
+        return { success: false, message: '该订单已经退款，系统已自动同步最新状态，无需重复申请' }
+      }
+    } catch(e) {
+      console.warn("查询微信状态失败，继续后续流程", e)
+    }
+
     // 更新订单状态为退款审核中
     await db.collection('orders').doc(orderId).update({
       data: {
@@ -260,6 +241,14 @@ async function handleMyOrders(openid, event) {
       eventRes.data.forEach(e => { eventDocs[e._id] = e })
     }
     const list = listRes.data.map(o => ({ ...o, event: eventDocs[o.event_id] || null }))
+
+    // 懒加载自我修复机制：当用户查看我的订单时，对于已经是退款的订单，自动校验一次报名表和库存是否对齐
+    for (const order of list) {
+      if (order.status === 'refunded') {
+        // 后台静默校验修复，不需要 await 导致前台变慢
+        syncRefundedOrder(order).catch(e => console.error('lazy sync fail', e))
+      }
+    }
 
     return {
       success: true,
@@ -378,6 +367,10 @@ async function handleRefundCallback(event) {
     const order = orderRes.data[0]
     if (order.status === 'refunded') return { errcode: 0 }
 
+    // 提前查询关联的报名记录ID，云开发事务不支持 where().update()
+    const regRes = await db.collection('registrations').where({ order_id: order._id }).get()
+    const regId = regRes.data.length > 0 ? regRes.data[0]._id : null
+
     // 使用事务保证原子性
     const transaction = await db.startTransaction()
     try {
@@ -385,9 +378,11 @@ async function handleRefundCallback(event) {
         data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
       })
 
-      await transaction.collection('registrations').where({ order_id: order._id }).update({
-        data: { status: 'cancelled', updated_at: db.serverDate() }
-      })
+      if (regId) {
+        await transaction.collection('registrations').doc(regId).update({
+          data: { status: 'cancelled', updated_at: db.serverDate() }
+        })
+      }
 
       await transaction.collection('events').doc(order.event_id).update({
         data: { enrolled_count: _.inc(-1) }
@@ -415,5 +410,374 @@ async function handleRefundCallback(event) {
     }
   } catch (err) {
     return { errcode: -1, errmsg: err.message }
+  }
+}
+
+
+
+// ======================= 新增/恢复的管理后台与辅助逻辑 =======================
+
+// 同步已在微信侧退款成功的订单状态 (解决状态不同步导致反复可退款的问题)
+async function syncRefundedOrder(order) {
+  const transaction = await db.startTransaction()
+  try {
+    const regRes = await db.collection('registrations').where({ order_id: order._id }).get()
+    const reg = regRes.data.length > 0 ? regRes.data[0] : null
+    const regId = reg ? reg._id : null
+    
+    // 如果订单已退款 且 报名已取消，说明全量同步完毕，直接返回
+    if (order.status === 'refunded' && (!reg || reg.status === 'cancelled')) {
+      await transaction.rollback();
+      return true;
+    }
+
+    // 更新订单状态（容错：即使之前手动改成了refunded也能覆盖一次updated_at）
+    await transaction.collection('orders').doc(order._id).update({
+      data: {
+        status: 'refunded',
+        refund_time: db.serverDate(),
+        refund_method: 'sync_check',
+        updated_at: db.serverDate()
+      }
+    })
+
+    let needsDecrement = false;
+    
+    // 只有当报名存在且未被取消时，才将其取消，并且允许扣除活动已报名人数
+    if (reg && reg.status !== 'cancelled') {
+      await transaction.collection('registrations').doc(regId).update({
+        data: { status: 'cancelled', updated_at: db.serverDate() }
+      })
+      needsDecrement = true;
+    }
+
+    if (needsDecrement) {
+      await transaction.collection('events').doc(order.event_id).update({
+        data: { enrolled_count: db.command.inc(-1) }
+      })
+    }
+    
+    await transaction.commit()
+    console.log(`[syncRefundedOrder] ✅ 已同步订单 ${order.order_no} 为已退款状态 (连带更新报名和人数状态)`)
+    return true
+  } catch (err) {
+    await transaction.rollback()
+    console.error('syncRefundedOrder fail:', err)
+    return false
+  }
+}
+
+// 主动同步订单状态 (供 Admin 调用)
+async function handleSyncOrder(event) {
+  try {
+    const { orderNo, orderId } = event
+
+    let orderRes
+    let order
+    // 支持通过 orderId(_id) 或 orderNo 查询
+    if (orderId) {
+      orderRes = await db.collection('orders').doc(orderId).get()
+      // doc().get() 返回的是单个对象，不是数组
+      order = orderRes.data
+    } else if (orderNo) {
+      orderRes = await db.collection('orders').where({ order_no: orderNo }).get()
+      if (orderRes.data.length === 0) return { success: false, message: '未找到订单' }
+      order = orderRes.data[0]
+    } else {
+      return { success: false, message: '缺少订单号' }
+    }
+    if (!order) return { success: false, message: '未找到订单' }
+
+    const crypto = require('crypto')
+    const queryRes = await cloud.cloudPay.queryOrder({
+      sub_mch_id: MCH_ID,
+      out_trade_no: order.order_no,
+      nonce_str: crypto.randomBytes(16).toString('hex')
+    })
+
+    console.log(`[handleSyncOrder] 订单=${order.order_no}, 微信状态=${queryRes.tradeState}`)
+
+    // 如果微信侧显示已退款或已关闭，同步到数据库
+    if (queryRes.tradeState === 'REFUND' || queryRes.tradeState === 'CLOSED') {
+      await syncRefundedOrder(order)
+      return { success: true, message: '状态已同步', data: { status: 'refunded' } }
+    }
+
+    return { success: true, data: { status: order.status, wechatStatus: queryRes.tradeState } }
+  } catch (err) {
+    console.error('[handleSyncOrder] error:', err)
+    return { success: false, message: err.message }
+  }
+}
+
+// ======================= 小程序管理员退款审批功能 =======================
+
+// 验证管理员权限
+async function checkAdminPermission(openid) {
+  try {
+    const userRes = await db.collection('users').where({ open_id: openid }).get()
+    if (userRes.data.length === 0) return false
+    const user = userRes.data[0]
+    return user.role === 'admin' || user.role === 'verifier' || user.member_no === 'admin'
+  } catch (err) {
+    console.error('[checkAdminPermission] error:', err)
+    return false
+  }
+}
+
+// 小程序管理员：获取待退款审批的订单列表
+async function handleMpAdminRefundList(openid, event) {
+  try {
+    const isAdmin = await checkAdminPermission(openid)
+    if (!isAdmin) {
+      return { success: false, message: '无管理员权限' }
+    }
+
+    const { page = 1, pageSize = 50 } = event
+    const where = { status: 'refunding' }
+
+    const countRes = await db.collection('orders').where(where).count()
+    const listRes = await db.collection('orders')
+      .where(where)
+      .orderBy('created_at', 'desc')
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .get()
+
+    const userIds = listRes.data.map(o => o.user_id).filter(id => id)
+    const userMap = {}
+    if (userIds.length > 0) {
+      const userRes = await db.collection('users')
+        .where({ _id: _.in(userIds) })
+        .get()
+      userRes.data.forEach(u => {
+        userMap[u._id] = {
+          _id: u._id,
+          member_no: u.member_no,
+          nickname: u.nickname,
+          real_name: u.real_name,
+          phone: u.phone
+        }
+      })
+    }
+
+    const eventIds = listRes.data.map(o => o.event_id).filter(id => id)
+    const eventMap = {}
+    if (eventIds.length > 0) {
+      const distinctEventIds = [...new Set(eventIds)]
+      const eventRes = await db.collection('events')
+        .where({ _id: _.in(distinctEventIds) })
+        .get()
+      eventRes.data.forEach(e => {
+        eventMap[e._id] = { _id: e._id, title: e.title }
+      })
+    }
+
+    const list = listRes.data.map(order => ({
+      ...order,
+      user: userMap[order.user_id] || null,
+      event: eventMap[order.event_id] || null
+    }))
+
+    return {
+      success: true,
+      data: { list, total: countRes.total, hasMore: page * pageSize < countRes.total }
+    }
+  } catch (err) {
+    console.error('[mpAdminRefundList] error:', err)
+    return { success: false, message: err.message }
+  }
+}
+
+// 小程序管理员：同意退款
+async function handleMpAdminApproveRefund(openid, event) {
+  try {
+    const isAdmin = await checkAdminPermission(openid)
+    if (!isAdmin) {
+      return { success: false, message: '无管理员权限' }
+    }
+
+    const { orderId } = event
+    if (!orderId) return { success: false, message: '缺少订单ID' }
+
+    const orderRes = await db.collection('orders').doc(orderId).get()
+    const order = orderRes.data
+
+    if (order.status !== 'refunding') {
+      return { success: false, message: '订单状态不正确，当前状态：' + order.status }
+    }
+
+    try {
+      const refundRes = await cloud.cloudPay.refund({
+        out_trade_no: order.order_no,
+        out_refund_no: 'RF' + order.order_no,
+        total_fee: order.amount,
+        refund_fee: order.amount,
+        envId: cloud.getWXContext().ENV || 'cloud1-8gax523s60b70149',
+        functionName: 'pay',
+        sub_mch_id: MCH_ID
+      })
+      console.log('[mpAdminApproveRefund] 退款申请已提交:', refundRes)
+
+      // 退款已被微信受理，立即更新本地状态（不依赖回调）
+      const regRes = await db.collection('registrations').where({ order_id: orderId }).get()
+      const regId = regRes.data.length > 0 ? regRes.data[0]._id : null
+      const regNeedCancel = regRes.data.length > 0 && regRes.data[0].status !== 'cancelled'
+
+      const transaction = await db.startTransaction()
+      try {
+        await transaction.collection('orders').doc(orderId).update({
+          data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
+        })
+
+        if (regId && regNeedCancel) {
+          await transaction.collection('registrations').doc(regId).update({
+            data: { status: 'cancelled', updated_at: db.serverDate() }
+          })
+          await transaction.collection('events').doc(order.event_id).update({
+            data: { enrolled_count: _.inc(-1) }
+          })
+        }
+
+        await transaction.commit()
+        console.log('[mpAdminApproveRefund] ✅ 退款事务完成: 订单→refunded, 报名→cancelled')
+
+        // 发送退款通知放事务外
+        try {
+          await db.collection('notifications').add({
+            data: {
+              open_id: order.open_id,
+              title: '退款成功',
+              body: `您的订单 ${order.order_no} 退款已通过审核，款项将在 1-5 个工作日内原路退回。`,
+              icon_bg_color: '#10b981',
+              icon_text: '退',
+              is_read: false,
+              type: 'refund_approved',
+              created_at: db.serverDate()
+            }
+          })
+        } catch (noteErr) {
+          console.error('[mpAdminApproveRefund] 发送退款通知失败:', noteErr)
+        }
+
+      } catch (txErr) {
+        await transaction.rollback()
+        console.error('[mpAdminApproveRefund] 事务失败:', txErr)
+        // 事务失败但微信退款已受理，保底更新订单和报名状态
+        await db.collection('orders').doc(orderId).update({
+          data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
+        })
+        if (regId && regNeedCancel) {
+          await db.collection('registrations').doc(regId).update({
+            data: { status: 'cancelled', updated_at: db.serverDate() }
+          })
+          await db.collection('events').doc(order.event_id).update({
+            data: { enrolled_count: _.inc(-1) }
+          })
+        }
+      }
+
+      return { success: true, message: '退款已发起，款项将在 1-5 个工作日内原路退回' }
+    } catch (refundErr) {
+      console.error('[mpAdminApproveRefund] 退款失败:', refundErr)
+      return { success: false, message: '退款失败: ' + refundErr.message }
+    }
+  } catch (err) {
+    console.error('[mpAdminApproveRefund] error:', err)
+    return { success: false, message: err.message }
+  }
+}
+
+// 小程序管理员：驳回退款
+async function handleMpAdminRejectRefund(openid, event) {
+  try {
+    const isAdmin = await checkAdminPermission(openid)
+    if (!isAdmin) {
+      return { success: false, message: '无管理员权限' }
+    }
+
+    const { orderId, reason } = event
+    if (!orderId) return { success: false, message: '缺少订单ID' }
+
+    const orderRes = await db.collection('orders').doc(orderId).get()
+    const order = orderRes.data
+
+    if (order.status !== 'refunding') {
+      return { success: false, message: '订单状态不正确，当前状态：' + order.status }
+    }
+
+    await db.collection('orders').doc(orderId).update({
+      data: {
+        status: 'paid',
+        refund_reason: reason || '退款申请已驳回',
+        updated_at: db.serverDate()
+      }
+    })
+
+    await db.collection('notifications').add({
+      data: {
+        open_id: order.open_id,
+        title: '退款申请已驳回',
+        body: `您的订单 ${order.order_no} 退款申请已被驳回。原因：${reason || '请联系管理员了解详情'}`,
+        icon_bg_color: '#f59e0b',
+        icon_text: '驳',
+        is_read: false,
+        type: 'refund_rejected',
+        created_at: db.serverDate()
+      }
+    }).catch(e => console.error('[mpAdminRejectRefund] 发送通知失败:', e))
+
+    return { success: true, message: '退款已驳回' }
+  } catch (err) {
+    console.error('[mpAdminRejectRefund] error:', err)
+    return { success: false, message: err.message }
+  }
+}
+
+// 云函数入口
+exports.main = async (event, context) => {
+  const { OPENID } = cloud.getWXContext()
+  const { action } = event
+
+  // 检查是否是微信支付回调（HTTP POST 请求，可能没有 action 参数）
+  const isPayCallback = !action && event.outTradeNo && event.transactionId
+  const isRefundCallback = !action && event.outTradeNo && !event.transactionId
+
+  if (isPayCallback) {
+    console.log('[pay] 检测到微信支付回调，参数:', JSON.stringify(event))
+    return handlePayCallback(event)
+  }
+
+  if (isRefundCallback) {
+    console.log('[pay] 检测到微信退款回调，参数:', JSON.stringify(event))
+    return handleRefundCallback(event)
+  }
+
+  // 正常的云函数调用路由
+  switch (action) {
+    case 'createOrder':
+      return handleCreateOrder(OPENID, event)
+    case 'queryOrder':
+      return handleQueryOrder(OPENID, event)
+    case 'cancelOrder':
+      return handleCancelOrder(OPENID, event)
+    case 'requestRefund':
+      return handleRequestRefund(OPENID, event)
+    case 'myOrders':
+      return handleMyOrders(OPENID, event)
+    case 'payCallback':
+      return handlePayCallback(event)
+    case 'refundCallback':
+      return handleRefundCallback(event)
+    case 'syncOrder':
+      return handleSyncOrder(event)
+    case 'mpAdminRefundList':
+      return handleMpAdminRefundList(OPENID, event)
+    case 'mpAdminApproveRefund':
+      return handleMpAdminApproveRefund(OPENID, event)
+    case 'mpAdminRejectRefund':
+      return handleMpAdminRejectRefund(OPENID, event)
+    default:
+      return { success: false, message: '未知操作' }
   }
 }

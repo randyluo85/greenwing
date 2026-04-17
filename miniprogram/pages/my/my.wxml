@@ -66,18 +66,30 @@
 
   <!-- 菜单卡片 -->
   <view class="menu-card">
-    <!-- 活动核销 (管理员) -->
-    <view class="menu-item" wx:if="{{isAdminUser}}" bindtap="goVerify">
+    <!-- 活动核销 (管理员 + 核销员) -->
+    <view class="menu-item" wx:if="{{isVerifierLevel}}" bindtap="goVerify">
       <view class="menu-icon-wrap">
         <image src="/images/icons/verify.svg" class="menu-icon" />
       </view>
       <view class="menu-text-wrap">
         <text class="menu-text">活动核销</text>
-        <text class="menu-sub-text">(仅工作人员使用)</text>
+        <text class="menu-sub-text">(仅核销员使用)</text>
       </view>
       <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
     </view>
-    <view class="menu-divider" wx:if="{{isAdminUser}}"></view>
+    <view class="menu-divider" wx:if="{{isVerifierLevel}}"></view>
+
+    <!-- 退款审批 (仅超级管理员可见) -->
+    <view class="menu-item" wx:if="{{isSuperAdmin}}" bindtap="goRefundManage">
+      <view class="menu-icon-wrap">
+        <image src="/images/icons/receipt.svg" class="menu-icon" />
+      </view>
+      <view class="menu-text-wrap">
+        <text class="menu-text">退款审批</text>
+      </view>
+      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
+    </view>
+    <view class="menu-divider" wx:if="{{isSuperAdmin}}"></view>
 
     <!-- 我的活动 -->
     <view class="menu-item" bindtap="goMyEvents">

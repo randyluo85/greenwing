@@ -232,8 +232,6 @@
           >
             <el-option label="活动页" value="event" />
             <el-option label="图书页" value="book" />
-            <el-option label="文章页" value="article" />
-            <el-option label="自定义页面" value="page" />
           </el-select>
         </el-form-item>
         <el-form-item label="跳转地址">

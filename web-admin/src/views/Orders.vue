@@ -101,22 +101,6 @@
 
         <!-- 操作列 -->
         <template #actions="{ row }">
-          <el-button
-            v-if="row.status === 'refunding'"
-            link
-            type="primary"
-            @click="openRefund(row)"
-          >
-            审批
-          </el-button>
-          <el-button
-            v-if="row.status === 'paid'"
-            link
-            type="danger"
-            @click="openAdminRefund(row)"
-          >
-            退款
-          </el-button>
           <el-button link @click="openDetail(row)">
             详情
           </el-button>
@@ -124,13 +108,6 @@
       </BaseTable>
     </BaseCard>
 
-    <!-- 退款对话框（兼容审批模式和管理员主动退款模式） -->
-    <RefundDialog
-      v-model="refundVisible"
-      :order="selectedOrder"
-      :mode="refundMode"
-      @action="onRefundAction"
-    />
 
     <!-- 订单详情对话框 -->
     <OrderDetailDialog
@@ -158,7 +135,6 @@ import BaseCard from '@/components/BaseCard.vue'
 import BaseTable from '@/components/BaseTable.vue'
 import FilterBar from '@/components/FilterBar.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
-import RefundDialog from '@/components/RefundDialog.vue'
 import OrderDetailDialog from '@/components/OrderDetailDialog.vue'
 import { callFunction } from '@/utils/cloud'
 import { formatMoney, formatDateTime } from '@/utils/format'
@@ -176,11 +152,8 @@ const search = ref('')
 const dateRange = ref(null)
 
 // 对话框状态
-const refundVisible = ref(false)
 const detailVisible = ref(false)
 const selectedOrder = ref(null)
-// 退款模式：'approve'（审批用户申请）| 'admin'（管理员主动退款）
-const refundMode = ref('approve')
 
 // Tab 配置
 const tabs = computed(() => {
@@ -203,7 +176,6 @@ const tabs = computed(() => {
     { key: 'all', label: '全部', count: all },
     { key: 'pending', label: '待支付', count: statusCounts.pending },
     { key: 'paid', label: '已支付', count: statusCounts.paid },
-    { key: 'refunding', label: '待退款', count: statusCounts.refunding },
     { key: 'refunded', label: '已退款', count: statusCounts.refunded },
     { key: 'closed', label: '已关闭', count: statusCounts.closed }
   ]
@@ -396,56 +368,14 @@ function maskUserId(userId) {
   return userId.slice(-6)
 }
 
-// 打开退款审批对话框（用户申请 -> 管理员审批）
-function openRefund(order) {
-  selectedOrder.value = order
-  refundMode.value = 'approve'
-  refundVisible.value = true
-}
-
-// 打开管理员主动退款对话框
-function openAdminRefund(order) {
-  selectedOrder.value = order
-  refundMode.value = 'admin'
-  refundVisible.value = true
-}
-
 // 打开订单详情对话框
 function openDetail(order) {
   selectedOrder.value = order
   detailVisible.value = true
 }
 
-// 处理退款审批或主动退款
-async function onRefundAction({ action, note }) {
-  try {
-    if (refundMode.value === 'admin') {
-      // 管理员主动退款路径
-      await callFunction('admin', {
-        action: 'adminRefund',
-        orderId: selectedOrder.value._id,
-        reason: note
-      })
-      ElMessage.success('退款已发起，款项将在 1-5 个工作日内原路退回')
-    } else {
-      // 用户申请审批路径
-      const approved = action === 'approve'
-      await callFunction('admin', {
-        action: 'approveRefund',
-        orderId: selectedOrder.value._id,
-        approved,
-        reason: note
-      })
-      ElMessage.success(approved ? '退款已发起，款项将在 1-5 个工作日内原路退回' : '退款已拒绝')
-    }
-    refundVisible.value = false
-    loadOrders()
-  } catch (err) {
-    ElMessage.error(err.message || '操作失败')
-  }
-}
-
 // 处理导出
+
 function handleExport() {
   if (!orders.value.length) {
     ElMessage.warning('暂无数据可导出')
