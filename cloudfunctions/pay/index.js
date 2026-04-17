@@ -102,7 +102,7 @@ async function handleCreateOrder(openid, event) {
         out_trade_no: orderNo,
         spbill_create_ip: '127.0.0.1',
         total_fee: eventDoc.price,
-        envId: cloud.getWXContext().ENV || 'cloud1-8gax523s60b70149',
+        envId: 'cloud1-8gax523s60b70149',
         functionName: 'pay',
         sub_mch_id: MCH_ID,
         nonce_str: Math.random().toString(36).slice(2, 17),
@@ -186,6 +186,12 @@ async function handleRequestRefund(openid, event) {
       return { success: false, message: '该活动不支持退款' }
     }
 
+    // 检查是否已核销
+    const regCheckRes = await db.collection('registrations').where({ order_id: orderId }).get()
+    if (regCheckRes.data.length > 0 && regCheckRes.data[0].status === 'verified') {
+      return { success: false, message: '该订单已核销，无法申请退款' }
+    }
+
     // 检查微信真实状态，如果已经发生过退款，直接拦截并纠正数据库状态
     try {
       const crypto = require('crypto')
@@ -240,7 +246,20 @@ async function handleMyOrders(openid, event) {
       const eventRes = await db.collection('events').where({ _id: _.in(eventIds) }).get()
       eventRes.data.forEach(e => { eventDocs[e._id] = e })
     }
-    const list = listRes.data.map(o => ({ ...o, event: eventDocs[o.event_id] || null }))
+
+    // 批量关联报名信息 (为了在前端判断能否退款)
+    const orderIds = listRes.data.map(o => o._id)
+    const regDocs = {}
+    if (orderIds.length > 0) {
+      const regRes = await db.collection('registrations').where({ order_id: _.in(orderIds) }).get()
+      regRes.data.forEach(r => { regDocs[r.order_id] = r })
+    }
+
+    const list = listRes.data.map(o => ({ 
+      ...o, 
+      event: eventDocs[o.event_id] || null,
+      registration: regDocs[o._id] || null
+    }))
 
     // 懒加载自我修复机制：当用户查看我的订单时，对于已经是退款的订单，自动校验一次报名表和库存是否对齐
     for (const order of list) {
@@ -302,24 +321,38 @@ async function handlePayCallback(event) {
       const userRes = await transaction.collection('users').doc(order.user_id).get()
       const user = userRes.data
 
+      // 检查重复报名
+      const existRegRes = await transaction.collection('registrations')
+        .where({ user_id: order.user_id, event_id: order.event_id })
+        .get()
+      let existReg = null
+      if (existRegRes.data.length > 0) {
+        existRegRes.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        existReg = existRegRes.data[0]
+      }
+
       const verifyCode = await generateUniqueVerifyCode(db.collection('registrations'))
-      await transaction.collection('registrations').add({
-        data: {
-          user_id: order.user_id,
-          open_id: order.open_id,
-          event_id: order.event_id,
-          order_id: order._id,
-          verify_code: verifyCode,
-          real_name: user.real_name || '',
-          contact_phone: user.phone || '',
-          status: 'pending',
-          verified_by: '',
-          verified_at: null,
-          created_at: db.serverDate(),
-          updated_at: db.serverDate()
-        }
-      })
-      console.log('[payCallback] 报名记录已创建，verifyCode:', verifyCode)
+      const regData = {
+        user_id: order.user_id,
+        open_id: order.open_id,
+        event_id: order.event_id,
+        order_id: order._id,
+        verify_code: verifyCode,
+        real_name: user.real_name || '',
+        contact_phone: user.phone || '',
+        status: 'pending',
+        verified_by: '',
+        verified_at: null,
+        created_at: existReg ? existReg.created_at : db.serverDate(),
+        updated_at: db.serverDate()
+      }
+
+      if (existReg) {
+        await transaction.collection('registrations').doc(existReg._id).update({ data: regData })
+      } else {
+        await transaction.collection('registrations').add({ data: regData })
+      }
+      console.log('[payCallback] 报名记录已创建/更新，verifyCode:', verifyCode)
 
       await transaction.collection('events').doc(order.event_id).update({
         data: { enrolled_count: _.inc(1) }
@@ -613,7 +646,7 @@ async function handleMpAdminApproveRefund(openid, event) {
         out_refund_no: 'RF' + order.order_no,
         total_fee: order.amount,
         refund_fee: order.amount,
-        envId: cloud.getWXContext().ENV || 'cloud1-8gax523s60b70149',
+        envId: 'cloud1-8gax523s60b70149',
         functionName: 'pay',
         sub_mch_id: MCH_ID
       })

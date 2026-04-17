@@ -69,7 +69,15 @@ async function loadRegistrations() {
   loading.value = true
   try {
     const res = await callFunction('admin', { action: 'getRegistrations', eventId: props.event._id, pageSize: 200 })
-    registrations.value = res.data?.list || []
+    const list = res.data?.list || []
+    const userRegMap = new Map()
+    list.forEach(r => {
+      // 列表默认由新到旧排序，保留每个用户的最新一条记录
+      if (r.user_id && !userRegMap.has(r.user_id)) {
+        userRegMap.set(r.user_id, r)
+      }
+    })
+    registrations.value = Array.from(userRegMap.values())
   } catch (e) {
     registrations.value = []
   } finally {
