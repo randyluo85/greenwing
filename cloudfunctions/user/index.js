@@ -4,11 +4,19 @@ const db = cloud.database()
 const _ = db.command
 
 // 内联工具函数
+// 统一使用北京时间处理日期字符串
+function getBeijingDateParts(date = new Date()) {
+  const d = new Date(date.getTime() + 8 * 3600000)
+  return {
+    y: d.getUTCFullYear(),
+    m: String(d.getUTCMonth() + 1).padStart(2, '0'),
+    d: String(d.getUTCDate()).padStart(2, '0')
+  }
+}
+
+// 内联工具函数
 function generateMemberNo() {
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, '0')
-  const d = String(now.getDate()).padStart(2, '0')
+  const { y, m, d } = getBeijingDateParts()
   const rand = String(Math.floor(Math.random() * 100000)).padStart(5, '0')
   return `QY${y}${m}${d}${rand}`
 }
@@ -100,8 +108,8 @@ async function handleSignIn(openid) {
     }
     const user = userRes.data[0]
 
-    const today = new Date()
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    const todayParts = getBeijingDateParts()
+    const todayStr = `${todayParts.y}-${todayParts.m}-${todayParts.d}`
 
     if (user.last_sign_date === todayStr) {
       return { success: false, message: '今日已签到' }
@@ -115,9 +123,9 @@ async function handleSignIn(openid) {
     } catch (e) { /* 使用默认值 */ }
 
     // 计算连续签到
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
+    const yesterdayDate = new Date(Date.now() - 24 * 3600000)
+    const yesterdayParts = getBeijingDateParts(yesterdayDate)
+    const yesterdayStr = `${yesterdayParts.y}-${yesterdayParts.m}-${yesterdayParts.d}`
 
     let continuousDays = 1
     if (user.last_sign_date === yesterdayStr) {
