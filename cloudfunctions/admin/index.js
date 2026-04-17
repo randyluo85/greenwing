@@ -348,9 +348,9 @@ async function executeRefund(order, notifyUser = true) {
     out_refund_no: 'RF' + order.order_no,
     total_fee: order.amount,
     refund_fee: order.amount,
-    envId: cloud.DYNAMIC_CURRENT_ENV,
+    envId: 'cloud1-8gax523s60b70149',
     functionName: 'pay',
-    sub_mch_id: '1705849497'
+    sub_mch_id: process.env.MCH_ID || '1705849497'
   })
   console.log('[refund] cloud.cloudPay.refund 结果:', JSON.stringify(refundRes))
 
@@ -625,6 +625,8 @@ async function handleManageContent(event) {
 // 财务看板
 async function handleGetDashboard(event) {
   try {
+    const $ = db.command.aggregate
+
     // 总收入 - 使用 aggregate 聚合，无数据量上限
     // 核心财务统计：计算累计总收入（包含所有现金流入状态：paid, refunding, refunded）
     let totalRevenue = 0
@@ -635,21 +637,19 @@ async function handleGetDashboard(event) {
         .match({ 
           status: _.in(['paid', 'refunding', 'refunded']) 
         })
-        .project({
-          amount: { $convert: { input: '$amount', to: 'double', onError: 0, onNull: 0 } }
-        })
         .group({ 
           _id: null, 
-          total: { $sum: '$amount' }, 
-          count: { $sum: 1 } 
+          total: $.sum('$amount'), 
+          count: $.sum(1) 
         })
         .end()
       
-      console.log('Revenue Aggregation Result:', JSON.stringify(aggRes.data))
+      const list = aggRes.list || aggRes.data
+      console.log('Revenue Aggregation Result:', JSON.stringify(list))
       
-      if (aggRes.data && aggRes.data.length > 0) {
-        totalRevenue = aggRes.data[0].total || 0
-        totalOrders = aggRes.data[0].count || 0
+      if (list && list.length > 0) {
+        totalRevenue = list[0].total || 0
+        totalOrders = list[0].count || 0
       }
     } catch (e) {
       console.error('Dashboard revenue aggregation failed:', e.message)
@@ -661,21 +661,19 @@ async function handleGetDashboard(event) {
       const refundAgg = await db.collection('orders')
         .aggregate()
         .match({ status: 'refunded' })
-        .project({
-          amount: { $convert: { input: '$amount', to: 'double', onError: 0, onNull: 0 } }
-        })
         .group({ 
           _id: null, 
-          total: { $sum: '$amount' }, 
-          count: { $sum: 1 } 
+          total: $.sum('$amount'), 
+          count: $.sum(1) 
         })
         .end()
       
-      console.log('Refund Aggregation Result:', JSON.stringify(refundAgg.data))
+      const list = refundAgg.list || refundAgg.data
+      console.log('Refund Aggregation Result:', JSON.stringify(list))
       
-      if (refundAgg.data && refundAgg.data.length > 0) {
-        totalRefund = refundAgg.data[0].total || 0
-        refundCount = refundAgg.data[0].count || 0
+      if (list && list.length > 0) {
+        totalRefund = list[0].total || 0
+        refundCount = list[0].count || 0
       }
     } catch (e) {
       console.error('Dashboard refund aggregation failed:', e.message)

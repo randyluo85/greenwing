@@ -29,7 +29,7 @@
         <view class="btn-sm btn-pay" wx:if="{{item.status === 'pending'}}" bindtap="goPay" data-id="{{item._id}}" data-event="{{item.event_id}}">
           <text>去支付</text>
         </view>
-        <view class="btn-sm btn-refund" wx:if="{{item.status === 'paid'}}" bindtap="requestRefund" data-id="{{item._id}}">
+        <view class="btn-sm btn-refund" wx:if="{{item.status === 'paid' && (!item.registration || item.registration.status !== 'verified')}}" bindtap="requestRefund" data-id="{{item._id}}">
           <text>申请退款</text>
         </view>
         <view class="btn-sm btn-cancel" wx:if="{{item.status === 'pending'}}" bindtap="cancelOrder" data-id="{{item._id}}">

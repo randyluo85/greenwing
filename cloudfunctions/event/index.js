@@ -127,32 +127,43 @@ async function handleEnrollFree(openid, event) {
     }
 
     // 检查重复报名
-    const existReg = await transaction.collection('registrations')
-      .where({ user_id: user._id, event_id: eventId, status: _.neq('cancelled') })
+    const existRegRes = await transaction.collection('registrations')
+      .where({ user_id: user._id, event_id: eventId })
       .get()
-    if (existReg.data.length > 0) {
-      await transaction.rollback()
-      return { success: false, message: '已报名该活动' }
+    
+    let existReg = null
+    if (existRegRes.data.length > 0) {
+      // 获取最新的一条记录
+      existRegRes.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      existReg = existRegRes.data[0]
+      if (existReg.status !== 'cancelled') {
+        await transaction.rollback()
+        return { success: false, message: '已报名该活动' }
+      }
     }
 
     // 创建报名记录
     const verifyCode = await generateUniqueVerifyCode(db.collection('registrations'))
-    await transaction.collection('registrations').add({
-      data: {
-        user_id: user._id,
-        open_id: openid,
-        event_id: eventId,
-        order_id: '',
-        verify_code: verifyCode,
-        real_name: realName || user.real_name || '',
-        contact_phone: contactPhone || user.phone || '',
-        status: 'pending',
-        verified_by: '',
-        verified_at: null,
-        created_at: db.serverDate(),
-        updated_at: db.serverDate()
-      }
-    })
+    const regData = {
+      user_id: user._id,
+      open_id: openid,
+      event_id: eventId,
+      order_id: '',
+      verify_code: verifyCode,
+      real_name: realName || user.real_name || '',
+      contact_phone: contactPhone || user.phone || '',
+      status: 'pending',
+      verified_by: '',
+      verified_at: null,
+      created_at: existReg ? existReg.created_at : db.serverDate(),
+      updated_at: db.serverDate()
+    }
+    
+    if (existReg) {
+      await transaction.collection('registrations').doc(existReg._id).update({ data: regData })
+    } else {
+      await transaction.collection('registrations').add({ data: regData })
+    }
 
     // 增加已报名人数
     await transaction.collection('events').doc(eventId).update({
@@ -245,12 +256,19 @@ async function handleEnrollPoints(openid, event) {
     }
 
     // 检查重复报名
-    const existReg = await transaction.collection('registrations')
-      .where({ user_id: user._id, event_id: eventId, status: _.neq('cancelled') })
+    const existRegRes = await transaction.collection('registrations')
+      .where({ user_id: user._id, event_id: eventId })
       .get()
-    if (existReg.data.length > 0) {
-      await transaction.rollback()
-      return { success: false, message: '已报名该活动' }
+
+    let existReg = null
+    if (existRegRes.data.length > 0) {
+      // 获取最新的一条记录
+      existRegRes.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      existReg = existRegRes.data[0]
+      if (existReg.status !== 'cancelled') {
+        await transaction.rollback()
+        return { success: false, message: '已报名该活动' }
+      }
     }
 
     // 扣减积分
@@ -273,22 +291,26 @@ async function handleEnrollPoints(openid, event) {
 
     // 创建报名记录
     const verifyCode = await generateUniqueVerifyCode(db.collection('registrations'))
-    await transaction.collection('registrations').add({
-      data: {
-        user_id: user._id,
-        open_id: openid,
-        event_id: eventId,
-        order_id: '',
-        verify_code: verifyCode,
-        real_name: realName || user.real_name || '',
-        contact_phone: contactPhone || user.phone || '',
-        status: 'pending',
-        verified_by: '',
-        verified_at: null,
-        created_at: db.serverDate(),
-        updated_at: db.serverDate()
-      }
-    })
+    const regData = {
+      user_id: user._id,
+      open_id: openid,
+      event_id: eventId,
+      order_id: '',
+      verify_code: verifyCode,
+      real_name: realName || user.real_name || '',
+      contact_phone: contactPhone || user.phone || '',
+      status: 'pending',
+      verified_by: '',
+      verified_at: null,
+      created_at: existReg ? existReg.created_at : db.serverDate(),
+      updated_at: db.serverDate()
+    }
+    
+    if (existReg) {
+      await transaction.collection('registrations').doc(existReg._id).update({ data: regData })
+    } else {
+      await transaction.collection('registrations').add({ data: regData })
+    }
 
     await transaction.collection('events').doc(eventId).update({
       data: { enrolled_count: _.inc(1) }
