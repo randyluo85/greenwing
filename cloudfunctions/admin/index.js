@@ -12,14 +12,14 @@ function calcLevel(totalPoints, thresholds) {
   return 'bronze'
 }
 
-// 管理员账号（优先从环境变量读取，兼容硬编码回退）
+// 管理员账号 (建议在云函数环境变量中配置 ADMIN_ACCOUNTS)
 const ADMIN_ACCOUNTS = JSON.parse(process.env.ADMIN_ACCOUNTS || '{"admin":"qingyi2026"}')
 
 // Token 过期时间: 2小时
 const TOKEN_TTL = 2 * 60 * 60 * 1000
 
-// HMAC 签名密钥（无状态 token，不依赖内存或数据库）
-const TOKEN_SECRET = 'qingyi-admin-token-secret-2026'
+// HMAC 签名密钥 (建议通过环境变量 TOKEN_SECRET 配置)
+const TOKEN_SECRET = process.env.TOKEN_SECRET || 'qingyi-admin-token-secret-2026'
 
 // 无状态 token 生成: Base64(username:loginTime:hmac)
 function generateToken(username, loginTime) {
@@ -72,6 +72,8 @@ exports.main = async (event, context) => {
       return handleGetOrders(event)
     case 'approveRefund':
       return handleApproveRefund(event)
+    case 'adminRefund':
+      return handleAdminRefund(event)
     case 'cancelOrder':
       return handleCancelOrder(event)
     case 'getRegistrations':
@@ -195,6 +197,21 @@ async function handleAdjustPoints(event) {
         created_at: db.serverDate()
       }
     })
+
+    if (amount > 0) {
+      await transaction.collection('notifications').add({
+        data: {
+          open_id: user.open_id,
+          title: '积分奖励发放',
+          body: `您的账户收到一笔 ${amount} 积分的奖励：${reason || '管理员发放'}`,
+          icon_bg_color: '#fb923c',
+          icon_text: '奖',
+          is_read: false,
+          type: 'points_reward',
+          created_at: db.serverDate()
+        }
+      })
+    }
 
     await transaction.commit()
     return { success: true, message: '积分调整成功', data: { total: newTotal, current: newCurrent, level: newLevel } }
@@ -324,7 +341,83 @@ async function handleGetOrders(event) {
   }
 }
 
-// 退款审批
+// 底层退款执行（被两种退款模式复用）
+async function executeRefund(order, notifyUser = true) {
+  const refundRes = await cloud.cloudPay.refund({
+    out_trade_no: order.order_no,
+    out_refund_no: 'RF' + order.order_no,
+    total_fee: order.amount,
+    refund_fee: order.amount,
+    envId: cloud.DYNAMIC_CURRENT_ENV,
+    functionName: 'pay',
+    sub_mch_id: '1705849497'
+  })
+  console.log('[refund] cloud.cloudPay.refund 结果:', JSON.stringify(refundRes))
+
+  // 退款已被微信受理，立即更新本地状态（不依赖回调）
+  const regRes = await db.collection('registrations').where({ order_id: order._id }).get()
+  const regId = regRes.data.length > 0 ? regRes.data[0]._id : null
+  const regNeedCancel = regRes.data.length > 0 && regRes.data[0].status !== 'cancelled'
+
+  const transaction = await db.startTransaction()
+  try {
+    await transaction.collection('orders').doc(order._id).update({
+      data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
+    })
+
+    if (regId && regNeedCancel) {
+      await transaction.collection('registrations').doc(regId).update({
+        data: { status: 'cancelled', updated_at: db.serverDate() }
+      })
+      await transaction.collection('events').doc(order.event_id).update({
+        data: { enrolled_count: _.inc(-1) }
+      })
+    }
+
+    await transaction.commit()
+    console.log('[refund] ✅ 退款事务完成: 订单→refunded, 报名→cancelled')
+
+    // 发送通知放事务外
+    if (notifyUser) {
+      try {
+        await db.collection('notifications').add({
+          data: {
+            open_id: order.open_id,
+            title: '退款成功',
+            body: `您的订单 ${order.order_no} 退款已通过审核，款项将在 1-5 个工作日内原路退回。`,
+            icon_bg_color: '#10b981',
+            icon_text: '退',
+            is_read: false,
+            type: 'refund_approved',
+            created_at: db.serverDate()
+          }
+        })
+      } catch (noteErr) {
+        console.error('[refund] 发送退款通知失败:', noteErr)
+      }
+    }
+  } catch (txErr) {
+    await transaction.rollback()
+    console.error('[refund] 事务失败:', txErr)
+    // 事务失败但微信退款已受理，保底更新订单和报名状态
+    await db.collection('orders').doc(order._id).update({
+      data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
+    })
+    
+    if (regId && regNeedCancel) {
+      await db.collection('registrations').doc(regId).update({
+        data: { status: 'cancelled', updated_at: db.serverDate() }
+      })
+      await db.collection('events').doc(order.event_id).update({
+        data: { enrolled_count: _.inc(-1) }
+      })
+    }
+  }
+
+  return refundRes
+}
+
+// 退款审批（模式二：用户申请 -> 管理员审批）
 async function handleApproveRefund(event) {
   try {
     const { orderId, approved, reason } = event
@@ -333,33 +426,58 @@ async function handleApproveRefund(event) {
     const orderRes = await db.collection('orders').doc(orderId).get()
     const order = orderRes.data
 
-    if (order.status !== 'refunding') return { success: false, message: '订单状态不正确' }
+    if (order.status !== 'refunding') return { success: false, message: '订单状态不正确，当前状态：' + order.status }
 
     if (!approved) {
+      // 驳回：恢复到 paid 状态
       await db.collection('orders').doc(orderId).update({
-        data: { status: 'paid', refund_reason: reason || '退款被拒绝', updated_at: db.serverDate() }
+        data: { status: 'paid', refund_reason: reason || '退款申请已驳回', updated_at: db.serverDate() }
       })
       return { success: true, message: '退款已拒绝' }
     }
 
-    // 执行退款
+    // 同意：发起微信退款
     try {
-      const refundRes = await cloud.cloudPay.refund({
-        outTradeNo: order.order_no,
-        outRefundNo: 'RF' + order.order_no,
-        totalFee: order.amount,
-        refundFee: order.amount,
-        envId: cloud.DYNAMIC_CURRENT_ENV,
-        functionName: 'pay'
-      })
-
-      // 退款申请已提交，等待回调
-      await db.collection('orders').doc(orderId).update({
-        data: { status: 'refunding', updated_at: db.serverDate() }
-      })
-
-      return { success: true, message: '退款已发起' }
+      await executeRefund(order, true)
+      return { success: true, message: '退款已发起，款项将在 1-5 个工作日内原路退回' }
     } catch (refundErr) {
+      console.error('[approveRefund] 退款失败:', refundErr)
+      return { success: false, message: '退款失败: ' + refundErr.message }
+    }
+  } catch (err) {
+    return { success: false, message: err.message }
+  }
+}
+
+// 管理员主动退款（模式一：管理员对已支付订单直接发起退款）
+async function handleAdminRefund(event) {
+  try {
+    const { orderId, reason } = event
+    if (!orderId) return { success: false, message: '缺少订单ID' }
+
+    const orderRes = await db.collection('orders').doc(orderId).get()
+    const order = orderRes.data
+
+    if (order.status !== 'paid') return { success: false, message: '只能对已支付订单发起退款，当前状态：' + order.status }
+
+    // 先标记为退款中，再调用微信
+    await db.collection('orders').doc(order._id).update({
+      data: {
+        status: 'refunding',
+        refund_reason: reason || '管理员主动退款',
+        updated_at: db.serverDate()
+      }
+    })
+
+    try {
+      await executeRefund(order, true)
+      return { success: true, message: '退款已发起，款项将在 1-5 个工作日内原路退回' }
+    } catch (refundErr) {
+      // 如果微信退款调用失败，回滚至 paid 状态
+      await db.collection('orders').doc(order._id).update({
+        data: { status: 'paid', updated_at: db.serverDate() }
+      })
+      console.error('[adminRefund] 退款失败:', refundErr)
       return { success: false, message: '退款失败: ' + refundErr.message }
     }
   } catch (err) {
@@ -432,6 +550,41 @@ async function handleManageContent(event) {
       const out = {}
       fields.forEach(f => { if (src[f] !== undefined) out[f] = src[f] })
       return out
+    }
+
+    if (type === 'broadcast') {
+      const { title, body } = data
+      if (!title || !body) return { success: false, message: '标题和内容不能为空' }
+
+      const MAX_USERS = 1000
+      let offset = 0
+      let totalSent = 0
+      while (true) {
+        const usersRes = await db.collection('users').skip(offset).limit(MAX_USERS).get()
+        const users = usersRes.data
+        if (users.length === 0) break
+
+        const promises = users.map(u => {
+          return db.collection('notifications').add({
+            data: {
+              open_id: u.open_id,
+              title,
+              body,
+              icon_bg_color: '#f05232',
+              icon_text: '系',
+              is_read: false,
+              type: 'system_broadcast',
+              created_at: db.serverDate()
+            }
+          }).catch(e => console.error('Failed to notify user', u.open_id, e))
+        })
+        
+        await Promise.all(promises)
+        totalSent += users.length
+        offset += MAX_USERS
+        if (users.length < MAX_USERS) break
+      }
+      return { success: true, message: `已向 ${totalSent} 名用户发送消息` }
     }
 
     if (method === 'list') {
@@ -657,62 +810,61 @@ async function handleGetLevelDistribution(event) {
 async function handleGetRecentActivity(event) {
   try {
     const { limit = 10 } = event
+    
+    // 1. 并发获取原始日志
+    const [pointLogs, regs] = await Promise.all([
+      db.collection('point_logs').orderBy('created_at', 'desc').limit(limit).get(),
+      db.collection('registrations').orderBy('created_at', 'desc').limit(limit).get()
+    ])
+
+    // 2. 收集所有需要查询的 ID
+    const userIds = new Set()
+    const eventIds = new Set()
+    
+    pointLogs.data.forEach(log => { if (log.user_id) userIds.add(log.user_id) })
+    regs.data.forEach(reg => {
+      if (reg.user_id) userIds.add(reg.user_id)
+      if (reg.event_id) eventIds.add(reg.event_id)
+    })
+
+    // 3. 批量并行查询详情
+    const [usersRes, eventsRes] = await Promise.all([
+      userIds.size > 0 ? db.collection('users').where({ _id: _.in([...userIds]) }).get() : { data: [] },
+      eventIds.size > 0 ? db.collection('events').where({ _id: _.in([...eventIds]) }).get() : { data: [] }
+    ])
+
+    // 4. 建立映射表
+    const userMap = {}
+    usersRes.data.forEach(u => { userMap[u._id] = u.nickname || '未知用户' })
+    const eventMap = {}
+    eventsRes.data.forEach(e => { eventMap[e._id] = e.title || '未知活动' })
+
+    // 5. 组合结果
     const activities = []
+    
+    // 处理积分日志
+    pointLogs.data.forEach(log => {
+      activities.push({
+        type: 'point',
+        description: `${userMap[log.user_id] || '未知用户'} ${log.description}`,
+        time: log.created_at
+      })
+    })
 
-    // 最近的积分流水
-    try {
-      const pointLogs = await db.collection('point_logs')
-        .orderBy('created_at', 'desc').limit(limit).get()
-      for (const log of pointLogs.data) {
-        let userName = '未知用户'
-        try {
-          const u = await db.collection('users').doc(log.user_id).get()
-          userName = u.data.nickname || userName
-        } catch (e) {
-          console.error('RecentActivity: user lookup failed for', log.user_id, e.message)
-        }
-        activities.push({
-          type: 'point',
-          description: `${userName} ${log.description}`,
-          time: log.created_at
-        })
-      }
-    } catch (e) {
-      console.error('RecentActivity: point_logs query failed:', e.message)
-    }
+    // 处理报名记录
+    regs.data.forEach(reg => {
+      activities.push({
+        type: 'registration',
+        description: `${userMap[reg.user_id] || '未知用户'} 报名了「${eventMap[reg.event_id] || '未知活动'}」`,
+        time: reg.created_at
+      })
+    })
 
-    // 最近的报名记录
-    try {
-      const regs = await db.collection('registrations')
-        .orderBy('created_at', 'desc').limit(limit).get()
-      for (const reg of regs.data) {
-        let userName = '未知用户'
-        let eventTitle = '未知活动'
-        try {
-          const u = await db.collection('users').doc(reg.user_id).get()
-          userName = u.data.nickname || userName
-        } catch (e) {
-          console.error('RecentActivity: user lookup failed for', reg.user_id, e.message)
-        }
-        try {
-          const ev = await db.collection('events').doc(reg.event_id).get()
-          eventTitle = ev.data.title || eventTitle
-        } catch (e) {
-          console.error('RecentActivity: event lookup failed for', reg.event_id, e.message)
-        }
-        activities.push({
-          type: 'registration',
-          description: `${userName} 报名了「${eventTitle}」`,
-          time: reg.created_at
-        })
-      }
-    } catch (e) {
-      console.error('RecentActivity: registrations query failed:', e.message)
-    }
+    // 6. 排序并截断
     activities.sort((a, b) => (b.time || 0) - (a.time || 0))
-
     return { success: true, data: activities.slice(0, limit) }
   } catch (err) {
+    console.error('handleGetRecentActivity failed:', err)
     return { success: false, message: err.message }
   }
 }

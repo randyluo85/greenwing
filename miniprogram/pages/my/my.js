@@ -35,7 +35,8 @@ Page({
         levelName: getLevelName(userInfo.level),
         nextLevelName: nextNameMap[progress.next] || '',
         levelProgress: progress,
-        isAdminUser: auth.isAdmin(),
+        isSuperAdmin: auth.isSuperAdmin(),
+        isVerifierLevel: auth.isAdmin(), // includes both admin and verifier
         signDays: userInfo.continuous_sign_days || 0
       })
 
@@ -72,6 +73,10 @@ Page({
 
   goVerify() {
     wx.navigateTo({ url: '/pages/verify/verify' })
+  },
+
+  goRefundManage() {
+    wx.navigateTo({ url: '/pages/refund-manage/refund-manage' })
   },
 
   goProfileEdit() {

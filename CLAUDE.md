@@ -30,14 +30,19 @@
 /miniprogram                # 用户端小程序
   /pages
     /index/                 # 首页
-    /event/                 # 活动总聚合栏 (大厅 + 我的活动 Tab)
+    /event/                 # 活动大厅
     /event-detail/          # 活动详情
     /order-confirm/         # 订单确认页
-    /book/                  # 读书/好书推荐模块 (新增)
-    /store/                 # 商城模块 (占位)
+    /books/                 # 读书/好书推荐模块
+    /book-detail/           # 书籍详情
+    /shop/                  # 商城模块 (占位)
     /my/                    # 个人中心
+    /my-events/             # 我的活动
+    /my-orders/             # 我的订单
     /points/                # 积分明细
     /verify/                # 管理员扫码核销页
+    /login/                 # 登录页
+    /register/              # 注册页
   /components
   /utils
     /cloud.js               # 云开发封装
@@ -53,7 +58,6 @@
   /event/                   # 活动相关(报名/取消/核销)
   /pay/                     # 支付相关(统一下单/回调/退款)
   /admin/                   # 管理端(用户管理/积分调整/退款审批)
-  /common/                  # 共享工具函数
 /web-admin                  # Web 管理后台
   /src
     /views
@@ -63,6 +67,7 @@
       /Orders.vue           # 订单管理 + 退款审批
       /Content.vue          # 轮播 + 推荐管理
       /Settings.vue         # 积分规则 + 等级配置
+      /Login.vue            # 管理员登录页面
     /utils
       /cloud.js             # @cloudbase/js-sdk 初始化封装
       /auth.js              # 邮箱登录鉴权
@@ -125,7 +130,7 @@
 - 登录鉴权: 云开发邮箱密码登录，管理员账号在云开发控制台预先创建。
 - 数据操作: 简单查询用 Web SDK 直连云数据库，业务逻辑（退款、积分调整）用 `app.callFunction()` 调用云函数。
 - 云函数 `admin` 是管理端专用的，内部必须校验调用者身份（通过 Web SDK 的 auth 获取用户信息，匹配管理员白名单）。
-- 部署: `npm run build` 后上传到云开发静态网站托管 `web-admin/` 子目录。
+- 部署: `npm run build` 后上传到云开发静态网站托管根目录。
 - 样式: Element Plus 组件库，后台风格简洁高效。
 
 #### 部署踩坑记录

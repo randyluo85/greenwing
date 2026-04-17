@@ -71,12 +71,30 @@ const ensureProfile = async () => {
 }
 
 /**
- * 检查是否为管理员
+ * 检查是否含有核销权限 (管理员或核销员)
  */
 const isAdmin = () => {
   const app = getApp()
   const userInfo = app.globalData.userInfo
   return userInfo && (userInfo.role === 'admin' || userInfo.role === 'verifier')
+}
+
+/**
+ * 检查是否为超级管理员 (仅 admin)
+ */
+const isSuperAdmin = () => {
+  const app = getApp()
+  const userInfo = app.globalData.userInfo
+  return userInfo && userInfo.role === 'admin'
+}
+
+/**
+ * 检查是否为核销员
+ */
+const isVerifier = () => {
+  const app = getApp()
+  const userInfo = app.globalData.userInfo
+  return userInfo && userInfo.role === 'verifier'
 }
 
 /**
@@ -92,5 +110,7 @@ module.exports = {
   ensureLogin,
   ensureProfile,
   isAdmin,
+  isSuperAdmin,
+  isVerifier,
   getOpenId
 }

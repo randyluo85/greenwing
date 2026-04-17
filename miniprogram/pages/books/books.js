@@ -15,7 +15,7 @@ Page({
   async loadBooks() {
     try {
       const db = wx.cloud.database()
-      const countRes = await db.collection('books').where({ status: 'published' }).count()
+      const countRes = await db.collection('books').where({ status: 'published' }).count({ timeout: 8000 })
       const total = countRes.total
 
       const res = await db.collection('books')
@@ -23,7 +23,7 @@ Page({
         .orderBy('sort_order', 'asc')
         .skip((this.data.page - 1) * 20)
         .limit(20)
-        .get()
+        .get({ timeout: 10000 })
 
       const books = res.data.map(b => {
         const r = b.rating || 0

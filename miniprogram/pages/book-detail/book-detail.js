@@ -15,7 +15,7 @@ Page({
   async loadBook(id) {
     try {
       const db = wx.cloud.database()
-      const res = await db.collection('books').doc(id).get()
+      const res = await db.collection('books').doc(id).get({ timeout: 8000 })
       const book = res.data
       const r = book.rating || 0
       book._fullStars = Math.floor(r / 2)

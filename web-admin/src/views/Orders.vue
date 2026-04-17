@@ -101,14 +101,6 @@
 
         <!-- 操作列 -->
         <template #actions="{ row }">
-          <el-button
-            v-if="row.status === 'refunding'"
-            link
-            type="primary"
-            @click="openRefund(row)"
-          >
-            审批
-          </el-button>
           <el-button link @click="openDetail(row)">
             详情
           </el-button>
@@ -116,12 +108,6 @@
       </BaseTable>
     </BaseCard>
 
-    <!-- 退款审批对话框 -->
-    <RefundDialog
-      v-model="refundVisible"
-      :order="selectedOrder"
-      @action="onRefundAction"
-    />
 
     <!-- 订单详情对话框 -->
     <OrderDetailDialog
@@ -149,7 +135,6 @@ import BaseCard from '@/components/BaseCard.vue'
 import BaseTable from '@/components/BaseTable.vue'
 import FilterBar from '@/components/FilterBar.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
-import RefundDialog from '@/components/RefundDialog.vue'
 import OrderDetailDialog from '@/components/OrderDetailDialog.vue'
 import { callFunction } from '@/utils/cloud'
 import { formatMoney, formatDateTime } from '@/utils/format'
@@ -167,7 +152,6 @@ const search = ref('')
 const dateRange = ref(null)
 
 // 对话框状态
-const refundVisible = ref(false)
 const detailVisible = ref(false)
 const selectedOrder = ref(null)
 
@@ -192,7 +176,6 @@ const tabs = computed(() => {
     { key: 'all', label: '全部', count: all },
     { key: 'pending', label: '待支付', count: statusCounts.pending },
     { key: 'paid', label: '已支付', count: statusCounts.paid },
-    { key: 'refunding', label: '待退款', count: statusCounts.refunding },
     { key: 'refunded', label: '已退款', count: statusCounts.refunded },
     { key: 'closed', label: '已关闭', count: statusCounts.closed }
   ]
@@ -385,37 +368,14 @@ function maskUserId(userId) {
   return userId.slice(-6)
 }
 
-// 打开退款审批对话框
-function openRefund(order) {
-  selectedOrder.value = order
-  refundVisible.value = true
-}
-
 // 打开订单详情对话框
 function openDetail(order) {
   selectedOrder.value = order
   detailVisible.value = true
 }
 
-// 处理退款审批
-async function onRefundAction({ action, note }) {
-  try {
-    const approved = action === 'approve'
-    await callFunction('admin', {
-      action: 'approveRefund',
-      orderId: selectedOrder.value._id,
-      approved,
-      reason: note
-    })
-    ElMessage.success(approved ? '退款已发起' : '退款已拒绝')
-    refundVisible.value = false
-    loadOrders()
-  } catch (err) {
-    ElMessage.error(err.message || '操作失败')
-  }
-}
-
 // 处理导出
+
 function handleExport() {
   if (!orders.value.length) {
     ElMessage.warning('暂无数据可导出')

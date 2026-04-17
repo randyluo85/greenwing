@@ -1,13 +1,23 @@
 {
   "permissions": {
-    "openapi": []
+    "openapi": [
+      "cloudPay.unifiedOrder",
+      "cloudPay.queryOrder",
+      "cloudPay.refund"
+    ]
   },
-  "triggers": [{
-    "name": "payCallback",
-    "type": "http",
-    "config": {
-      "methods": ["POST"],
-      "authRequired": false
+  "timeout": 20,
+  "cloudPay": true,
+  "triggers": [
+    {
+      "name": "payCallback",
+      "type": "http",
+      "config": {
+        "methods": [
+          "POST"
+        ],
+        "authRequired": false
+      }
     }
-  }]
+  ]
 }

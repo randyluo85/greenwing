@@ -52,25 +52,29 @@
           <div class="mode-name">{{ m.label }}</div>
         </div>
       </div>
-      <div v-if="form.registration_mode === 'points_only'" style="margin-top:12px;">
-        <el-form label-position="top"><el-form-item label="积分消耗"><el-input-number v-model="form.points_cost" :min="1" /></el-form-item></el-form>
-      </div>
-      <div v-if="form.registration_mode === 'paid'" style="margin-top:12px;display:flex;gap:12px;">
-        <el-form label-position="top"><el-form-item label="价格（元）"><el-input-number v-model="form.priceYuan" :min="0.01" :precision="2" /></el-form-item></el-form>
-      </div>
+      <el-form label-position="top">
+        <el-form-item v-if="form.registration_mode === 'points_only'" label="积分消耗">
+          <el-input-number v-model="form.points_cost" :min="1" style="width:100%;" />
+        </el-form-item>
+        <el-form-item v-if="form.registration_mode === 'paid'" label="价格（元）">
+          <el-input-number v-model="form.priceYuan" :min="0.01" :precision="2" style="width:100%;" />
+        </el-form-item>
+      </el-form>
 
       <div class="section-title">其他设置</div>
-      <div style="display:flex;gap:12px;">
-        <el-form label-position="top"><el-form-item label="活动奖励积分"><el-input-number v-model="form.reward_points" :min="0" /></el-form-item></el-form>
-        <el-form label-position="top">
-          <el-form-item label="初始状态">
-            <el-select v-model="form.status">
+      <el-form label-position="top">
+        <div style="display:flex;gap:12px;">
+          <el-form-item label="活动奖励积分" style="flex:1;">
+            <el-input-number v-model="form.reward_points" :min="0" style="width:100%;" />
+          </el-form-item>
+          <el-form-item label="初始状态" style="flex:1;">
+            <el-select v-model="form.status" style="width:100%;">
               <el-option label="草稿" value="draft" />
               <el-option label="发布" value="published" />
             </el-select>
           </el-form-item>
-        </el-form>
-      </div>
+        </div>
+      </el-form>
     </div>
     <template #footer>
       <el-button @click="$emit('update:modelValue', false)">取消</el-button>

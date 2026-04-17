@@ -1,0 +1,48 @@
+<!--pages/refund-manage/refund-manage.wxml-->
+<view class="container">
+  <view class="list" wx:if="{{list.length > 0}}">
+    <view class="card" wx:for="{{list}}" wx:key="_id">
+      <view class="header">
+        <text class="time">下单时间: {{item.created_at_str}}</text>
+        <text class="status text-orange">退款申请中</text>
+      </view>
+      
+      <view class="content">
+        <view class="info-row">
+          <text class="label">订单号</text>
+          <text class="value">{{item.order_no}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">活动</text>
+          <text class="value text-ellipsis">{{item.event.title || '未知活动'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">实付</text>
+          <text class="value text-price">¥{{item.amount}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.extra_info && item.extra_info.real_name}}">
+          <text class="label">报名人</text>
+          <text class="value">{{item.extra_info.real_name}} ({{item.extra_info.phone}})</text>
+        </view>
+        <view class="info-row" wx:elif="{{item.user && item.user.real_name}}">
+          <text class="label">账户信息</text>
+          <text class="value">{{item.user.real_name || item.user.nickname}} ({{item.user.phone || '未绑手机'}})</text>
+        </view>
+        <view class="info-row text-red" wx:if="{{item.refund_reason}}">
+          <text class="label">退款备注</text>
+          <text class="value">{{item.refund_reason}}</text>
+        </view>
+      </view>
+
+      <view class="actions">
+        <button class="btn btn-outline" bindtap="onReject" data-id="{{item._id}}">驳回</button>
+        <button class="btn btn-primary" bindtap="onApprove" data-id="{{item._id}}">同意退款</button>
+      </view>
+    </view>
+  </view>
+  
+  <view class="empty" wx:else>
+    <!-- <image src="/images/empty.png" class="empty-img" /> -->
+    <text>暂无退款申请</text>
+  </view>
+</view>

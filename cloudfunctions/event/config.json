@@ -1,8 +1,8 @@
-{
   "permissions": {
     "openapi": [
       "wxacode.getUnlimited",
       "security.msgSecCheck"
     ]
-  }
+  },
+  "timeout": 20
 }

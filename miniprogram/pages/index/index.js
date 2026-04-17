@@ -13,6 +13,7 @@ Page({
     showSignModal: false,
     signResult: {},
     loading: true,
+    unreadCount: 0,
     levelName: '青铜会员',
     modeTextMap: {
       free: '免费报名',
@@ -28,6 +29,22 @@ Page({
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 })
+    }
+    this.checkUnreadNotifications()
+  },
+
+  async checkUnreadNotifications() {
+    try {
+      const openid = getApp().globalData.openid || wx.getStorageSync('userInfo')?.open_id
+      if (!openid) return
+
+      const db = wx.cloud.database()
+      const res = await db.collection('notifications')
+        .where({ open_id: openid, is_read: false })
+        .count({ timeout: 8000 })
+      this.setData({ unreadCount: res.total })
+    } catch (e) {
+      // collection may not exist yet
     }
   },
 
@@ -63,8 +80,8 @@ Page({
   },
 
   getTodayStr() {
-    const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const d = new Date(Date.now() + 8 * 3600000)
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
   },
 
   async loadBanners() {
@@ -74,7 +91,7 @@ Page({
         .where({ status: 'online' })
         .orderBy('sort_order', 'asc')
         .limit(5)
-        .get()
+        .get({ timeout: 10000 })
       if (res.data.length > 0) {
         await resolveCloudUrls(res.data, 'image_url')
         this.setData({ banners: res.data })
@@ -102,10 +119,14 @@ Page({
         .filter(e => new Date(e.event_time) >= now)
         .sort((a, b) => new Date(a.event_time) - new Date(b.event_time))
         .slice(0, 3)
-        .map(e => ({
-          ...e,
-          _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm')
-        }))
+        .map(e => {
+          const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
+          return {
+            ...e,
+            _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm'),
+            _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText
+          };
+        })
       if (events.length > 0) {
         await resolveCloudUrls(events, 'cover_image')
         this.setData({ events })
@@ -128,7 +149,7 @@ Page({
         .where({ status: 'published' })
         .orderBy('sort_order', 'desc')
         .limit(10)
-        .get()
+        .get({ timeout: 10000 })
       if (res.data.length > 0) {
         const books = res.data.map(b => ({
           ...b,
@@ -176,6 +197,10 @@ Page({
   },
 
   // 跳转
+  goSearch() {
+    wx.navigateTo({ url: '/pages/search/search' })
+  },
+
   goEventList() {
     wx.switchTab({ url: '/pages/event/event' })
   },

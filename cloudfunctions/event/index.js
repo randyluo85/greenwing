@@ -159,10 +159,35 @@ async function handleEnrollFree(openid, event) {
       data: { enrolled_count: _.inc(1) }
     })
 
-    // 如果用户没有真实姓名，更新用户表（下次报名时无需重复填写）
-    if (!user.real_name && realName) {
+    // 下发报名成功通知
+    await transaction.collection('notifications').add({
+      data: {
+        open_id: openid,
+        title: '报名成功',
+        body: `您已成功报名免费活动《${eventDoc.title}》，请准时参加。`,
+        icon_bg_color: '#5c8deb',
+        icon_text: '报',
+        is_read: false,
+        type: 'event_register',
+        created_at: db.serverDate()
+      }
+    })
+
+    // 更新用户表资料（回填真实姓名和手机号到用户资料）
+    const userUpdateData = {}
+    let needUpdateUser = false
+    if (realName && user.real_name !== realName) {
+      userUpdateData.real_name = realName
+      needUpdateUser = true
+    }
+    if (contactPhone && user.phone !== contactPhone) {
+      userUpdateData.phone = contactPhone
+      needUpdateUser = true
+    }
+    if (needUpdateUser) {
+      userUpdateData.updated_at = db.serverDate()
       await transaction.collection('users').doc(user._id).update({
-        data: { real_name: realName, updated_at: db.serverDate() }
+        data: userUpdateData
       })
     }
 
@@ -269,6 +294,40 @@ async function handleEnrollPoints(openid, event) {
       data: { enrolled_count: _.inc(1) }
     })
 
+    // 更新用户表资料（回填真实姓名和手机号）
+    const userUpdateData = {}
+    let needUpdateUser = false
+    if (realName && user.real_name !== realName) {
+      userUpdateData.real_name = realName
+      needUpdateUser = true
+    }
+    if (contactPhone && user.phone !== contactPhone) {
+      userUpdateData.phone = contactPhone
+      needUpdateUser = true
+    }
+    if (needUpdateUser) {
+      userUpdateData.updated_at = db.serverDate()
+      // 注意：我们在前面246行可能已经扣除了积分，如果前面的transaction.collection('users').doc(user._id).update也修改了用户，
+      // 这里会再次触发更新。为了合并，我们可以分别执行这两个逻辑或者分开。为了安全起见分开执行不影响逻辑。
+      await transaction.collection('users').doc(user._id).update({
+        data: userUpdateData
+      })
+    }
+
+    // 下发报名成功通知
+    await transaction.collection('notifications').add({
+      data: {
+        open_id: openid,
+        title: '报名成功',
+        body: `您已成功报名活动《${eventDoc.title}》，消耗了 ${pointsCost} 积分，请准时参加。`,
+        icon_bg_color: '#5c8deb',
+        icon_text: '报',
+        is_read: false,
+        type: 'event_register',
+        created_at: db.serverDate()
+      }
+    })
+
     // 如果用户没有真实姓名，更新用户表（下次报名时无需重复填写）
     if (!user.real_name && realName) {
       await transaction.collection('users').doc(user._id).update({
@@ -337,6 +396,12 @@ async function handleCancelEnroll(openid, event) {
     if (reg.status === 'cancelled') return { success: false, message: '已取消' }
     if (reg.status === 'verified') return { success: false, message: '已核销，无法取消' }
 
+    // 严禁付费订单直接走取消路线。强制引导到“我的订单”申请退款
+    if (reg.order_id) {
+      await transaction.rollback()
+      return { success: false, message: '付费活动不支持直接取消，请前往「我的订单」申请退款' }
+    }
+
     await transaction.collection('registrations').doc(registrationId).update({
       data: { status: 'cancelled', updated_at: db.serverDate() }
     })
@@ -344,20 +409,26 @@ async function handleCancelEnroll(openid, event) {
       data: { enrolled_count: _.inc(-1) }
     })
 
-    // 如果是积分报名，退还积分
-    if (!reg.order_id) {
-      const eventRes = await db.collection('events').doc(reg.event_id).get()
-      if (eventRes.data.registration_mode === 'points_only' && eventRes.data.points_cost > 0) {
+    // 退还积分逻辑：确保精确退还这笔报名实际扣掉的积分数额，防止后台事后修改积分定价造成多退或少退
+    const pointLogsRes = await db.collection('point_logs')
+      .where({ user_id: user._id, type: 'event_enroll', related_id: reg.event_id })
+      .orderBy('created_at', 'desc')
+      .limit(1)
+      .get()
+
+    if (pointLogsRes.data.length > 0) {
+      const deductionAmount = Math.abs(pointLogsRes.data[0].amount) // 从扣除记录中提取绝对值
+      if (deductionAmount > 0) {
         await transaction.collection('users').doc(user._id).update({
-          data: { current_points: _.inc(eventRes.data.points_cost) }
+          data: { current_points: _.inc(deductionAmount), updated_at: db.serverDate() }
         })
         await transaction.collection('point_logs').add({
           data: {
             user_id: user._id, open_id: openid,
-            amount: eventRes.data.points_cost,
+            amount: deductionAmount,
             type: 'refund',
             related_id: registrationId,
-            description: `取消活动报名，退还 ${eventRes.data.points_cost} 积分`,
+            description: `取消报名，精确原路退还 ${deductionAmount} 积分`,
             created_at: db.serverDate()
           }
         })
@@ -506,6 +577,7 @@ async function handleGetQRCode(openid, event) {
       page: 'pages/verify/verify',
       width: 280,
       checkPath: false,
+      envVersion: 'trial', // 生成体验版二维码，便于测试核销功能
       isHyaline: false
     })
 

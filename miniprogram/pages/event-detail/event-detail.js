@@ -51,6 +51,7 @@ Page({
     // 重新加载活动数据，确保数据是最新的
     if (this.data.eventId) {
       this.loadEvent(this.data.eventId)
+      this.loadUserInfo().then(() => this.checkEnrollment())
     }
   },
 
@@ -205,6 +206,23 @@ Page({
 
       const res = await callFunction('event', { action, ...params })
       wx.hideLoading()
+
+      // Update local userInfo cache
+      const app = getApp()
+      const cached = app.globalData.userInfo || wx.getStorageSync('userInfo') || {}
+      let isUpdated = false
+      if (realName && cached.real_name !== realName) {
+        cached.real_name = realName
+        isUpdated = true
+      }
+      if (contactPhone && cached.phone !== contactPhone) {
+        cached.phone = contactPhone
+        isUpdated = true
+      }
+      if (isUpdated) {
+        app.globalData.userInfo = cached
+        wx.setStorageSync('userInfo', cached)
+      }
 
       this.setData({
         showSuccessModal: true,
