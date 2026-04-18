@@ -52,9 +52,10 @@ Page({
         }
       })
 
-      // 待参加：状态为pending且活动未过期
+      // 待参加：状态为pending/verified (如果不包括verified，那么待参加就是pending) 且活动未过期
       const pendingList = allItems.filter(i => {
-        if (i.status !== 'pending') return false
+        if (i.status === 'cancelled') return false
+        if (i.status === 'verified') return false
         if (i.event && i.event._isExpired) return false
         return true
       })
@@ -88,6 +89,7 @@ Page({
             await callFunction('event', { action: 'cancelEnroll', registrationId: id })
             const cancelledIds = [...this.data.cancelledIds, id]
             this.setData({ cancelledIds })
+            getApp().globalData.lastEnrollTime = Date.now()
             wx.showToast({ title: '报名已取消，积分将退回账户', icon: 'none' })
           } catch (err) {
             wx.showToast({ title: err.message || '取消失败', icon: 'none' })

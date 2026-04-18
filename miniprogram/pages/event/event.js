@@ -32,12 +32,15 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1 })
     }
-    // 每次回到页面刷新当前 tab 数据
-    if (this.data.currentTab === 'list') {
-      this.setData({ page: 1, hasMore: true, events: [] })
-      this.loadEvents()
-    } else {
-      this.loadMyEvents()
+    const app = getApp()
+    if (app.globalData.lastEnrollTime && (!this.data._lastLoadTime || this.data._lastLoadTime < app.globalData.lastEnrollTime)) {
+      // 局部刷新，不用彻底清空页码，但为了简单这里只管重新拉取
+      if (this.data.currentTab === 'list') {
+        this.setData({ page: 1, hasMore: true, events: [] })
+        this.loadEvents()
+      } else {
+        this.loadMyEvents()
+      }
     }
   },
 
@@ -69,7 +72,7 @@ Page({
 
   async loadEvents() {
     if (this.data.loading) return
-    this.setData({ loading: true })
+    this.setData({ loading: true, _lastLoadTime: Date.now() })
 
     try {
       const { page } = this.data
@@ -80,7 +83,7 @@ Page({
       try {
         const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
         enrolledIds = (myRes.data.list || [])
-          .filter(i => i.status === 'pending')
+          .filter(i => i.status !== 'cancelled')
           .map(i => i.event_id)
       } catch (e) {
         // 查询失败不影响列表展示
@@ -108,7 +111,7 @@ Page({
 
   async loadMyEvents() {
     if (this.data.myLoading) return
-    this.setData({ myLoading: true })
+    this.setData({ myLoading: true, _lastLoadTime: Date.now() })
 
     try {
       const res = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
@@ -157,6 +160,7 @@ Page({
             await callFunction('event', { action: 'cancelEnroll', registrationId: id })
             const cancelledIds = [...this.data.cancelledIds, id]
             this.setData({ cancelledIds })
+            getApp().globalData.lastEnrollTime = Date.now()
             wx.showToast({ title: '报名已取消，积分将退回账户', icon: 'none' })
           } catch (err) {
             wx.showToast({ title: err.message || '取消失败', icon: 'none' })

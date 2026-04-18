@@ -162,6 +162,7 @@ Page({
             statusText: '支付成功！报名已完成',
             paying: false
           })
+          getApp().globalData.lastEnrollTime = Date.now()
           wx.showToast({ title: '支付成功！报名已完成', icon: 'success' })
           console.log('[轮询订单状态] 检测到支付成功，准备跳转')
           // 延迟返回原页面
@@ -191,6 +192,7 @@ Page({
           statusText: '支付成功！报名已完成',
           paying: false
         })
+        getApp().globalData.lastEnrollTime = Date.now()
         wx.showToast({ title: '支付成功！报名已完成', icon: 'success' })
         // 延迟返回原页面
         setTimeout(() => {

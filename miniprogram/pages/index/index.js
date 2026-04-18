@@ -31,6 +31,11 @@ Page({
       this.getTabBar().setData({ selected: 0 })
     }
     this.checkUnreadNotifications()
+
+    const app = getApp()
+    if (app.globalData.lastEnrollTime && (!this.data._lastLoadTime || this.data._lastLoadTime < app.globalData.lastEnrollTime)) {
+      this.loadEvents()
+    }
   },
 
   async checkUnreadNotifications() {
@@ -112,21 +117,72 @@ Page({
   },
 
   async loadEvents() {
+    this.setData({ _lastLoadTime: Date.now() })
     try {
+      let enrolledIds = []
+      try {
+        const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
+        enrolledIds = (myRes.data.list || [])
+          .filter(i => i.status !== 'cancelled')
+          .map(i => i.event_id)
+      } catch (e) {}
+
       const res = await callFunction('event', { action: 'list', pageSize: 10 })
       const now = new Date()
       const events = res.data.list
-        .filter(e => new Date(e.event_time) >= now)
-        .sort((a, b) => new Date(a.event_time) - new Date(b.event_time))
-        .slice(0, 3)
         .map(e => {
           const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
+          
+          let _isEnded = false;
+          let _isClosed = false;
+          const _enrolled = enrolledIds.includes(e._id);
+          const eventTime = new Date(e.event_time);
+          
+          if (e.status === 'ended' || eventTime < now) {
+            _isEnded = true;
+          } else if (e.registration_deadline && new Date(e.registration_deadline) < now) {
+            _isClosed = true;
+          }
+
+          let _statusPriority = 1; // 1: 报名中
+          let _statusText = '报名中';
+          
+          const isFull = e.quota && e.enrolled_count >= e.quota;
+
+          if (_isEnded) {
+            _statusPriority = 5;
+            _statusText = '已结束';
+          } else if (_isClosed) {
+            _statusPriority = 4;
+            _statusText = '报名截止';
+          } else if (_enrolled) {
+            _statusPriority = 2;
+            _statusText = '已报名';
+          } else if (isFull) {
+            _statusPriority = 3;
+            _statusText = '名额已满';
+          }
+
           return {
             ...e,
+            _enrolled,
+            _statusText,
+            _statusPriority,
+            _eventTimeMs: eventTime.getTime(),
             _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm'),
             _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText
           };
         })
+        .sort((a, b) => {
+          if (a._statusPriority !== b._statusPriority) {
+            return a._statusPriority - b._statusPriority;
+          }
+          // 对于时间由近及远，可以用绝对差值来进行排序
+          const distanceA = Math.abs(a._eventTimeMs - now.getTime());
+          const distanceB = Math.abs(b._eventTimeMs - now.getTime());
+          return distanceA - distanceB;
+        })
+        .slice(0, 3)
       if (events.length > 0) {
         await resolveCloudUrls(events, 'cover_image')
         this.setData({ events })

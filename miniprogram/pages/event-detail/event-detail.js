@@ -229,6 +229,7 @@ Page({
         verifyCode: res.data.verify_code,
         isEnrolled: true
       })
+      app.globalData.lastEnrollTime = Date.now()
       this.updateUIState()
       this.loadComments()
     } catch (e) {

@@ -112,7 +112,7 @@
             <text class="event-title ellipsis-2">{{item.title}}</text>
             <text class="event-desc ellipsis-2" wx:if="{{item._excerpt}}">{{item._excerpt}}</text>
             <view class="event-tags">
-              <text class="event-tag tag-status">{{item.status === 'ended' ? '已结束' : '报名中'}}</text>
+              <text class="event-tag tag-status">{{item._statusText}}</text>
               <text class="event-tag tag-points" wx:if="{{item.registration_mode === 'points_only'}}">{{item.points_cost || 100}}积分</text>
               <text class="event-tag tag-paid" wx:if="{{item.registration_mode === 'paid'}}">付费</text>
             </view>
