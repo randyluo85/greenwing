@@ -19,9 +19,10 @@
                 <text class="date-text">{{item._formattedDate}}</text>
                 <text class="time-text">{{item._formattedTime}}</text>
               </view>
-              <view class="status-badge badge-open" wx:if="{{item.enrolled_count < item.quota && !item._enrolled}}">报名中</view>
-              <view class="status-badge badge-registered" wx:elif="{{item._enrolled}}">已报名</view>
-              <view class="status-badge badge-full" wx:else>名额已满</view>
+              <view class="status-badge badge-registered" wx:if="{{item._enrolled}}">已报名</view>
+              <view class="status-badge badge-full" wx:elif="{{item.enrolled_count >= item.quota}}">名额已满</view>
+              <view class="status-badge badge-ended" wx:elif="{{item._isDeadlinePassed}}">报名已截止</view>
+              <view class="status-badge badge-open" wx:else>立即报名</view>
             </view>
             <text class="card-title">{{item.title}}</text>
             <view class="card-divider"></view>
@@ -114,7 +115,7 @@
                 <text class="date-text">{{item.event._formattedDate || ''}}</text>
                 <text class="time-text">{{item.event._formattedTime || ''}}</text>
               </view>
-              <view class="status-badge badge-registered">已报名</view>
+              <view class="status-badge badge-registered">{{item._statusLabel}}</view>
             </view>
             <text class="card-title">{{item.event.title || '活动'}}</text>
             <view class="card-divider"></view>
@@ -153,7 +154,7 @@
         <view class="event-card card-history card-compact" wx:for="{{historyList}}" wx:key="_id">
           <view class="compact-header">
             <text class="compact-title">{{item.event.title || '活动'}}</text>
-            <view class="status-badge badge-ended">已结束</view>
+            <view class="status-badge {{item.status === 'verified' ? 'badge-open' : 'badge-ended'}}">{{item._statusLabel}}</view>
           </view>
           <view class="compact-footer">
             <view class="compact-info">
