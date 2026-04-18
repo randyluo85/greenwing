@@ -12,12 +12,12 @@
     <!-- 用户信息头部 -->
     <view class="profile-header">
       <view class="user-row">
-        <!-- 修复空白头像: 使用 default-avatar.png 如缺失则提供绝对路径后备保障 -->
-        <image src="{{userInfo.avatar_url || '/images/logo.png'}}" class="avatar" />
+        <!-- 修复空白头像: 使用 default-avatar.svg 如缺失则提供绝对路径后备保障 -->
+        <image src="{{userInfo.avatar_url || '/images/default-avatar.svg'}}" class="avatar" />
       <view class="user-info">
         <view class="name-row">
           <text class="user-name">{{userInfo.nickname || '书友'}}</text>
-          <view class="crown-icon">
+          <view class="crown-icon crown-{{levelProgress.current || 'bronze'}}">
             <image src="/images/icons/crown.svg" class="crown-img" />
           </view>
         </view>
@@ -26,13 +26,14 @@
     </view>
 
     <!-- 等级 + 升级进度 -->
-    <view class="level-row" wx:if="{{levelProgress.next}}">
+    <view class="level-row" wx:if="{{levelProgress}}">
       <view class="level-tag">
         <text>{{levelName}}</text>
       </view>
-      <text class="progress-text">距离升级还需 <text class="progress-highlight">{{levelProgress.needPoints}}</text> 积分</text>
+      <text class="progress-text" wx:if="{{levelProgress.next}}">距离升级还需 <text class="progress-highlight">{{levelProgress.needPoints}}</text> 积分</text>
+      <text class="progress-text" wx:else>已到达最高等级</text>
     </view>
-    <view class="progress-bar" wx:if="{{levelProgress.next}}">
+    <view class="progress-bar" wx:if="{{levelProgress}}">
       <view class="progress-fill" style="width: {{levelProgress.percent}}%"></view>
     </view>
   </view>

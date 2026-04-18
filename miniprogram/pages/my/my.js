@@ -60,27 +60,27 @@ Page({
   },
 
   goMyEvents() {
-    wx.navigateTo({ url: '/pages/my-events/my-events' })
+    wx.navigateTo({ url: '/pkg-my/pages/my-events/my-events' })
   },
 
   goMyOrders() {
-    wx.navigateTo({ url: '/pages/my-orders/my-orders' })
+    wx.navigateTo({ url: '/pkg-my/pages/my-orders/my-orders' })
   },
 
   goPoints() {
-    wx.navigateTo({ url: '/pages/points/points' })
+    wx.navigateTo({ url: '/pkg-my/pages/points/points' })
   },
 
   goVerify() {
-    wx.navigateTo({ url: '/pages/verify/verify' })
+    wx.navigateTo({ url: '/pkg-my/pages/verify/verify' })
   },
 
   goRefundManage() {
-    wx.navigateTo({ url: '/pages/refund-manage/refund-manage' })
+    wx.navigateTo({ url: '/pkg-my/pages/refund-manage/refund-manage' })
   },
 
   goProfileEdit() {
-    wx.navigateTo({ url: '/pages/profile-edit/profile-edit' })
+    wx.navigateTo({ url: '/pkg-my/pages/profile-edit/profile-edit' })
   },
 
   onLogout() {
@@ -94,7 +94,7 @@ Page({
           app.globalData.userInfo = null
           app.globalData.openid = null
           this.setData({ userInfo: null })
-          wx.reLaunch({ url: '/pages/login/login' })
+          wx.reLaunch({ url: '/pkg-base/pages/login/login' })
         }
       }
     })

@@ -181,7 +181,7 @@ Page({
 
   goDetail(e) {
     const id = e.currentTarget.dataset.id
-    wx.navigateTo({ url: `/pages/event-detail/event-detail?id=${id}` })
+    wx.navigateTo({ url: `/pkg-event/pages/event-detail/event-detail?id=${id}` })
   },
 
   noop() {}

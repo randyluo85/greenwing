@@ -47,8 +47,8 @@
 
 /* 头像 - 原型 w-[72px] h-[72px] border-white/20 shadow-md */
 .avatar {
-  width: 144rpx;
-  height: 144rpx;
+  width: 120rpx;
+  height: 120rpx;
   border-radius: 50%;
   border: 2rpx solid rgba(255,255,255,0.2);
   box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.15);
@@ -86,8 +86,19 @@
 }
 
 .crown-img {
-  width: 20rpx;
-  height: 20rpx;
+  width: 28rpx;
+  height: 28rpx;
+}
+
+/* 皇冠动态颜色 */
+.crown-bronze {
+  background: linear-gradient(135deg, #fed7aa, #ea580c);
+}
+.crown-silver {
+  background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+}
+.crown-gold {
+  background: linear-gradient(135deg, #fef08a, #eab308);
 }
 
 /* 签名 - 原型 text-[11px] text-white/90 */
@@ -325,7 +336,7 @@
 }
 
 .footer-logo {
-  width: 160rpx;
+  width: 300rpx;
   height: 160rpx;
   opacity: 0.8;
 }

@@ -254,7 +254,7 @@ Page({
 
   // 跳转
   goSearch() {
-    wx.navigateTo({ url: '/pages/search/search' })
+    wx.navigateTo({ url: '/pkg-base/pages/search/search' })
   },
 
   goEventList() {
@@ -263,27 +263,27 @@ Page({
 
   goEventDetail(e) {
     const id = e.currentTarget.dataset.id
-    wx.navigateTo({ url: `/pages/event-detail/event-detail?id=${id}` })
+    wx.navigateTo({ url: `/pkg-event/pages/event-detail/event-detail?id=${id}` })
   },
 
   goPoints() {
-    wx.navigateTo({ url: '/pages/points/points' })
+    wx.navigateTo({ url: '/pkg-my/pages/points/points' })
   },
 
   goVerify() {
-    wx.navigateTo({ url: '/pages/verify/verify' })
+    wx.navigateTo({ url: '/pkg-my/pages/verify/verify' })
   },
 
   goMyEvents() {
-    wx.navigateTo({ url: '/pages/my-events/my-events' })
+    wx.navigateTo({ url: '/pkg-my/pages/my-events/my-events' })
   },
 
   goNotifications() {
-    wx.navigateTo({ url: '/pages/notifications/notifications' })
+    wx.navigateTo({ url: '/pkg-my/pages/notifications/notifications' })
   },
 
   goBooks() {
-    wx.navigateTo({ url: '/pages/books/books' })
+    wx.navigateTo({ url: '/pkg-base/pages/books/books' })
   },
 
   onBannerTap(e) {
@@ -306,7 +306,7 @@ Page({
   onBookTap(e) {
     const id = e.currentTarget.dataset.id
     if (id) {
-      wx.navigateTo({ url: `/pages/book-detail/book-detail?id=${id}` })
+      wx.navigateTo({ url: `/pkg-base/pages/book-detail/book-detail?id=${id}` })
     }
   }
 })

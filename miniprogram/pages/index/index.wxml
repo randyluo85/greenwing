@@ -51,6 +51,7 @@
         <view class="action-main-inner">
           <view class="action-main-top">
             <text class="action-main-title">每日签到</text>
+            <view class="action-arrow action-main-arrow"><view class="chevron-right"></view></view>
           </view>
           <view class="action-main-bottom">
             <view class="sign-info">
@@ -72,16 +73,16 @@
       <view class="action-card action-card-amber btn-active" bindtap="goPoints">
         <view class="action-sub-inner">
           <text class="action-sub-title action-amber-text">积分查询</text>
-          <view class="action-arrow action-amber-arrow">></view>
+          <view class="action-arrow action-amber-arrow"><view class="chevron-right"></view></view>
         </view>
         <image src="/images/point.png" mode="aspectFit" class="action-deco-sm" />
       </view>
 
-      <!-- 我的活动 -->
-      <view class="action-card action-card-blue btn-active" bindtap="goMyEvents">
+      <!-- 活动核销 -->
+      <view class="action-card action-card-blue btn-active" bindtap="goVerify">
         <view class="action-sub-inner">
-          <text class="action-sub-title action-blue-text">我的活动</text>
-          <view class="action-arrow action-blue-arrow">></view>
+          <text class="action-sub-title action-blue-text">活动核销</text>
+          <view class="action-arrow action-blue-arrow"><view class="chevron-right"></view></view>
         </view>
         <image src="/images/scan.png" mode="aspectFit" class="action-deco-sm" />
       </view>
@@ -94,7 +95,10 @@
           <text class="section-title">热门活动</text>
           <image src="/images/fire.png" mode="aspectFit" class="section-icon" />
         </view>
-        <text class="section-more" bindtap="goEventList">更多 ></text>
+        <view class="section-more" bindtap="goEventList">
+          <text>更多</text>
+          <view class="chevron-right chevron-gray"></view>
+        </view>
       </view>
 
       <view wx:if="{{events.length === 0 && !loading}}" class="empty-state">
@@ -132,14 +136,17 @@
           <text class="section-title">好书推荐</text>
           <image src="/images/thumb.png" mode="aspectFit" class="section-icon" />
         </view>
-        <text class="section-more" bindtap="goBooks">更多 ></text>
+        <view class="section-more" bindtap="goBooks">
+          <text>更多</text>
+          <view class="chevron-right chevron-gray"></view>
+        </view>
       </view>
 
       <scroll-view scroll-x class="book-scroll" enhanced show-scrollbar="{{false}}">
         <view class="book-scroll-inner">
           <view class="book-item" wx:for="{{books}}" wx:key="_id" bindtap="onBookTap" data-id="{{item._id}}">
             <view class="book-cover-wrap">
-              <image src="{{item.cover_image || '/images/book1.jpg'}}" mode="aspectFill" class="book-cover" />
+              <image src="{{item.cover_image || '/images/book1.png'}}" mode="aspectFill" class="book-cover" />
               <view class="book-rating" wx:if="{{item.rating}}">
                 <text>{{item.rating}}</text>
               </view>

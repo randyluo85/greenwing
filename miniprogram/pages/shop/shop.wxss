@@ -24,9 +24,8 @@
 }
 
 .shop-icon {
-  font-size: 64rpx;
-  color: var(--primary);
-  font-weight: bold;
+  width: 80rpx;
+  height: 80rpx;
 }
 
 .shop-title {
