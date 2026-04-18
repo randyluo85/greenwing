@@ -11,13 +11,17 @@
         <div class="stat-item"><div class="stat-num gray">{{ stats.remaining }}</div><div class="stat-lbl">剩余名额</div></div>
       </div>
       <el-table :data="registrations" size="small" style="margin-top:12px;">
-        <el-table-column label="用户信息" min-width="160">
+        <el-table-column label="用户信息" min-width="120">
           <template #default="{ row }">
             <div class="user-info-cell">
               <div class="user-nickname">{{ row.user?.nickname || '-' }}</div>
-              <div class="user-real-name" v-if="row.real_name">{{ row.real_name }}</div>
               <div class="user-phone" v-if="row.contact_phone || row.user?.phone">{{ row.contact_phone || row.user?.phone }}</div>
             </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="姓名" width="100">
+          <template #default="{ row }">
+            <span style="font-weight: 500; color: var(--color-primary);">{{ row.real_name || row.user?.real_name || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="报名方式" width="90">

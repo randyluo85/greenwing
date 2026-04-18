@@ -89,11 +89,13 @@ Page({
         // 查询失败不影响列表展示
       }
 
+      const now = new Date()
       const newList = res.data.list.map(e => ({
         ...e,
         _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
         _formattedTime: formatDate(e.event_time, 'HH:mm'),
-        _isPast: new Date(e.event_time) < new Date(),
+        _isPast: new Date(e.event_time) < now,
+        _isDeadlinePassed: e.registration_deadline ? new Date(e.registration_deadline) < now : false,
         _enrolled: enrolledIds.indexOf(e._id) >= 0
       }))
 
@@ -133,13 +135,19 @@ Page({
         if (i.status !== 'pending') return false
         if (i.event && i.event._isExpired) return false
         return true
-      })
+      }).map(i => ({ ...i, _statusLabel: '待参加' }))
 
       // 历史足迹：已核销/已取消，或活动已过期
       const historyList = allItems.filter(i => {
         if (i.status === 'verified' || i.status === 'cancelled') return true
         if (i.status === 'pending' && i.event && i.event._isExpired) return true
         return false
+      }).map(i => {
+        let label = '已结束'
+        if (i.status === 'verified') label = '已核销'
+        if (i.status === 'cancelled') label = '已取消'
+        if (i.status === 'pending' && i.event && i.event._isExpired) label = '活动已结束'
+        return { ...i, _statusLabel: label }
       })
 
       this.setData({ pendingList, historyList, myLoading: false })

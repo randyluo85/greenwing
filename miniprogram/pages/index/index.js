@@ -116,6 +116,20 @@ Page({
     })
   },
 
+  // 增加分享
+  onShareAppMessage() {
+    return {
+      title: '青翼读书会 - 以书会友，以文化人',
+      path: '/pages/index/index'
+    }
+  },
+
+  onShareTimeline() {
+    return {
+      title: '青翼读书会 - 以书会友，以文化人'
+    }
+  },
+
   async loadEvents() {
     this.setData({ _lastLoadTime: Date.now() })
     try {
@@ -129,15 +143,17 @@ Page({
 
       const res = await callFunction('event', { action: 'list', pageSize: 10 })
       const now = new Date()
+      // 允许显示当天及未来的活动，方便展示“活动已结束”状态
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const events = res.data.list
         .map(e => {
           const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
-          
+
           let _isEnded = false;
           let _isClosed = false;
           const _enrolled = enrolledIds.includes(e._id);
           const eventTime = new Date(e.event_time);
-          
+
           if (e.status === 'ended' || eventTime < now) {
             _isEnded = true;
           } else if (e.registration_deadline && new Date(e.registration_deadline) < now) {
@@ -146,7 +162,7 @@ Page({
 
           let _statusPriority = 1; // 1: 报名中
           let _statusText = '报名中';
-          
+
           const isFull = e.quota && e.enrolled_count >= e.quota;
 
           if (_isEnded) {
@@ -170,7 +186,7 @@ Page({
             _statusPriority,
             _eventTimeMs: eventTime.getTime(),
             _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm'),
-            _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText
+            _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText,
           };
         })
         .sort((a, b) => {
@@ -192,8 +208,8 @@ Page({
     // 云端无数据，使用本地默认活动
     this.setData({
       events: [
-        { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', event_time: '2099-04-18T15:30:00', _formattedTime: '04/18 15:30' },
-        { _id: 'e2', cover_image: '/images/event.jpg', title: '博尔赫斯的迷宫：《小径分岔的花园》', status: 'published', registration_mode: 'free', points_cost: 0, location: '青翼读书会·影音室', event_time: '2099-04-25T15:30:00', _formattedTime: '04/25 15:30' }
+        { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', event_time: '2099-04-18T15:30:00', _formattedTime: '04/18 15:30', _statusText: '报名中' },
+        { _id: 'e2', cover_image: '/images/event.jpg', title: '博尔赫斯的迷宫：《小径分岔的花园》', status: 'published', registration_mode: 'free', points_cost: 0, location: '青翼读书会·影音室', event_time: '2099-04-25T15:30:00', _formattedTime: '04/25 15:30', _statusText: '报名中' }
       ]
     })
   },

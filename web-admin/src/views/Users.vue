@@ -49,6 +49,11 @@
           </div>
         </template>
 
+        <!-- 姓名列 -->
+        <template #real_name="{ row }">
+          <span class="real-name">{{ row.real_name || '-' }}</span>
+        </template>
+
         <!-- 手机号列 -->
         <template #phone="{ row }">
           <span class="phone">{{ maskPhone(row.phone) }}</span>
@@ -228,6 +233,12 @@ const userColumns = computed(() => [
     label: '用户',
     minWidth: 120,
     slot: 'user'
+  },
+  {
+    prop: 'real_name',
+    label: '姓名',
+    width: 100,
+    slot: 'real_name'
   },
   {
     prop: 'phone',
@@ -498,6 +509,12 @@ onMounted(loadUsers)
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.real-name {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--color-primary);
 }
 
 /* 其他单元格样式 */
