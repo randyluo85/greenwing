@@ -1,23 +1,8 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/search/search",
     "pages/event/event",
     "pages/my/my",
-    "pages/event-detail/event-detail",
-    "pages/order-confirm/order-confirm",
-    "pages/my-events/my-events",
-    "pages/my-orders/my-orders",
-    "pages/points/points",
-    "pages/verify/verify",
-    "pages/login/login",
-    "pages/register/register",
-    "pages/books/books",
-    "pages/book-detail/book-detail",
-    "pages/notifications/notifications",
-    "pages/notification-detail/notification-detail",
-    "pages/profile-edit/profile-edit",
-    "pages/refund-manage/refund-manage",
     "pages/shop/shop"
   ],
   "window": {
@@ -61,5 +46,37 @@
   },
   "sitemapLocation": "sitemap.json",
   "cloud": false,
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "subpackages": [
+    {
+      "root": "pkg-event",
+      "pages": [
+        "pages/event-detail/event-detail",
+        "pages/order-confirm/order-confirm"
+      ]
+    },
+    {
+      "root": "pkg-base",
+      "pages": [
+        "pages/login/login",
+        "pages/register/register",
+        "pages/search/search",
+        "pages/books/books",
+        "pages/book-detail/book-detail"
+      ]
+    },
+    {
+      "root": "pkg-my",
+      "pages": [
+        "pages/my-events/my-events",
+        "pages/my-orders/my-orders",
+        "pages/points/points",
+        "pages/verify/verify",
+        "pages/notifications/notifications",
+        "pages/notification-detail/notification-detail",
+        "pages/profile-edit/profile-edit",
+        "pages/refund-manage/refund-manage"
+      ]
+    }
+  ]
 }

@@ -1,0 +1,58 @@
+<view class="page">
+  <!-- 顶部背景图，使用本地图 -->
+  <image src="/images/point_bg.png" mode="aspectFill" class="top-bg" />
+
+  <!-- 主体内容需要在背景上方 -->
+  <view class="main-content">
+    
+    <!-- 积分概览部分 -->
+    <view class="overview-section">
+      <!-- 头部 -->
+      <view class="overview-top">
+        <view class="overview-label">
+          <view class="star-icon-wrap">
+            <text class="icon-text">★</text>
+          </view>
+          <text>当前可用积分</text>
+        </view>
+        <view class="rules-btn">
+          <text>积分规则</text>
+        </view>
+      </view>
+
+      <!-- 大大的可用积分数字 -->
+      <view class="large-points-display">
+        <view class="coin-icon-wrap">
+          <image src="/images/point.png" style="width: 48rpx; height:48rpx;" mode="aspectFit" />
+        </view>
+        <text class="points-value">{{currentPoints}}</text>
+      </view>
+    </view>
+
+    <!-- 积分明细列表 -->
+    <view class="list-section">
+      <text class="section-title">积分明细</text>
+
+      <!-- 玻璃感容器 -->
+      <view class="glass-card">
+        <view class="log-item" wx:for="{{list}}" wx:key="_id">
+          <view class="log-left">
+            <text class="log-desc">{{item.description}}</text>
+            <text class="log-time">{{item._formattedTime}}</text>
+          </view>
+          <text class="log-amount {{item.amount > 0 ? 'income' : 'expense'}}">
+            {{item.amount > 0 ? '+' : ''}}{{item.amount}}
+          </text>
+        </view>
+
+        <view class="empty-state" wx:if="{{!loading && list.length === 0}}">
+          <text class="empty-text">暂无积分记录</text>
+        </view>
+
+        <view class="load-end" wx:if="{{!hasMore && list.length > 0}}">
+          <text>没有更多了</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

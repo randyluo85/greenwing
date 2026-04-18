@@ -63,7 +63,7 @@ const ensureProfile = async () => {
     confirmText: '去填写',
     success: (res) => {
       if (res.confirm) {
-        wx.navigateTo({ url: '/pages/register/register' })
+        wx.navigateTo({ url: '/pkg-base/pages/register/register' })
       }
     }
   })

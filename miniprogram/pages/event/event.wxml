@@ -154,7 +154,9 @@
         <view class="event-card card-history card-compact" wx:for="{{historyList}}" wx:key="_id">
           <view class="compact-header">
             <text class="compact-title">{{item.event.title || '活动'}}</text>
-            <view class="status-badge {{item.status === 'verified' ? 'badge-open' : 'badge-ended'}}">{{item._statusLabel}}</view>
+            <view class="status-badge badge-ended" wx:if="{{item.status === 'cancelled'}}">已取消</view>
+            <view class="status-badge badge-open" wx:elif="{{item.status === 'verified'}}">已核销</view>
+            <view class="status-badge badge-ended" wx:else>已结束</view>
           </view>
           <view class="compact-footer">
             <view class="compact-info">

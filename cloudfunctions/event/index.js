@@ -618,14 +618,26 @@ async function handleGetQRCode(openid, event) {
     console.log('[event] 开始生成小程序码，scene:', verifyCode)
     const result = await cloud.openapi.wxacode.getUnlimited({
       scene: verifyCode,
-      page: 'pages/verify/verify',
+      page: 'pkg-my/pages/verify/verify',
       width: 280,
       checkPath: false,
       envVersion: 'trial', // 生成体验版二维码，便于测试核销功能
       isHyaline: false
     })
 
-    console.log('[event] 小程序码生成成功，buffer长度:', result.buffer?.length)
+    console.log('[event] 微信 API 返回:', result.errCode, result.errMsg, result.buffer?.length)
+
+    if (result.errCode && result.errCode !== 0) {
+      console.error('[event] 生成小程序码失败 (errCode):', result)
+      throw new Error(`API Error: ${result.errCode} - ${result.errMsg}`)
+    }
+
+    if (!result.buffer) {
+      console.error('[event] 未获取到图片buffer:', result)
+      throw new Error(`未获取到图片buffer: ${result.errMsg || '未知原因'}`)
+    }
+
+    console.log('[event] 小程序码生成成功，buffer长度:', result.buffer.length)
 
     // 上传到云存储
     const cloudPath = `qrcodes/${verifyCode}.png`

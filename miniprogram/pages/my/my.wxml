@@ -12,12 +12,12 @@
     <!-- 用户信息头部 -->
     <view class="profile-header">
       <view class="user-row">
-        <!-- 修复空白头像: 使用 default-avatar.png 如缺失则提供绝对路径后备保障 -->
-        <image src="{{userInfo.avatar_url || '/images/logo.png'}}" class="avatar" />
+        <!-- 修复空白头像: 使用 default-avatar.svg 如缺失则提供绝对路径后备保障 -->
+        <image src="{{userInfo.avatar_url || '/images/default-avatar.svg'}}" class="avatar" />
       <view class="user-info">
         <view class="name-row">
           <text class="user-name">{{userInfo.nickname || '书友'}}</text>
-          <view class="crown-icon">
+          <view class="crown-icon crown-{{levelProgress.current || 'bronze'}}">
             <image src="/images/icons/crown.svg" class="crown-img" />
           </view>
         </view>
@@ -26,13 +26,14 @@
     </view>
 
     <!-- 等级 + 升级进度 -->
-    <view class="level-row" wx:if="{{levelProgress.next}}">
+    <view class="level-row" wx:if="{{levelProgress}}">
       <view class="level-tag">
         <text>{{levelName}}</text>
       </view>
-      <text class="progress-text">距离升级还需 <text class="progress-highlight">{{levelProgress.needPoints}}</text> 积分</text>
+      <text class="progress-text" wx:if="{{levelProgress.next}}">距离升级还需 <text class="progress-highlight">{{levelProgress.needPoints}}</text> 积分</text>
+      <text class="progress-text" wx:else>已到达最高等级</text>
     </view>
-    <view class="progress-bar" wx:if="{{levelProgress.next}}">
+    <view class="progress-bar" wx:if="{{levelProgress}}">
       <view class="progress-fill" style="width: {{levelProgress.percent}}%"></view>
     </view>
   </view>
@@ -69,7 +70,7 @@
     <!-- 活动核销 (管理员 + 核销员) -->
     <view class="menu-item" wx:if="{{isVerifierLevel}}" bindtap="goVerify">
       <view class="menu-icon-wrap">
-        <image src="/images/icons/verify.svg" class="menu-icon" />
+        <image src="/images/my-verify.png" class="menu-icon" />
       </view>
       <view class="menu-text-wrap">
         <text class="menu-text">活动核销</text>
@@ -82,7 +83,7 @@
     <!-- 退款审批 (仅超级管理员可见) -->
     <view class="menu-item" wx:if="{{isSuperAdmin}}" bindtap="goRefundManage">
       <view class="menu-icon-wrap">
-        <image src="/images/icons/receipt.svg" class="menu-icon" />
+        <image src="/images/my-receipt.png" class="menu-icon" />
       </view>
       <view class="menu-text-wrap">
         <text class="menu-text">退款审批</text>
@@ -91,20 +92,11 @@
     </view>
     <view class="menu-divider" wx:if="{{isSuperAdmin}}"></view>
 
-    <!-- 我的活动 -->
-    <view class="menu-item" bindtap="goMyEvents">
-      <view class="menu-icon-wrap">
-        <image src="/images/icons/bookmark.svg" class="menu-icon" />
-      </view>
-      <text class="menu-text">我的活动</text>
-      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
-    </view>
-    <view class="menu-divider"></view>
 
     <!-- 我的订单 -->
     <view class="menu-item" bindtap="goMyOrders">
       <view class="menu-icon-wrap">
-        <image src="/images/icons/receipt.svg" class="menu-icon" />
+        <image src="/images/my-receipt.png" class="menu-icon" />
       </view>
       <text class="menu-text">我的订单</text>
       <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
@@ -114,7 +106,7 @@
     <!-- 积分明细 -->
     <view class="menu-item" bindtap="goPoints">
       <view class="menu-icon-wrap icon-points">
-        <image src="/images/icons/coin.svg" class="menu-icon" />
+        <image src="/images/my-points.png" class="menu-icon" />
       </view>
       <text class="menu-text">积分明细</text>
       <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
@@ -124,7 +116,7 @@
     <!-- 账号设置 -->
     <view class="menu-item" bindtap="goProfileEdit">
       <view class="menu-icon-wrap">
-        <image src="/images/icons/user.svg" class="menu-icon" />
+        <image src="/images/my-settings.png" class="menu-icon" />
       </view>
       <text class="menu-text">账号设置与管理</text>
       <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
@@ -133,7 +125,7 @@
 
   <!-- 退出登录 -->
   <view class="logout-btn" bindtap="onLogout" wx:if="{{userInfo}}">
-    <image src="/images/icons/power-off.svg" class="logout-icon" />
+    <image src="/images/my-power-off.png" class="logout-icon" />
     <text>退出登录</text>
   </view>
 

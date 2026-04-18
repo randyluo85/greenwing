@@ -1,0 +1,57 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-dots">
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view wx:elif="{{book}}" class="detail-content">
+    <!-- Main Info Card -->
+    <view class="main-card animate-fade-up">
+      <view class="cover-row">
+        <image src="{{book.cover_image || '/images/book1.png'}}" mode="aspectFill" class="cover-img" />
+        <view class="meta-col">
+          <text class="book-title">{{book.title}}</text>
+          <view class="rating-row">
+            <text class="rating-label">推荐指数</text>
+            <text class="rating-value">{{book.rating || '-'}}</text>
+          </view>
+          <view class="star-row" wx:if="{{book.rating}}">
+            <block wx:for="{{book._stars}}" wx:key="*this" wx:for-item="starType">
+              <text wx:if="{{starType === 'full'}}" class="star-full">★</text>
+              <text wx:elif="{{starType === 'half'}}" class="star-half">★</text>
+              <text wx:else class="star-empty">☆</text>
+            </block>
+          </view>
+          <view class="meta-list">
+            <text class="meta-item">作者：{{book.author}}</text>
+            <text class="meta-item">出版社：{{book.publisher || '未知'}}</text>
+            <text class="meta-item" wx:if="{{book.publish_year}}">出版年：{{book.publish_year}}</text>
+            <text class="meta-item" wx:if="{{book.isbn}}">ISBN：{{book.isbn}}</text>
+            <text class="meta-item" wx:if="{{book.pages}}">页数：{{book.pages}}</text>
+            <text class="meta-item" wx:if="{{book.price}}">定价：{{book.price}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- Divider -->
+      <view class="section-divider"></view>
+
+      <!-- Summary -->
+      <view class="summary-section">
+        <view class="summary-header">
+          <view class="summary-bar-deco"></view>
+          <text class="summary-title">内容简介</text>
+        </view>
+        <text class="summary-text">{{book.description || '暂无简介'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="empty-state">
+    <text class="empty-text">书籍信息不存在</text>
+  </view>
+</view>

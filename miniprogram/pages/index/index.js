@@ -31,6 +31,11 @@ Page({
       this.getTabBar().setData({ selected: 0 })
     }
     this.checkUnreadNotifications()
+
+    const app = getApp()
+    if (app.globalData.lastEnrollTime && (!this.data._lastLoadTime || this.data._lastLoadTime < app.globalData.lastEnrollTime)) {
+      this.loadEvents()
+    }
   },
 
   async checkUnreadNotifications() {
@@ -126,34 +131,74 @@ Page({
   },
 
   async loadEvents() {
+    this.setData({ _lastLoadTime: Date.now() })
     try {
+      let enrolledIds = []
+      try {
+        const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
+        enrolledIds = (myRes.data.list || [])
+          .filter(i => i.status !== 'cancelled')
+          .map(i => i.event_id)
+      } catch (e) {}
+
       const res = await callFunction('event', { action: 'list', pageSize: 10 })
       const now = new Date()
       // 允许显示当天及未来的活动，方便展示“活动已结束”状态
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const events = res.data.list
-        .filter(e => new Date(e.event_time) >= todayStart)
-        .slice(0, 3)
         .map(e => {
           const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
-          const nowTime = now.getTime();
-          const deadline = e.registration_deadline ? new Date(e.registration_deadline).getTime() : 0;
-          const eventTime = new Date(e.event_time).getTime();
-          
-          let statusText = '报名中';
-          if (nowTime > eventTime || e.status === 'ended') {
-            statusText = '活动已结束';
-          } else if (deadline && nowTime > deadline) {
-            statusText = '报名截止';
+
+          let _isEnded = false;
+          let _isClosed = false;
+          const _enrolled = enrolledIds.includes(e._id);
+          const eventTime = new Date(e.event_time);
+
+          if (e.status === 'ended' || eventTime < now) {
+            _isEnded = true;
+          } else if (e.registration_deadline && new Date(e.registration_deadline) < now) {
+            _isClosed = true;
+          }
+
+          let _statusPriority = 1; // 1: 报名中
+          let _statusText = '报名中';
+
+          const isFull = e.quota && e.enrolled_count >= e.quota;
+
+          if (_isEnded) {
+            _statusPriority = 5;
+            _statusText = '已结束';
+          } else if (_isClosed) {
+            _statusPriority = 4;
+            _statusText = '报名截止';
+          } else if (_enrolled) {
+            _statusPriority = 2;
+            _statusText = '已报名';
+          } else if (isFull) {
+            _statusPriority = 3;
+            _statusText = '名额已满';
           }
 
           return {
             ...e,
+            _enrolled,
+            _statusText,
+            _statusPriority,
+            _eventTimeMs: eventTime.getTime(),
             _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm'),
             _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText,
-            _statusText: statusText
           };
         })
+        .sort((a, b) => {
+          if (a._statusPriority !== b._statusPriority) {
+            return a._statusPriority - b._statusPriority;
+          }
+          // 对于时间由近及远，可以用绝对差值来进行排序
+          const distanceA = Math.abs(a._eventTimeMs - now.getTime());
+          const distanceB = Math.abs(b._eventTimeMs - now.getTime());
+          return distanceA - distanceB;
+        })
+        .slice(0, 3)
       if (events.length > 0) {
         await resolveCloudUrls(events, 'cover_image')
         this.setData({ events })
@@ -225,7 +270,7 @@ Page({
 
   // 跳转
   goSearch() {
-    wx.navigateTo({ url: '/pages/search/search' })
+    wx.navigateTo({ url: '/pkg-base/pages/search/search' })
   },
 
   goEventList() {
@@ -234,27 +279,27 @@ Page({
 
   goEventDetail(e) {
     const id = e.currentTarget.dataset.id
-    wx.navigateTo({ url: `/pages/event-detail/event-detail?id=${id}` })
+    wx.navigateTo({ url: `/pkg-event/pages/event-detail/event-detail?id=${id}` })
   },
 
   goPoints() {
-    wx.navigateTo({ url: '/pages/points/points' })
+    wx.navigateTo({ url: '/pkg-my/pages/points/points' })
   },
 
   goVerify() {
-    wx.navigateTo({ url: '/pages/verify/verify' })
+    wx.navigateTo({ url: '/pkg-my/pages/verify/verify' })
   },
 
   goMyEvents() {
-    wx.navigateTo({ url: '/pages/my-events/my-events' })
+    wx.navigateTo({ url: '/pkg-my/pages/my-events/my-events' })
   },
 
   goNotifications() {
-    wx.navigateTo({ url: '/pages/notifications/notifications' })
+    wx.navigateTo({ url: '/pkg-my/pages/notifications/notifications' })
   },
 
   goBooks() {
-    wx.navigateTo({ url: '/pages/books/books' })
+    wx.navigateTo({ url: '/pkg-base/pages/books/books' })
   },
 
   onBannerTap(e) {
@@ -277,7 +322,7 @@ Page({
   onBookTap(e) {
     const id = e.currentTarget.dataset.id
     if (id) {
-      wx.navigateTo({ url: `/pages/book-detail/book-detail?id=${id}` })
+      wx.navigateTo({ url: `/pkg-base/pages/book-detail/book-detail?id=${id}` })
     }
   }
 })
