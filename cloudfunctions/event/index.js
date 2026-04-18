@@ -56,25 +56,40 @@ exports.main = async (event, context) => {
   }
 }
 
-// 活动列表
+// 获取活动列表（用户端）
 async function handleList(event) {
   try {
-    const { page = 1, pageSize = 10, status = 'published', category } = event
-    const where = { status }
+    const { page = 1, pageSize = 10, category } = event
+    
+    // 筛选：公开或已满的活动（不显示草稿、已结课等）
+    const where = { status: _.in(['published', 'full']) }
     if (category) where.category = category
 
     const countRes = await db.collection('events').where(where).count()
-    const listRes = await db.collection('events')
-      .where(where)
-      .orderBy('event_time', 'desc')
+    
+    const now = new Date()
+    const $ = _.aggregate
+
+    const listRes = await db.collection('events').aggregate()
+      .match(where)
+      .addFields({
+        // 优先级：尚未结束(1) > 已经结束(2)
+        priority: $.cond({
+          if: $.gte(['$event_time', now]),
+          then: 1,
+          else: 2
+        })
+      })
+      .orderBy('priority', 'asc')
+      .orderBy('event_time', 'asc')
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .get()
+      .end()
 
     return {
       success: true,
       data: {
-        list: listRes.data,
+        list: listRes.list,
         total: countRes.total,
         hasMore: page * pageSize < countRes.total
       }
@@ -83,6 +98,7 @@ async function handleList(event) {
     return { success: false, message: err.message }
   }
 }
+
 
 // 活动详情
 async function handleDetail(event) {
@@ -190,6 +206,10 @@ async function handleEnrollFree(openid, event) {
     if (realName && user.real_name !== realName) {
       userUpdateData.real_name = realName
       needUpdateUser = true
+      // 如果当前昵称是默认值“书友”，则同步更新昵称
+      if (user.nickname === '书友') {
+        userUpdateData.nickname = realName
+      }
     }
     if (contactPhone && user.phone !== contactPhone) {
       userUpdateData.phone = contactPhone
@@ -322,6 +342,10 @@ async function handleEnrollPoints(openid, event) {
     if (realName && user.real_name !== realName) {
       userUpdateData.real_name = realName
       needUpdateUser = true
+      // 如果当前昵称是默认值“书友”，则同步更新昵称
+      if (user.nickname === '书友') {
+        userUpdateData.nickname = realName
+      }
     }
     if (contactPhone && user.phone !== contactPhone) {
       userUpdateData.phone = contactPhone
@@ -329,8 +353,6 @@ async function handleEnrollPoints(openid, event) {
     }
     if (needUpdateUser) {
       userUpdateData.updated_at = db.serverDate()
-      // 注意：我们在前面246行可能已经扣除了积分，如果前面的transaction.collection('users').doc(user._id).update也修改了用户，
-      // 这里会再次触发更新。为了合并，我们可以分别执行这两个逻辑或者分开。为了安全起见分开执行不影响逻辑。
       await transaction.collection('users').doc(user._id).update({
         data: userUpdateData
       })

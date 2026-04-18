@@ -56,8 +56,11 @@ Page({
     try {
       await callFunction('user', {
         action: 'updateProfile',
-        nickname: nickname.trim(),
-        phone
+        data: {
+          nickname: nickname.trim(),
+          real_name: nickname.trim(),
+          phone
+        }
       })
 
       const userInfo = getApp().globalData.userInfo || {}

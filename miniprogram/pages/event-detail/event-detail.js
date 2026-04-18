@@ -388,5 +388,25 @@ Page({
     }
 
     this.setData({ platformStatus, enrollBtnText, canEnroll })
+  },
+
+  onShareAppMessage() {
+    const { event } = this.data
+    if (!event) return {}
+    return {
+      title: event.title,
+      path: `/pages/event-detail/event-detail?id=${event._id}`,
+      imageUrl: event.cover_image
+    }
+  },
+
+  onShareTimeline() {
+    const { event } = this.data
+    if (!event) return {}
+    return {
+      title: event.title,
+      query: `id=${event._id}`,
+      imageUrl: event.cover_image
+    }
   }
 })

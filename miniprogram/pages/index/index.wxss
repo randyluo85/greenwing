@@ -428,7 +428,10 @@
   border-radius: 4rpx;
 }
 
-.tag-status { background: var(--primary); color: #ffffff; }
+.tag-status { padding: 4rpx 12rpx; border-radius: 4rpx; }
+.tag-status.status-active { background: #14b8a6; color: #ffffff; }
+.tag-status.status-closed { background: #f97316; color: #ffffff; }
+.tag-status.status-ended { background: #94a3b8; color: #ffffff; }
 .tag-points { color: var(--accent); border: 1rpx solid var(--accent); border-radius: 6rpx; }
 .tag-paid { color: #3b82f6; border: 1rpx solid #3b82f6; border-radius: 6rpx; }
 
