@@ -1,6 +1,6 @@
 <view class="page">
-  <!-- 全屏背景图，使用本地图 -->
-  <image src="/images/point_bg.png" mode="aspectFill" class="full-page-bg" />
+  <!-- 顶部背景图，使用本地图 -->
+  <image src="/images/point_bg.png" mode="aspectFill" class="top-bg" />
 
   <!-- 主体内容需要在背景上方 -->
   <view class="main-content">
@@ -23,7 +23,7 @@
       <!-- 大大的可用积分数字 -->
       <view class="large-points-display">
         <view class="coin-icon-wrap">
-          <text class="coin-symbol">$</text>
+          <image src="/images/point.png" style="width: 48rpx; height:48rpx;" mode="aspectFit" />
         </view>
         <text class="points-value">{{currentPoints}}</text>
       </view>

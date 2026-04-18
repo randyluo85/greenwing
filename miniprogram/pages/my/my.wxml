@@ -92,15 +92,6 @@
     </view>
     <view class="menu-divider" wx:if="{{isSuperAdmin}}"></view>
 
-    <!-- 我的活动 -->
-    <view class="menu-item" bindtap="goMyEvents">
-      <view class="menu-icon-wrap">
-        <image src="/images/my-bookmark.png" class="menu-icon" />
-      </view>
-      <text class="menu-text">我的活动</text>
-      <image src="/images/icons/chevron-right.svg" class="menu-arrow" />
-    </view>
-    <view class="menu-divider"></view>
 
     <!-- 我的订单 -->
     <view class="menu-item" bindtap="goMyOrders">

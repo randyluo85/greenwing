@@ -1,17 +1,17 @@
 .page { 
   position: relative;
   min-height: 100vh;
+  background: #f3f4f6;
 }
 
-/* 全屏背景图 */
-.full-page-bg {
-  position: fixed;
+/* 顶部背景图 */
+.top-bg {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 480rpx;
   z-index: 0;
-  background: var(--bg);
 }
 
 .main-content {
@@ -34,9 +34,9 @@
 .overview-label {
   display: flex;
   align-items: center;
-  font-size: 26rpx;
-  color: #374151;
-  font-weight: bold;
+  font-size: 28rpx;
+  color: #78350f;
+  font-weight: 500;
 }
 
 .star-icon-wrap {
@@ -48,8 +48,7 @@
   align-items: center;
   justify-content: center;
   margin-right: 12rpx;
-  border: 1rpx solid rgba(255,255,255,0.4);
-  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.05);
+  border: 4rpx solid rgba(255, 255, 255, 0.4);
 }
 
 .icon-text {
@@ -58,13 +57,12 @@
 }
 
 .rules-btn {
-  background: #fbbf24;
-  color: #ffffff;
-  font-size: 22rpx;
+  background: rgba(255, 255, 255, 0.4);
+  color: #78350f;
+  font-size: 24rpx;
   padding: 8rpx 24rpx;
   border-radius: 999rpx;
-  font-weight: bold;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  font-weight: 500;
 }
 
 /* 大数字展示 */
@@ -76,31 +74,29 @@
 }
 
 .coin-icon-wrap {
-  width: 40rpx;
-  height: 40rpx;
+  width: 36rpx;
+  height: 36rpx;
   border-radius: 50%;
   background: #fbbf24;
-  border: 4rpx solid #ffffff;
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20rpx;
-  box-shadow: 0 4rpx 8rpx rgba(0,0,0,0.1);
+  margin-right: 12rpx;
 }
 
 .coin-symbol {
   font-size: 20rpx;
   color: #ffffff;
-  font-weight: bold;
 }
 
 .points-value {
-  font-size: 104rpx;
-  font-weight: 800;
-  color: #111827;
+  font-size: 110rpx;
+  font-weight: bold;
+  color: #000000;
   line-height: 1;
   letter-spacing: -2rpx;
-  font-family: Impact, sans-serif;
+  font-family: Impact, "Arial Narrow Bold", sans-serif;
 }
 
 /* 列表区 */
@@ -110,28 +106,24 @@
 
 .section-title {
   display: block;
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #1f2937;
+  font-size: 32rpx;
+  font-weight: normal;
+  color: #111827;
   margin-bottom: 24rpx;
-  letter-spacing: 2rpx;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 24rpx;
-  padding: 0 40rpx;
-  box-shadow: 0 4rpx 16rpx -4rpx rgba(0,0,0,0.05);
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 0 32rpx;
 }
 
 .log-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 36rpx 0;
-  border-bottom: 1rpx solid rgba(243, 244, 246, 0.8);
+  padding: 32rpx 0;
+  border-bottom: 1rpx solid #f3f4f6;
 }
 
 .log-item:last-child {
@@ -144,24 +136,23 @@
 }
 
 .log-desc {
-  font-size: 28rpx;
-  color: #1f2937;
-  font-weight: 500;
-  letter-spacing: 1rpx;
+  font-size: 30rpx;
+  color: #111827;
+  font-weight: normal;
 }
 
 .log-time {
   font-size: 24rpx;
   color: #9ca3af;
-  margin-top: 8rpx;
+  margin-top: 6rpx;
 }
 
 .log-amount {
-  font-size: 32rpx;
-  font-weight: bold;
+  font-size: 36rpx;
+  font-weight: normal;
 }
 
-.log-amount.income { color: #fbbf24; }
+.log-amount.income { color: #f59e0b; }
 .log-amount.expense { color: #9ca3af; }
 
 /* 空状态 */

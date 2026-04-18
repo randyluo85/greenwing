@@ -78,10 +78,10 @@
         <image src="/images/point.png" mode="aspectFit" class="action-deco-sm" />
       </view>
 
-      <!-- 活动核销 -->
-      <view class="action-card action-card-blue btn-active" bindtap="goVerify">
+      <!-- 我的活动 -->
+      <view class="action-card action-card-blue btn-active" bindtap="goMyEvents">
         <view class="action-sub-inner">
-          <text class="action-sub-title action-blue-text">活动核销</text>
+          <text class="action-sub-title action-blue-text">我的活动</text>
           <view class="action-arrow action-blue-arrow"><view class="chevron-right"></view></view>
         </view>
         <image src="/images/scan.png" mode="aspectFit" class="action-deco-sm" />
