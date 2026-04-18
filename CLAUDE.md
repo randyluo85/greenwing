@@ -31,18 +31,26 @@
   /pages
     /index/                 # 首页
     /event/                 # 活动大厅
-    /event-detail/          # 活动详情
-    /order-confirm/         # 订单确认页
-    /books/                 # 读书/好书推荐模块
-    /book-detail/           # 书籍详情
-    /shop/                  # 商城模块 (占位)
     /my/                    # 个人中心
-    /my-events/             # 我的活动
-    /my-orders/             # 我的订单
-    /points/                # 积分明细
-    /verify/                # 管理员扫码核销页
-    /login/                 # 登录页
-    /register/              # 注册页
+    /shop/                  # 商城模块 (占位)
+  /pkg-event                # 分包: 活动与详情
+    /pages/event-detail/    # 活动详情
+    /pages/order-confirm/   # 订单确认页
+  /pkg-base                 # 分包: 基础与书籍功能
+    /pages/login/           # 登录页
+    /pages/register/        # 注册页
+    /pages/search/          # 搜索页
+    /pages/books/           # 读书/好书推荐模块
+    /pages/book-detail/     # 书籍详情
+  /pkg-my                   # 分包: 个人中心相关
+    /pages/my-events/       # 我的活动
+    /pages/my-orders/       # 我的订单
+    /pages/points/          # 积分明细
+    /pages/verify/          # 管理员扫码核销页
+    /pages/notifications/   # 通知中心
+    /pages/notification-detail/ # 通知详情
+    /pages/profile-edit/    # 修改资料
+    /pages/refund-manage/   # 退款管理
   /components
   /utils
     /cloud.js               # 云开发封装
