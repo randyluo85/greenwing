@@ -136,6 +136,7 @@ Page({
       console.error('[二维码生成] 调用云函数异常:', e)
       console.error('[二维码生成] 错误消息:', e.message)
       this.setData({ qrLoading: false })
+      wx.showToast({ title: e.message || '生成二维码失败', icon: 'none', duration: 3000 })
     }
   },
 
