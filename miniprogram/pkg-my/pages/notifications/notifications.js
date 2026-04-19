@@ -20,7 +20,10 @@ Page({
     try {
       const db = wx.cloud.database()
       const openid = getApp().globalData.openid
+      console.log('[通知] openid:', openid)
+
       if (!openid) {
+        console.warn('[通知] openid 为空，等待用户登录')
         this.setData({ loading: false })
         return
       }
@@ -31,6 +34,8 @@ Page({
         .limit(50)
         .get({ timeout: 10000 })
 
+      console.log('[通知] 查询结果数量:', res.data.length)
+
       const messages = res.data.map(m => ({
         ...m,
         _timeAgo: m.created_at ? timeAgo(new Date(m.created_at)) : ''
@@ -39,9 +44,11 @@ Page({
       const newMessages = messages.filter(m => !m.is_read)
       const oldMessages = messages.filter(m => m.is_read)
 
+      console.log('[通知] 新消息:', newMessages.length, '已读:', oldMessages.length)
+
       this.setData({ newMessages, oldMessages, loading: false })
     } catch (e) {
-      console.warn('获取通知失败:', e)
+      console.error('[通知] 获取通知失败:', e)
       this.setData({
         newMessages: [],
         oldMessages: [],
