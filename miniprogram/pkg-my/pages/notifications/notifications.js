@@ -1,4 +1,5 @@
 const { timeAgo } = require('../../../utils/util')
+const { callFunction } = require('../../../utils/cloud')
 
 Page({
   data: {
@@ -60,10 +61,10 @@ Page({
 
     // Mark as read
     try {
-      const db = wx.cloud.database()
-      db.collection('notifications').doc(id).update({
-        data: { is_read: true }
-      }).catch(e => {}) // non-blocking
+      callFunction('user', {
+        action: 'markNotificationsRead',
+        notificationIds: [id]
+      }).catch(e => {})
 
       const isNew = typeof index === 'number' && index < this.data.newMessages.length
       if (isNew && this.data.newMessages[index]._id === id) {

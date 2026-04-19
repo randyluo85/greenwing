@@ -54,6 +54,8 @@ exports.main = async (event, context) => {
       return handleGetPointLogs(OPENID, event)
     case 'bindPhone':
       return handleBindPhone(OPENID, event)
+    case 'markNotificationsRead':
+      return handleMarkNotificationsRead(OPENID, data)
     default:
       return { success: false, message: '未知操作' }
   }
@@ -306,4 +308,17 @@ async function handleBindPhone(openid, event) {
   } catch (err) {
     return { success: false, message: '绑定失败: ' + err.message }
   }
+}
+
+// 标记通知已读
+async function handleMarkNotificationsRead(openid, data) {
+  const { notificationIds } = data
+  if (!Array.isArray(notificationIds) || notificationIds.length === 0) {
+    return { success: false, message: '缺少 notificationIds' }
+  }
+  const tasks = notificationIds.map(id =>
+    db.collection('notifications').doc(id).update({ data: { is_read: true } })
+  )
+  await Promise.all(tasks)
+  return { success: true, data: { updated: notificationIds.length } }
 }
