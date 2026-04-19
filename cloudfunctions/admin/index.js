@@ -12,14 +12,20 @@ function calcLevel(totalPoints, thresholds) {
   return 'bronze'
 }
 
-// 管理员账号 (建议在云函数环境变量中配置 ADMIN_ACCOUNTS)
-const ADMIN_ACCOUNTS = JSON.parse(process.env.ADMIN_ACCOUNTS || '{"admin":"qingyi2026"}')
+// 管理员账号 (必须在云函数环境变量中配置 ADMIN_ACCOUNTS)
+if (!process.env.ADMIN_ACCOUNTS) {
+  throw new Error('ADMIN_ACCOUNTS 环境变量未配置，请在云开发控制台设置')
+}
+const ADMIN_ACCOUNTS = JSON.parse(process.env.ADMIN_ACCOUNTS)
 
 // Token 过期时间: 2小时
 const TOKEN_TTL = 2 * 60 * 60 * 1000
 
-// HMAC 签名密钥 (建议通过环境变量 TOKEN_SECRET 配置)
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'qingyi-admin-token-secret-2026'
+// HMAC 签名密钥 (必须通过环境变量 TOKEN_SECRET 配置)
+if (!process.env.TOKEN_SECRET) {
+  throw new Error('TOKEN_SECRET 环境变量未配置，请在云开发控制台设置')
+}
+const TOKEN_SECRET = process.env.TOKEN_SECRET
 
 // 无状态 token 生成: Base64(username:loginTime:hmac)
 function generateToken(username, loginTime) {
@@ -70,10 +76,6 @@ exports.main = async (event, context) => {
       return handleManageEvent(event)
     case 'getOrders':
       return handleGetOrders(event)
-    case 'approveRefund':
-      return handleApproveRefund(event)
-    case 'adminRefund':
-      return handleAdminRefund(event)
     case 'cancelOrder':
       return handleCancelOrder(event)
     case 'getRegistrations':
@@ -125,10 +127,11 @@ async function handleGetUsers(event) {
     const where = {}
 
     if (keyword) {
+      const safeKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       where[_.or] = [
-        { nickname: db.RegExp({ regexp: keyword, options: 'i' }) },
-        { member_no: db.RegExp({ regexp: keyword, options: 'i' }) },
-        { phone: db.RegExp({ regexp: keyword, options: 'i' }) }
+        { nickname: db.RegExp({ regexp: safeKeyword, options: 'i' }) },
+        { member_no: db.RegExp({ regexp: safeKeyword, options: 'i' }) },
+        { phone: db.RegExp({ regexp: safeKeyword, options: 'i' }) }
       ]
     }
     if (level) where.level = level
@@ -335,150 +338,6 @@ async function handleGetOrders(event) {
     return {
       success: true,
       data: { list, total: countRes.total, hasMore: page * pageSize < countRes.total }
-    }
-  } catch (err) {
-    return { success: false, message: err.message }
-  }
-}
-
-// 底层退款执行（被两种退款模式复用）
-async function executeRefund(order, notifyUser = true) {
-  const refundRes = await cloud.cloudPay.refund({
-    out_trade_no: order.order_no,
-    out_refund_no: 'RF' + order.order_no,
-    total_fee: order.amount,
-    refund_fee: order.amount,
-    envId: 'cloud1-8gax523s60b70149',
-    functionName: 'pay',
-    sub_mch_id: process.env.MCH_ID || '1705849497'
-  })
-  console.log('[refund] cloud.cloudPay.refund 结果:', JSON.stringify(refundRes))
-
-  // 退款已被微信受理，立即更新本地状态（不依赖回调）
-  const regRes = await db.collection('registrations').where({ order_id: order._id }).get()
-  const regId = regRes.data.length > 0 ? regRes.data[0]._id : null
-  const regNeedCancel = regRes.data.length > 0 && regRes.data[0].status !== 'cancelled'
-
-  const transaction = await db.startTransaction()
-  try {
-    await transaction.collection('orders').doc(order._id).update({
-      data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
-    })
-
-    if (regId && regNeedCancel) {
-      await transaction.collection('registrations').doc(regId).update({
-        data: { status: 'cancelled', updated_at: db.serverDate() }
-      })
-      await transaction.collection('events').doc(order.event_id).update({
-        data: { enrolled_count: _.inc(-1) }
-      })
-    }
-
-    await transaction.commit()
-    console.log('[refund] ✅ 退款事务完成: 订单→refunded, 报名→cancelled')
-
-    // 发送通知放事务外
-    if (notifyUser) {
-      try {
-        await db.collection('notifications').add({
-          data: {
-            open_id: order.open_id,
-            title: '退款成功',
-            body: `您的订单 ${order.order_no} 退款已通过审核，款项将在 1-5 个工作日内原路退回。`,
-            icon_bg_color: '#10b981',
-            icon_text: '退',
-            is_read: false,
-            type: 'refund_approved',
-            created_at: db.serverDate()
-          }
-        })
-      } catch (noteErr) {
-        console.error('[refund] 发送退款通知失败:', noteErr)
-      }
-    }
-  } catch (txErr) {
-    await transaction.rollback()
-    console.error('[refund] 事务失败:', txErr)
-    // 事务失败但微信退款已受理，保底更新订单和报名状态
-    await db.collection('orders').doc(order._id).update({
-      data: { status: 'refunded', refund_time: db.serverDate(), updated_at: db.serverDate() }
-    })
-    
-    if (regId && regNeedCancel) {
-      await db.collection('registrations').doc(regId).update({
-        data: { status: 'cancelled', updated_at: db.serverDate() }
-      })
-      await db.collection('events').doc(order.event_id).update({
-        data: { enrolled_count: _.inc(-1) }
-      })
-    }
-  }
-
-  return refundRes
-}
-
-// 退款审批（模式二：用户申请 -> 管理员审批）
-async function handleApproveRefund(event) {
-  try {
-    const { orderId, approved, reason } = event
-    if (!orderId) return { success: false, message: '缺少订单ID' }
-
-    const orderRes = await db.collection('orders').doc(orderId).get()
-    const order = orderRes.data
-
-    if (order.status !== 'refunding') return { success: false, message: '订单状态不正确，当前状态：' + order.status }
-
-    if (!approved) {
-      // 驳回：恢复到 paid 状态
-      await db.collection('orders').doc(orderId).update({
-        data: { status: 'paid', refund_reason: reason || '退款申请已驳回', updated_at: db.serverDate() }
-      })
-      return { success: true, message: '退款已拒绝' }
-    }
-
-    // 同意：发起微信退款
-    try {
-      await executeRefund(order, true)
-      return { success: true, message: '退款已发起，款项将在 1-5 个工作日内原路退回' }
-    } catch (refundErr) {
-      console.error('[approveRefund] 退款失败:', refundErr)
-      return { success: false, message: '退款失败: ' + refundErr.message }
-    }
-  } catch (err) {
-    return { success: false, message: err.message }
-  }
-}
-
-// 管理员主动退款（模式一：管理员对已支付订单直接发起退款）
-async function handleAdminRefund(event) {
-  try {
-    const { orderId, reason } = event
-    if (!orderId) return { success: false, message: '缺少订单ID' }
-
-    const orderRes = await db.collection('orders').doc(orderId).get()
-    const order = orderRes.data
-
-    if (order.status !== 'paid') return { success: false, message: '只能对已支付订单发起退款，当前状态：' + order.status }
-
-    // 先标记为退款中，再调用微信
-    await db.collection('orders').doc(order._id).update({
-      data: {
-        status: 'refunding',
-        refund_reason: reason || '管理员主动退款',
-        updated_at: db.serverDate()
-      }
-    })
-
-    try {
-      await executeRefund(order, true)
-      return { success: true, message: '退款已发起，款项将在 1-5 个工作日内原路退回' }
-    } catch (refundErr) {
-      // 如果微信退款调用失败，回滚至 paid 状态
-      await db.collection('orders').doc(order._id).update({
-        data: { status: 'paid', updated_at: db.serverDate() }
-      })
-      console.error('[adminRefund] 退款失败:', refundErr)
-      return { success: false, message: '退款失败: ' + refundErr.message }
     }
   } catch (err) {
     return { success: false, message: err.message }

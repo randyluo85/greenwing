@@ -51,6 +51,8 @@ exports.main = async (event, context) => {
       return handleListComments(OPENID, event)
     case 'addComment':
       return handleAddComment(OPENID, event)
+    case 'checkRegStatus':
+      return handleCheckRegStatus(OPENID, event)
     default:
       return { success: false, message: '未知操作' }
   }
@@ -59,39 +61,55 @@ exports.main = async (event, context) => {
 // 获取活动列表（用户端）
 async function handleList(event) {
   try {
-    const { page = 1, pageSize = 10, category } = event
-    
-    // 筛选：公开或已满的活动（不显示草稿、已结课等）
-    const where = { status: _.in(['published', 'full']) }
-    if (category) where.category = category
+    const { page = 1, pageSize = 10, category, includeEnded = false } = event
+    const safePageSize = Math.min(Math.max(1, pageSize), 100)
 
-    const countRes = await db.collection('events').where(where).count()
-    
+    // 使用 ISO 字符串进行时间比较，确保在不同环境下一致
     const now = new Date()
+    const nowISO = now.toISOString()
+
     const $ = _.aggregate
 
-    const listRes = await db.collection('events').aggregate()
-      .match(where)
-      .addFields({
-        // 优先级：尚未结束(1) > 已经结束(2)
-        priority: $.cond({
-          if: $.gte(['$event_time', now]),
-          then: 1,
-          else: 2
-        })
-      })
-      .orderBy('priority', 'asc')
-      .orderBy('event_time', 'asc')
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
-      .end()
+    // 基础筛选条件
+    const baseWhere = { status: _.in(['published', 'full']) }
+    if (category) baseWhere.category = category
+
+    // 根据是否包含已结束活动，构建不同的查询条件
+    let where, countRes, listRes
+
+    if (includeEnded) {
+      // 只查询已结束活动：event_time < 当前时间
+      where = { ...baseWhere, event_time: _.lt(nowISO) }
+      countRes = await db.collection('events').where(where).count()
+
+      listRes = await db.collection('events').where(where)
+        .orderBy('event_time', 'desc')
+        .skip((page - 1) * safePageSize)
+        .limit(safePageSize)
+        .get()
+    } else {
+      // 只查询未结束的活动：event_time >= 当前时间
+      // 使用字符串比较，ISO 格式可按字典序比较
+      where = {
+        ...baseWhere,
+        event_time: _.gte(nowISO)
+      }
+      countRes = await db.collection('events').where(where).count()
+
+      listRes = await db.collection('events').where(where)
+        .orderBy('event_time', 'asc')
+        .skip((page - 1) * safePageSize)
+        .limit(safePageSize)
+        .get()
+    }
 
     return {
       success: true,
       data: {
-        list: listRes.list,
+        list: listRes.list || listRes.data,
         total: countRes.total,
-        hasMore: page * pageSize < countRes.total
+        hasMore: page * safePageSize < countRes.total,
+        includeEnded: includeEnded
       }
     }
   } catch (err) {
@@ -558,8 +576,10 @@ async function handleVerify(openid, event) {
 
     await transaction.commit()
 
-    // 查询报名者昵称（核销员是 user，报名者是 reg.user_id）
+    // 查询报名者信息
     let regNickname = '未知用户'
+    let regRealName = reg.real_name || ''
+    let regPhone = reg.contact_phone || ''
     try {
       const regUserRes = await db.collection('users').doc(reg.user_id).get()
       regNickname = regUserRes.data.nickname || regNickname
@@ -567,7 +587,15 @@ async function handleVerify(openid, event) {
       console.warn('查询报名者昵称失败:', e.message)
     }
 
-    return { success: true, data: { registration_id: reg._id, user_nickname: regNickname } }
+    return {
+      success: true,
+      data: {
+        registration_id: reg._id,
+        user_nickname: regNickname,
+        real_name: regRealName,
+        contact_phone: regPhone
+      }
+    }
   } catch (err) {
     await transaction.rollback()
     return { success: false, message: '核销失败: ' + err.message }
@@ -621,7 +649,7 @@ async function handleGetQRCode(openid, event) {
       page: 'pkg-my/pages/verify/verify',
       width: 280,
       checkPath: false,
-      envVersion: 'trial', // 生成体验版二维码，便于测试核销功能
+      envVersion: 'release',
       isHyaline: false
     })
 
@@ -775,6 +803,27 @@ async function handleAddComment(openid, event) {
     return {
       success: true,
       data: { _id: addRes._id, ...commentData, created_at: new Date() }
+    }
+  } catch (err) {
+    return { success: false, message: err.message }
+  }
+}
+
+async function handleCheckRegStatus(OPENID, event) {
+  try {
+    const { registrationId } = event
+    if (!registrationId) return { success: false, message: '缺少参数' }
+
+    const res = await db.collection('registrations').doc(registrationId).get()
+    const reg = res.data
+
+    if (reg.open_id !== OPENID) {
+      return { success: false, message: '无权查看' }
+    }
+
+    return {
+      success: true,
+      data: { status: reg.status, event_id: reg.event_id || '' }
     }
   } catch (err) {
     return { success: false, message: err.message }
