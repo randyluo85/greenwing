@@ -34,7 +34,7 @@
               bindtap="cancelEnroll" data-id="{{item._id}}">
               <text>{{cancelledIds.indexOf(item._id) >= 0 ? '已取消' : '取消报名'}}</text>
             </view>
-            <view class="btn-ticket" bindtap="showTicket" data-code="{{item.verify_code}}" data-id="{{item._id}}">
+            <view class="btn-ticket" bindtap="showTicket" data-code="{{item.verify_code}}" data-id="{{item._id}}" data-event="{{item.event_id}}">
               <text class="qr-icon">#</text>
               <text>入场凭证</text>
             </view>
@@ -87,6 +87,9 @@
   </view>
 
 </view>
+
+<!-- 隐藏的 canvas 用于本地生成二维码 -->
+<canvas type="2d" id="qr-canvas" style="position:fixed;left:-9999px;top:-9999px;width:200px;height:200px;"></canvas>
 
 <!-- 入场凭证弹窗 -->
 <view class="modal-overlay" wx:if="{{showTicketModal}}" bindtap="closeTicket">

@@ -35,7 +35,9 @@ Page({
         callFunction('user', {
           action: 'markNotificationsRead',
           notificationIds: [id]
-        }).catch(e => {})
+        }).catch(e => {
+          console.warn('[通知详情] 标记已读失败:', e.message)
+        })
       }
     } catch (e) {
       console.error('加载消息失败', e)

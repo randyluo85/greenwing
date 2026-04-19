@@ -66,12 +66,11 @@ Page({
 
     wx.setStorageSync('currentNotification', message)
 
-    // Mark as read
     try {
-      callFunction('user', {
+      await callFunction('user', {
         action: 'markNotificationsRead',
         notificationIds: [id]
-      }).catch(e => {})
+      })
 
       const isNew = typeof index === 'number' && index < this.data.newMessages.length
       if (isNew && this.data.newMessages[index]._id === id) {
@@ -79,7 +78,7 @@ Page({
         this.setData({ [key]: true })
       }
     } catch (e) {
-      // silent
+      console.warn('[通知] 标记已读失败:', e.message)
     }
 
     wx.navigateTo({

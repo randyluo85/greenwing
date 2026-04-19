@@ -396,7 +396,7 @@ Page({
     if (!event) return {}
     return {
       title: event.title,
-      path: `/pages/event-detail/event-detail?id=${event._id}`,
+      path: `/pkg-event/pages/event-detail/event-detail?id=${event._id}`,
       imageUrl: event.cover_image
     }
   },

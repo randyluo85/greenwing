@@ -70,3 +70,30 @@
 .result-desc { font-size: 26rpx; color: #64748B; }
 
 .retry-btn { margin-top: 32rpx; padding: 20rpx 60rpx; }
+
+.info-card {
+  margin-top: 24rpx;
+  padding: 28rpx 32rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.info-row + .info-row {
+  border-top: 1rpx solid #f1f5f9;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #64748B;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #1E293B;
+  font-weight: 500;
+}

@@ -4,7 +4,8 @@ const auth = require('../../../utils/auth')
 Page({
   data: {
     manualCode: '',
-    result: null
+    result: null,
+    verifiedInfo: null
   },
 
   onLoad(options) {
@@ -18,7 +19,6 @@ Page({
       return
     }
 
-    // 外部扫码：微信摄像头扫小程序码后，scene 作为 query 参数传入
     if (options && options.scene) {
       const code = decodeURIComponent(options.scene)
       this.doVerify(code)
@@ -29,14 +29,11 @@ Page({
     wx.scanCode({
       onlyFromCamera: true,
       success: (res) => {
-        // 核销码可能是扫码结果本身或 URL 参数
         let code = res.result || ''
-        // 小程序内扫小程序码：path 字段包含 scene 参数
         if (res.path && res.path.includes('scene=')) {
           const match = res.path.match(/scene=([^&]+)/)
           if (match) code = decodeURIComponent(match[1])
         }
-        // 兼容 URL 参数格式
         else if (code && code.includes('verify_code=')) {
           const match = code.match(/verify_code=([^&]+)/)
           if (match) code = match[1]
@@ -69,17 +66,23 @@ Page({
       wx.hideLoading()
 
       this.setData({
-        result: { success: true, message: `用户 ${res.data.user_nickname || ''} 核销成功` }
+        result: { success: true },
+        verifiedInfo: {
+          real_name: res.data.real_name || '',
+          contact_phone: res.data.contact_phone || '',
+          nickname: res.data.user_nickname || ''
+        }
       })
     } catch (e) {
       wx.hideLoading()
       this.setData({
-        result: { success: false, message: e.message || '核销失败' }
+        result: { success: false, message: e.message || '核销失败' },
+        verifiedInfo: null
       })
     }
   },
 
   resetVerify() {
-    this.setData({ result: null, manualCode: '' })
+    this.setData({ result: null, verifiedInfo: null, manualCode: '' })
   }
 })

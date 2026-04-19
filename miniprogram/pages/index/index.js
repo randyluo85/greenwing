@@ -1,6 +1,6 @@
 const { callFunction, resolveCloudUrls } = require('../../utils/cloud')
 const auth = require('../../utils/auth')
-const { formatDate, getLevelName } = require('../../utils/util')
+const { formatDate, getLevelName, isPast } = require('../../utils/util')
 
 Page({
   data: {
@@ -141,42 +141,37 @@ Page({
           .map(i => i.event_id)
       } catch (e) {}
 
-      const res = await callFunction('event', { action: 'list', pageSize: 10 })
-      const now = new Date()
-      // 允许显示当天及未来的活动，方便展示“活动已结束”状态
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      // 请求更多数据，确保有足够的选择
+      const res = await callFunction('event', { action: 'list', page: 1, pageSize: 30 })
+
+      console.log('[loadEvents] 云函数返回活动数量:', res.data.list?.length || 0)
+
+      // 过滤并计算状态
       const events = res.data.list
         .map(e => {
           const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
+          const eventTimeMs = e.event_time ? new Date(e.event_time).getTime() : 0
 
-          let _isEnded = false;
-          let _isClosed = false;
-          const _enrolled = enrolledIds.includes(e._id);
-          const eventTime = new Date(e.event_time);
+          const _isEnded = e.status === 'ended' || isPast(e.event_time)
+          const _isClosed = isPast(e.registration_deadline)
+          const _enrolled = enrolledIds.includes(e._id)
+          const isFull = e.quota && e.enrolled_count >= e.quota
 
-          if (e.status === 'ended' || eventTime < now) {
-            _isEnded = true;
-          } else if (e.registration_deadline && new Date(e.registration_deadline) < now) {
-            _isClosed = true;
-          }
-
-          let _statusPriority = 1; // 1: 报名中
-          let _statusText = '报名中';
-
-          const isFull = e.quota && e.enrolled_count >= e.quota;
+          let _statusPriority = 1
+          let _statusText = '报名中'
 
           if (_isEnded) {
-            _statusPriority = 5;
-            _statusText = '已结束';
+            _statusPriority = 5
+            _statusText = '已结束'
           } else if (_isClosed) {
-            _statusPriority = 4;
-            _statusText = '报名截止';
+            _statusPriority = 4
+            _statusText = '报名截止'
           } else if (_enrolled) {
-            _statusPriority = 2;
-            _statusText = '已报名';
+            _statusPriority = 2
+            _statusText = '已报名'
           } else if (isFull) {
-            _statusPriority = 3;
-            _statusText = '名额已满';
+            _statusPriority = 3
+            _statusText = '名额已满'
           }
 
           return {
@@ -184,28 +179,34 @@ Page({
             _enrolled,
             _statusText,
             _statusPriority,
-            _eventTimeMs: eventTime.getTime(),
+            _eventTimeMs: eventTimeMs,
             _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm'),
             _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText,
           };
         })
+        // 排序：优先级高的在前，同优先级内即将开始的在前
         .sort((a, b) => {
           if (a._statusPriority !== b._statusPriority) {
-            return a._statusPriority - b._statusPriority;
+            return a._statusPriority - b._statusPriority
           }
-          // 对于时间由近及远，可以用绝对差值来进行排序
-          const distanceA = Math.abs(a._eventTimeMs - now.getTime());
-          const distanceB = Math.abs(b._eventTimeMs - now.getTime());
-          return distanceA - distanceB;
+          // 同优先级内，按时间升序（即将开始的在前）
+          return a._eventTimeMs - b._eventTimeMs
         })
+        // 首页只显示未结束的活动，最多 3 个
+        .filter(e => e._statusPriority < 5)
         .slice(0, 3)
+
+      console.log('[loadEvents] 首页显示活动数量:', events.length, events.map(e => ({ id: e._id, title: e.title, status: e._statusText })))
+
       if (events.length > 0) {
         await resolveCloudUrls(events, 'cover_image')
         this.setData({ events })
         return
       }
-    } catch (e) { /* 云函数未部署 */ }
-    // 云端无数据，使用本地默认活动
+    } catch (e) {
+      console.error('[loadEvents] 云函数调用失败:', e.message)
+    }
+    // 云端无数据或云函数未部署，使用本地默认活动
     this.setData({
       events: [
         { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', event_time: '2099-04-18T15:30:00', _formattedTime: '04/18 15:30', _statusText: '报名中' },
