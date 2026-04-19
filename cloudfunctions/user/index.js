@@ -55,7 +55,7 @@ exports.main = async (event, context) => {
     case 'bindPhone':
       return handleBindPhone(OPENID, event)
     case 'markNotificationsRead':
-      return handleMarkNotificationsRead(OPENID, data)
+      return handleMarkNotificationsRead(OPENID, event)
     default:
       return { success: false, message: '未知操作' }
   }
