@@ -3,13 +3,36 @@
  */
 
 /**
+ * 安全解析时间戳，兼容多种格式
+ * @param {Date|string|number} date
+ * @returns {Date|null}
+ */
+const safeParseDate = (date) => {
+  if (!date) return null
+  const d = new Date(date)
+  return isNaN(d.getTime()) ? null : d
+}
+
+/**
+ * 比较时间是否已过
+ * @param {Date|string|number} date
+ * @returns {boolean}
+ */
+const isPast = (date) => {
+  const d = safeParseDate(date)
+  if (!d) return false
+  return d.getTime() < Date.now()
+}
+
+/**
  * 格式化日期
  * @param {Date|string|number} date
  * @param {string} fmt 格式字符串，如 'YYYY-MM-DD HH:mm'
  */
 const formatDate = (date, fmt = 'YYYY-MM-DD HH:mm') => {
   if (!date) return ''
-  const d = new Date(date)
+  const d = safeParseDate(date)
+  if (!d) return ''
   const map = {
     'YYYY': d.getFullYear(),
     'MM': String(d.getMonth() + 1).padStart(2, '0'),
@@ -36,8 +59,10 @@ const formatMoney = (amountInFen) => {
  * 相对时间
  */
 const timeAgo = (date) => {
+  const d = safeParseDate(date)
+  if (!d) return ''
   const now = Date.now()
-  const diff = now - new Date(date).getTime()
+  const diff = now - d.getTime()
   const minutes = Math.floor(diff / 60000)
   if (minutes < 1) return '刚刚'
   if (minutes < 60) return `${minutes}分钟前`
@@ -131,5 +156,7 @@ module.exports = {
   getLevelName,
   getLevelProgress,
   getModeText,
-  debounce
+  debounce,
+  safeParseDate,
+  isPast
 }

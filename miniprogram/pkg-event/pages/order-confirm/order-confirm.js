@@ -90,6 +90,9 @@ Page({
       })
 
       const { orderId, payment, expireAt } = orderRes.data
+      console.log('[支付调试] orderRes:', JSON.stringify(orderRes))
+      console.log('[支付调试] payment:', JSON.stringify(payment))
+      console.log('[支付调试] payment keys:', payment ? Object.keys(payment) : 'payment is null/undefined')
       this.setData({ orderId })
 
       // 开始倒计时

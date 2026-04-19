@@ -1,4 +1,5 @@
 const { timeAgo } = require('../../../utils/util')
+const { callFunction } = require('../../../utils/cloud')
 
 Page({
   data: {
@@ -19,7 +20,10 @@ Page({
     try {
       const db = wx.cloud.database()
       const openid = getApp().globalData.openid
+      console.log('[通知] openid:', openid)
+
       if (!openid) {
+        console.warn('[通知] openid 为空，等待用户登录')
         this.setData({ loading: false })
         return
       }
@@ -30,6 +34,8 @@ Page({
         .limit(50)
         .get({ timeout: 10000 })
 
+      console.log('[通知] 查询结果数量:', res.data.length)
+
       const messages = res.data.map(m => ({
         ...m,
         _timeAgo: m.created_at ? timeAgo(new Date(m.created_at)) : ''
@@ -38,9 +44,11 @@ Page({
       const newMessages = messages.filter(m => !m.is_read)
       const oldMessages = messages.filter(m => m.is_read)
 
+      console.log('[通知] 新消息:', newMessages.length, '已读:', oldMessages.length)
+
       this.setData({ newMessages, oldMessages, loading: false })
     } catch (e) {
-      console.warn('获取通知失败:', e)
+      console.error('[通知] 获取通知失败:', e)
       this.setData({
         newMessages: [],
         oldMessages: [],
@@ -58,12 +66,11 @@ Page({
 
     wx.setStorageSync('currentNotification', message)
 
-    // Mark as read
     try {
-      const db = wx.cloud.database()
-      db.collection('notifications').doc(id).update({
-        data: { is_read: true }
-      }).catch(e => {}) // non-blocking
+      await callFunction('user', {
+        action: 'markNotificationsRead',
+        notificationIds: [id]
+      })
 
       const isNew = typeof index === 'number' && index < this.data.newMessages.length
       if (isNew && this.data.newMessages[index]._id === id) {
@@ -71,7 +78,7 @@ Page({
         this.setData({ [key]: true })
       }
     } catch (e) {
-      // silent
+      console.warn('[通知] 标记已读失败:', e.message)
     }
 
     wx.navigateTo({

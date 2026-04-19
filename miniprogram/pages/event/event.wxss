@@ -346,6 +346,38 @@
 .empty-text { font-size: 28rpx; color: #94A3B8; }
 .load-end { text-align: center; padding: 32rpx 0; font-size: 24rpx; color: #94A3B8; }
 
+/* 加载已结束活动按钮 */
+.load-ended-btn-container {
+  padding: 32rpx 0;
+  display: flex;
+  justify-content: center;
+}
+
+.load-ended-btn {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx 40rpx;
+  background: #ffffff;
+  border: 1rpx solid #e5e7eb;
+  border-radius: 48rpx;
+  color: #6b7280;
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
+}
+
+.load-ended-btn:active {
+  background: #f9fafb;
+}
+
+.load-ended-btn .btn-icon {
+  font-size: 24rpx;
+}
+
+.load-ended-btn .btn-text {
+  font-weight: 500;
+}
+
 /* ========== 入场凭证弹窗 ========== */
 .modal-overlay {
   position: fixed;
@@ -396,6 +428,11 @@
 }
 
 .qr-canvas { width: 288rpx; height: 288rpx; }
+.qr-image { width: 288rpx; height: 288rpx; }
+.qr-loading { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.qr-loading-text { font-size: 26rpx; color: #9ca3af; }
+.qr-fallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.fallback-text { font-size: 24rpx; color: #9ca3af; }
 
 .verify-row {
   display: flex;

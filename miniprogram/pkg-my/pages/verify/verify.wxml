@@ -23,13 +23,39 @@
 
   <!-- 核销结果 -->
   <view class="result-area" wx:if="{{result}}">
-    <view class="result-card card {{result.success ? 'success' : 'fail'}}">
-      <view class="result-icon">
-        <text>{{result.success ? 'OK' : '!'}}</text>
+    <!-- 成功 -->
+    <block wx:if="{{result.success}}">
+      <view class="result-card card success">
+        <view class="result-icon">
+          <text>OK</text>
+        </view>
+        <text class="result-title">核销成功</text>
       </view>
-      <text class="result-title">{{result.success ? '核销成功' : '核销失败'}}</text>
-      <text class="result-desc">{{result.message}}</text>
-    </view>
+      <view class="info-card card" wx:if="{{verifiedInfo}}">
+        <view class="info-row">
+          <text class="info-label">真实姓名</text>
+          <text class="info-value">{{verifiedInfo.real_name || '未填写'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">手机号</text>
+          <text class="info-value">{{verifiedInfo.contact_phone || '未填写'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">用户昵称</text>
+          <text class="info-value">{{verifiedInfo.nickname || '未知'}}</text>
+        </view>
+      </view>
+    </block>
+    <!-- 失败 -->
+    <block wx:else>
+      <view class="result-card card fail">
+        <view class="result-icon">
+          <text>!</text>
+        </view>
+        <text class="result-title">核销失败</text>
+        <text class="result-desc">{{result.message}}</text>
+      </view>
+    </block>
     <view class="btn-primary retry-btn" bindtap="resetVerify">
       <text>继续核销</text>
     </view>

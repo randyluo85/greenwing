@@ -1,11 +1,17 @@
 const cloud = require('wx-server-sdk')
-const envId = cloud.DYNAMIC_CURRENT_ENV || 'cloud1-8gax523s60b70149'
+const envId = cloud.DYNAMIC_CURRENT_ENV
 cloud.init({ env: envId })
 const db = cloud.database()
 const _ = db.command
 
-// 填写你的真实微信支付商户号 (如果不愿意写死，请去云开发控制台配置环境变量 MCH_ID)
-const MCH_ID = process.env.MCH_ID || '1705849497'
+// 微信支付商户号 (必须在云函数环境变量中配置 MCH_ID)
+if (!process.env.MCH_ID) {
+  throw new Error('MCH_ID 环境变量未配置，请在云开发控制台设置')
+}
+const MCH_ID = process.env.MCH_ID
+
+// cloudPay API 需要真实环境 ID，DYNAMIC_CURRENT_ENV 只对 cloud.init 有效
+let REAL_ENV_ID = ''
 
 // 内联工具函数
 function generateOrderNo() {
@@ -90,19 +96,20 @@ async function handleCreateOrder(openid, event) {
       updated_at: db.serverDate()
     }
 
+    if (!eventDoc.price || eventDoc.price <= 0) {
+      return { success: false, message: '活动价格异常，无法支付' }
+    }
+
     const addRes = await db.collection('orders').add({ data: orderData })
 
     // 调用云托管统一下单
     try {
-      console.log('[pay] 开始统一下单, orderNo:', orderNo, 'price:', eventDoc.price, 'totalFee:', eventDoc.price)
-      console.log('[pay] 当前环境ID:', cloud.DYNAMIC_CURRENT_ENV)
-      console.log('[pay] 配置的envId:', 'cloud1-8gax523s60b70149')
       const payRes = await cloud.cloudPay.unifiedOrder({
         body: `青翼读书会 - ${eventDoc.title}`,
         out_trade_no: orderNo,
         spbill_create_ip: '127.0.0.1',
         total_fee: eventDoc.price,
-        envId: 'cloud1-8gax523s60b70149',
+        envId: REAL_ENV_ID || cloud.DYNAMIC_CURRENT_ENV,
         functionName: 'pay',
         sub_mch_id: MCH_ID,
         nonce_str: Math.random().toString(36).slice(2, 17),
@@ -640,17 +647,27 @@ async function handleMpAdminApproveRefund(openid, event) {
       return { success: false, message: '订单状态不正确，当前状态：' + order.status }
     }
 
+    // 乐观锁：原子更新 refunding -> refunding_processing，防止并发退款
+    const lockRes = await db.collection('orders').where({
+      _id: orderId,
+      status: 'refunding'
+    }).update({
+      data: { status: 'refunding_processing', updated_at: db.serverDate() }
+    })
+    if (lockRes.stats.updated === 0) {
+      return { success: false, message: '订单正在处理中或状态已变更，请勿重复操作' }
+    }
+
     try {
       const refundRes = await cloud.cloudPay.refund({
         out_trade_no: order.order_no,
         out_refund_no: 'RF' + order.order_no,
         total_fee: order.amount,
         refund_fee: order.amount,
-        envId: 'cloud1-8gax523s60b70149',
+        envId: REAL_ENV_ID || cloud.DYNAMIC_CURRENT_ENV,
         functionName: 'pay',
         sub_mch_id: MCH_ID
       })
-      console.log('[mpAdminApproveRefund] 退款申请已提交:', refundRes)
 
       // 退款已被微信受理，立即更新本地状态（不依赖回调）
       const regRes = await db.collection('registrations').where({ order_id: orderId }).get()
@@ -712,7 +729,10 @@ async function handleMpAdminApproveRefund(openid, event) {
 
       return { success: true, message: '退款已发起，款项将在 1-5 个工作日内原路退回' }
     } catch (refundErr) {
-      console.error('[mpAdminApproveRefund] 退款失败:', refundErr)
+      // 微信退款API失败，回滚乐观锁
+      await db.collection('orders').doc(orderId).update({
+        data: { status: 'refunding', updated_at: db.serverDate() }
+      })
       return { success: false, message: '退款失败: ' + refundErr.message }
     }
   } catch (err) {
@@ -769,7 +789,8 @@ async function handleMpAdminRejectRefund(openid, event) {
 
 // 云函数入口
 exports.main = async (event, context) => {
-  const { OPENID } = cloud.getWXContext()
+  const { OPENID, ENV } = cloud.getWXContext()
+  if (ENV) REAL_ENV_ID = ENV
   const { action } = event
 
   // 检查是否是微信支付回调（HTTP POST 请求，可能没有 action 参数）

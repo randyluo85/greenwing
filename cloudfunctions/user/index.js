@@ -54,6 +54,8 @@ exports.main = async (event, context) => {
       return handleGetPointLogs(OPENID, event)
     case 'bindPhone':
       return handleBindPhone(OPENID, event)
+    case 'markNotificationsRead':
+      return handleMarkNotificationsRead(OPENID, event)
     default:
       return { success: false, message: '未知操作' }
   }
@@ -135,52 +137,67 @@ async function handleSignIn(openid) {
     // 计算积分
     const basePoints = config.daily_sign_base || 10
     const bonusPoints = continuousDays > 1 ? (config.daily_sign_bonus || 5) * (continuousDays - 1) : 0
-    // 限制额外奖励上限
     const cappedBonus = Math.min(bonusPoints, basePoints * 3)
     const totalEarned = basePoints + cappedBonus
 
-    // 更新用户
     const newTotal = (user.total_points || 0) + totalEarned
     const newCurrent = (user.current_points || 0) + totalEarned
     const newLevel = calcLevel(newTotal, config.level_thresholds)
 
-    await db.collection('users').doc(user._id).update({
-      data: {
-        total_points: newTotal,
-        current_points: newCurrent,
-        last_sign_date: todayStr,
-        continuous_sign_days: continuousDays,
-        level: newLevel,
-        updated_at: db.serverDate()
+    // 事务保护：防止并发签到
+    const transaction = await db.startTransaction()
+    try {
+      // 事务内再次检查签到状态
+      const txUserRes = await transaction.collection('users').doc(user._id).get()
+      if (txUserRes.data.last_sign_date === todayStr) {
+        await transaction.rollback()
+        return { success: false, message: '今日已签到' }
       }
-    })
 
-    // 记录积分流水
-    await db.collection('point_logs').add({
-      data: {
-        user_id: user._id,
-        open_id: openid,
-        amount: totalEarned,
-        type: 'daily_sign',
-        related_id: '',
-        description: `每日签到 +${totalEarned}积分${cappedBonus > 0 ? '（含连续签到奖励）' : ''}`,
-        created_at: db.serverDate()
-      }
-    })
+      await transaction.collection('users').doc(user._id).update({
+        data: {
+          total_points: newTotal,
+          current_points: newCurrent,
+          last_sign_date: todayStr,
+          continuous_sign_days: continuousDays,
+          level: newLevel,
+          updated_at: db.serverDate()
+        }
+      })
 
-    // 下发积分到账通知
-    await db.collection('notifications').add({
-      data: {
-        open_id: openid,
-        title: '积分奖励发放',
-        body: `您今日已成功签到，系统发放了 ${totalEarned} 积分奖励。连续签到可得更多奖励哦！`,
-        icon_bg_color: '#fb923c',
-        icon_text: '奖',
-        is_read: false,
-        type: 'points_reward',
-        created_at: db.serverDate()
-      }
-    })
+      await transaction.collection('point_logs').add({
+        data: {
+          user_id: user._id,
+          open_id: openid,
+          amount: totalEarned,
+          type: 'daily_sign',
+          related_id: '',
+          description: `每日签到 +${totalEarned}积分${cappedBonus > 0 ? '（含连续签到奖励）' : ''}`,
+          created_at: db.serverDate()
+        }
+      })
+
+      await transaction.commit()
+    } catch (txErr) {
+      await transaction.rollback()
+      return { success: false, message: '签到失败，请重试' }
+    }
+
+    // 通知放事务外
+    try {
+      await db.collection('notifications').add({
+        data: {
+          open_id: openid,
+          title: '积分奖励发放',
+          body: `您今日已成功签到，系统发放了 ${totalEarned} 积分奖励。连续签到可得更多奖励哦！`,
+          icon_bg_color: '#fb923c',
+          icon_text: '奖',
+          is_read: false,
+          type: 'points_reward',
+          created_at: db.serverDate()
+        }
+      })
+    } catch (e) { /* 通知失败不影响签到结果 */ }
 
     return {
       success: true,
@@ -306,4 +323,29 @@ async function handleBindPhone(openid, event) {
   } catch (err) {
     return { success: false, message: '绑定失败: ' + err.message }
   }
+}
+
+// 标记通知已读
+async function handleMarkNotificationsRead(openid, data) {
+  const { notificationIds } = data
+  if (!Array.isArray(notificationIds) || notificationIds.length === 0) {
+    return { success: false, message: '缺少 notificationIds' }
+  }
+  if (notificationIds.length > 20) {
+    return { success: false, message: '单次最多标记20条通知' }
+  }
+  // 先查询这些通知是否属于当前用户
+  const checkRes = await db.collection('notifications')
+    .where({ _id: _.in(notificationIds), open_id: openid })
+    .field({ _id: true })
+    .get()
+  const ownIds = (checkRes.data || []).map(d => d._id)
+  if (ownIds.length === 0) {
+    return { success: true, data: { updated: 0 } }
+  }
+  const tasks = ownIds.map(id =>
+    db.collection('notifications').doc(id).update({ data: { is_read: true } })
+  )
+  await Promise.all(tasks)
+  return { success: true, data: { updated: ownIds.length } }
 }

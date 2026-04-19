@@ -1,14 +1,25 @@
 const { callFunction } = require('../../utils/cloud')
-const { formatDate } = require('../../utils/util')
+const { formatDate, isPast } = require('../../utils/util')
+const { generateQR } = require('../../utils/qrcode')
 
 Page({
+
+  _enrolledIds: null,   // 页面级缓存的已报名活动ID
+
   data: {
     currentTab: 'list',
     // 活动列表
     events: [],
+    activeEvents: [],      // 未结束的活动
+    endedEvents: [],       // 已结束的活动
     page: 1,
     hasMore: true,
     loading: false,
+    activePage: 1,         // 未结束活动当前页
+    activeHasMore: true,   // 未结束活动是否还有更多
+    endedPage: 0,          // 已结束活动当前页（0表示未开始加载）
+    endedHasMore: true,    // 已结束活动是否还有更多
+    showLoadEndedBtn: false, // 是否显示"加载已结束活动"按钮
     // 我的活动
     pendingList: [],
     historyList: [],
@@ -16,7 +27,9 @@ Page({
     cancelledIds: [],
     // 弹窗
     showTicketModal: false,
-    ticketCode: ''
+    ticketCode: '',
+    qrcodeUrl: null,
+    qrLoading: false
   },
 
   onLoad(options) {
@@ -28,15 +41,32 @@ Page({
     }
   },
 
+  onUnload() {
+    this.stopPolling()
+    if (this._navTimer) clearTimeout(this._navTimer)
+    this._enrolledIds = null
+  },
+
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1 })
     }
     const app = getApp()
-    if (app.globalData.lastEnrollTime && (!this.data._lastLoadTime || this.data._lastLoadTime < app.globalData.lastEnrollTime)) {
-      // 局部刷新，不用彻底清空页码，但为了简单这里只管重新拉取
+    // 每次显示都检查是否有数据更新，或首次加载
+    const shouldRefresh = !this.data._lastLoadTime ||
+      (app.globalData.lastEnrollTime && app.globalData.lastEnrollTime > this.data._lastLoadTime)
+
+    if (shouldRefresh) {
       if (this.data.currentTab === 'list') {
-        this.setData({ page: 1, hasMore: true, events: [] })
+        this._enrolledIds = null
+        this.setData({
+          activeEvents: [],
+          endedEvents: [],
+          activePage: 1,
+          activeHasMore: true,
+          endedPage: 0,
+          showLoadEndedBtn: false
+        })
         this.loadEvents()
       } else {
         this.loadMyEvents()
@@ -46,7 +76,15 @@ Page({
 
   onPullDownRefresh() {
     if (this.data.currentTab === 'list') {
-      this.setData({ page: 1, hasMore: true, events: [] })
+      this._enrolledIds = null
+      this.setData({
+        activeEvents: [],
+        endedEvents: [],
+        activePage: 1,
+        activeHasMore: true,
+        endedPage: 0,
+        showLoadEndedBtn: false
+      })
       this.loadEvents().then(() => wx.stopPullDownRefresh())
     } else {
       this.loadMyEvents().then(() => wx.stopPullDownRefresh())
@@ -54,61 +92,148 @@ Page({
   },
 
   onReachBottom() {
-    if (this.data.currentTab === 'list' && this.data.hasMore && !this.data.loading) {
+    if (this.data.currentTab !== 'list' || this.data.loading) return
+    // 优先加载未结束活动
+    if (this.data.activeHasMore) {
       this.loadEvents()
+    } else if (this.data.endedHasMore) {
+      // 未结束活动加载完毕，加载已结束活动
+      this.loadEndedEvents()
     }
   },
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab
     if (tab === this.data.currentTab) return
+
     this.setData({ currentTab: tab })
-    if (tab === 'list' && this.data.events.length === 0) {
+
+    // 切换 tab 时重新加载对应数据，确保数据最新
+    if (tab === 'list') {
+      this._enrolledIds = null
+      this.setData({
+        activeEvents: [],
+        endedEvents: [],
+        activePage: 1,
+        activeHasMore: true,
+        endedPage: 0,
+        showLoadEndedBtn: false
+      })
       this.loadEvents()
-    } else if (tab === 'mine') {
+    } else {
       this.loadMyEvents()
     }
   },
 
   async loadEvents() {
-    if (this.data.loading) return
+    // 如果已结束活动还有更多，继续加载已结束活动
+    if (this.data.endedPage > 0 && this.data.endedHasMore && !this.data.loading) {
+      return this.loadEndedEvents()
+    }
+    // 否则加载未结束活动
+    if (!this.data.activeHasMore || this.data.loading) return
     this.setData({ loading: true, _lastLoadTime: Date.now() })
 
     try {
-      const { page } = this.data
-      const res = await callFunction('event', { action: 'list', page, pageSize: 10 })
+      const { activePage } = this.data
+      console.log('[loadEvents] 加载未结束活动，第', activePage, '页')
+      const res = await callFunction('event', {
+        action: 'list',
+        page: activePage,
+        pageSize: 10,
+        includeEnded: false
+      })
+      console.log('[loadEvents] 云函数返回:', res.data.list?.length, '条,', 'hasMore:', res.data.hasMore)
 
-      // 查询当前用户已报名的活动ID集合
-      let enrolledIds = []
-      try {
-        const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
-        enrolledIds = (myRes.data.list || [])
-          .filter(i => i.status !== 'cancelled')
-          .map(i => i.event_id)
-      } catch (e) {
-        // 查询失败不影响列表展示
-      }
+      // 查询当前用户已报名的活动ID集合（页面级缓存）
+      const enrolledIds = await this._getEnrolledIds()
 
-      const now = new Date()
-      const newList = res.data.list.map(e => ({
-        ...e,
-        _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
-        _formattedTime: formatDate(e.event_time, 'HH:mm'),
-        _isPast: new Date(e.event_time) < now,
-        _isDeadlinePassed: e.registration_deadline ? new Date(e.registration_deadline) < now : false,
-        _enrolled: enrolledIds.indexOf(e._id) >= 0
-      }))
+      const newList = res.data.list.map(e => {
+        return {
+          ...e,
+          _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
+          _formattedTime: formatDate(e.event_time, 'HH:mm'),
+          _isPast: isPast(e.event_time),
+          _isDeadlinePassed: isPast(e.registration_deadline),
+          _enrolled: enrolledIds.indexOf(e._id) >= 0
+        }
+      })
+
+      const activeHasMore = res.data.hasMore
+      const showLoadEndedBtn = !activeHasMore
 
       this.setData({
-        events: page === 1 ? newList : [...this.data.events, ...newList],
-        hasMore: res.data.hasMore,
-        page: page + 1,
+        activeEvents: activePage === 1 ? newList : [...this.data.activeEvents, ...newList],
+        activeHasMore,
+        activePage: activePage + 1,
+        showLoadEndedBtn,
         loading: false
       })
+
+      console.log('[loadEvents] 未结束活动数量:', this.data.activeEvents.length, 'hasMore:', activeHasMore)
     } catch (e) {
+      console.error('[loadEvents] 加载失败:', e.message)
       this.setData({ loading: false })
       wx.showToast({ title: '加载失败', icon: 'none' })
     }
+  },
+
+  async loadEndedEvents() {
+    if (!this.data.endedHasMore || this.data.loading) return
+    this.setData({ loading: true })
+
+    try {
+      const { endedPage } = this.data
+      const page = endedPage + 1
+      console.log('[loadEndedEvents] 加载已结束活动，第', page, '页')
+      const res = await callFunction('event', {
+        action: 'list',
+        page,
+        pageSize: 10,
+        includeEnded: true
+      })
+      console.log('[loadEndedEvents] 云函数返回:', res.data.list?.length, '条,', 'hasMore:', res.data.hasMore)
+
+      const enrolledIds = await this._getEnrolledIds()
+
+      const newList = res.data.list.map(e => {
+        return {
+          ...e,
+          _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
+          _formattedTime: formatDate(e.event_time, 'HH:mm'),
+          _isPast: isPast(e.event_time),
+          _isDeadlinePassed: isPast(e.registration_deadline),
+          _enrolled: enrolledIds.indexOf(e._id) >= 0
+        }
+      })
+
+      this.setData({
+        endedEvents: [...this.data.endedEvents, ...newList],
+        endedPage: page,
+        endedHasMore: res.data.hasMore,
+        loading: false
+      })
+
+      console.log('[loadEndedEvents] 已结束活动数量:', this.data.endedEvents.length, 'hasMore:', res.data.hasMore)
+    } catch (e) {
+      console.error('[loadEndedEvents] 加载失败:', e.message)
+      this.setData({ loading: false })
+      wx.showToast({ title: '加载失败', icon: 'none' })
+    }
+  },
+
+  async _getEnrolledIds() {
+    if (this._enrolledIds) return this._enrolledIds
+    try {
+      const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
+      this._enrolledIds = (myRes.data.list || [])
+        .filter(i => i.status !== 'cancelled')
+        .map(i => i.event_id)
+    } catch (e) {
+      console.warn('[_getEnrolledIds] 获取已报名活动失败:', e.message)
+      this._enrolledIds = []
+    }
+    return this._enrolledIds
   },
 
   async loadMyEvents() {
@@ -117,18 +242,21 @@ Page({
 
     try {
       const res = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
-      const now = new Date()
+      const nowMs = Date.now()
 
-      const allItems = (res.data.list || []).map(item => ({
-        ...item,
-        event: item.event ? {
-          ...item.event,
-          _formattedDate: formatDate(item.event.event_time, 'YYYY年MM月DD日'),
-          _formattedTime: formatDate(item.event.event_time, 'HH:mm'),
-          _enrollDate: formatDate(item.created_at, 'YYYY.MM.DD'),
-          _isExpired: item.event.event_time ? new Date(item.event.event_time) < now : false
-        } : {}
-      }))
+      const allItems = (res.data.list || []).map(item => {
+        const eventTimeMs = item.event && item.event.event_time ? new Date(item.event.event_time).getTime() : 0
+        return {
+          ...item,
+          event: item.event ? {
+            ...item.event,
+            _formattedDate: formatDate(item.event.event_time, 'YYYY年MM月DD日'),
+            _formattedTime: formatDate(item.event.event_time, 'HH:mm'),
+            _enrollDate: formatDate(item.created_at, 'YYYY.MM.DD'),
+            _isExpired: eventTimeMs > 0 && eventTimeMs < nowMs
+          } : {}
+        }
+      })
 
       // 待参加：状态为pending且活动未过期
       const pendingList = allItems.filter(i => {
@@ -167,6 +295,7 @@ Page({
           try {
             await callFunction('event', { action: 'cancelEnroll', registrationId: id })
             const cancelledIds = [...this.data.cancelledIds, id]
+            this._enrolledIds = null
             this.setData({ cancelledIds })
             getApp().globalData.lastEnrollTime = Date.now()
             wx.showToast({ title: '报名已取消，积分将退回账户', icon: 'none' })
@@ -180,11 +309,88 @@ Page({
 
   showTicket(e) {
     const code = e.currentTarget.dataset.code
-    this.setData({ showTicketModal: true, ticketCode: code || '' })
+    const regId = e.currentTarget.dataset.id
+    const eventId = e.currentTarget.dataset.event
+    this.setData({
+      showTicketModal: true,
+      ticketCode: code || '',
+      qrcodeUrl: null,
+      qrLoading: true
+    })
+    this.loadQRCode(code)
+    this.startPolling(regId, eventId)
+  },
+
+  async loadQRCode(verifyCode) {
+    try {
+      const query = wx.createSelectorQuery()
+      query.select('#qr-canvas').node()
+      const res = await new Promise(resolve => query.exec(resolve))
+
+      const canvasNode = res[0].node
+      if (!canvasNode) {
+        this.setData({ qrLoading: false })
+        return
+      }
+
+      const dpr = wx.getSystemInfoSync().pixelRatio
+      const size = 200 * dpr
+
+      canvasNode.width = size
+      canvasNode.height = size
+
+      const tempPath = await generateQR(verifyCode, canvasNode, size)
+      this.setData({ qrcodeUrl: tempPath, qrLoading: false })
+    } catch (e) {
+      console.error('[二维码生成] 失败:', e)
+      this.setData({ qrLoading: false })
+      wx.showToast({ title: '二维码生成失败', icon: 'none' })
+    }
   },
 
   closeTicket() {
-    this.setData({ showTicketModal: false })
+    this.stopPolling()
+    this.setData({ showTicketModal: false, qrcodeUrl: null })
+  },
+
+  startPolling(regId, eventId) {
+    this.stopPolling()
+    if (!regId) return
+    this._pollingRegId = regId
+    this._pollingEventId = eventId
+    this._pollingStopped = false
+    const poll = async () => {
+      if (this._pollingStopped || !this.data.showTicketModal) {
+        this.stopPolling()
+        return
+      }
+      try {
+        const res = await callFunction('event', { action: 'checkRegStatus', registrationId: regId })
+        if (res.data && res.data.status === 'verified') {
+          this.stopPolling()
+          this.setData({ showTicketModal: false })
+          wx.showToast({ title: '核销成功', icon: 'success', duration: 2000 })
+          if (eventId) {
+            this._navTimer = setTimeout(() => {
+              wx.navigateTo({ url: `/pkg-event/pages/event-detail/event-detail?id=${eventId}` })
+            }, 2000)
+          }
+        } else if (!this._pollingStopped) {
+          this._pollingTimer = setTimeout(poll, 3000)
+        }
+      } catch (e) {
+        if (!this._pollingStopped) this._pollingTimer = setTimeout(poll, 3000)
+      }
+    }
+    this._pollingTimer = setTimeout(poll, 3000)
+  },
+
+  stopPolling() {
+    this._pollingStopped = true
+    if (this._pollingTimer) {
+      clearTimeout(this._pollingTimer)
+      this._pollingTimer = null
+    }
   },
 
   goDetail(e) {

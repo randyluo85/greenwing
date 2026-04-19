@@ -9,10 +9,10 @@
 
   <!-- 活动列表 Tab -->
   <view wx:if="{{currentTab === 'list'}}">
-    <!-- 可报名活动 -->
-    <view class="section" wx:if="{{events.length}}">
+    <!-- 可报名活动（未结束） -->
+    <view class="section" wx:if="{{activeEvents.length}}">
       <view class="event-list">
-        <view class="event-card" wx:for="{{events}}" wx:key="_id" wx:if="{{!item._isPast}}">
+        <view class="event-card" wx:for="{{activeEvents}}" wx:key="_id">
           <view class="card-header bg-teal">
             <view class="header-top">
               <view class="header-date">
@@ -21,6 +21,7 @@
               </view>
               <view class="status-badge badge-registered" wx:if="{{item._enrolled}}">已报名</view>
               <view class="status-badge badge-full" wx:elif="{{item.enrolled_count >= item.quota}}">名额已满</view>
+              <view class="status-badge badge-ended" wx:elif="{{item._isPast}}">已结束</view>
               <view class="status-badge badge-ended" wx:elif="{{item._isDeadlinePassed}}">报名已截止</view>
               <view class="status-badge badge-open" wx:else>立即报名</view>
             </view>
@@ -51,14 +52,22 @@
       </view>
     </view>
 
+    <!-- 加载已结束活动按钮 -->
+    <view class="load-ended-btn-container" wx:if="{{showLoadEndedBtn && endedEvents.length === 0 && !activeHasMore}}">
+      <view class="load-ended-btn" bindtap="loadEndedEvents">
+        <text class="btn-icon">↓</text>
+        <text class="btn-text">加载已结束活动</text>
+      </view>
+    </view>
+
     <!-- 往期活动 -->
-    <view class="section" wx:if="{{events.length}}">
+    <view class="section" wx:if="{{endedEvents.length}}">
       <view class="past-header">
         <view class="section-bar bar-gray"></view>
         <text class="past-title">往期活动</text>
       </view>
       <view class="event-list">
-        <view class="event-card card-past card-compact" wx:for="{{events}}" wx:key="_id" wx:if="{{item._isPast}}">
+        <view class="event-card card-past card-compact" wx:for="{{endedEvents}}" wx:key="_id">
           <view class="compact-header">
             <text class="compact-title">{{item.title}}</text>
             <view class="status-badge badge-ended">已结束</view>
@@ -89,11 +98,11 @@
       <text class="loading-text">加载中...</text>
     </view>
 
-    <view class="empty-state" wx:if="{{!loading && events.length === 0}}">
+    <view class="empty-state" wx:if="{{!loading && activeEvents.length === 0 && endedEvents.length === 0}}">
       <text class="empty-text">暂无活动</text>
     </view>
 
-    <view class="load-end" wx:if="{{!hasMore && events.length > 0 && !loading}}">
+    <view class="load-end" wx:if="{{!activeHasMore && !endedHasMore && (activeEvents.length > 0 || endedEvents.length > 0) && !loading}}">
       <text>没有更多了</text>
     </view>
   </view>
@@ -131,7 +140,7 @@
                 bindtap="cancelEnroll" data-id="{{item._id}}">
                 <text>{{cancelledIds.indexOf(item._id) >= 0 ? '已取消' : '取消报名'}}</text>
               </view>
-              <view class="btn-ticket" bindtap="showTicket" data-code="{{item.verify_code}}">
+              <view class="btn-ticket" bindtap="showTicket" data-code="{{item.verify_code}}" data-id="{{item._id}}" data-event="{{item.event_id}}">
                 <text class="qr-icon">#</text>
                 <text>入场凭证</text>
               </view>
@@ -183,6 +192,9 @@
 
 </view>
 
+<!-- 隐藏的 canvas 用于本地生成二维码 -->
+<canvas type="2d" id="qr-canvas" style="position:fixed;left:-9999px;top:-9999px;width:200px;height:200px;"></canvas>
+
 <!-- 入场凭证弹窗 -->
 <view class="modal-overlay" wx:if="{{showTicketModal}}" bindtap="closeTicket">
   <view class="modal-card" catchtap="noop">
@@ -190,7 +202,13 @@
     <view class="modal-body">
       <text class="modal-title">入场核销</text>
       <view class="qr-area">
-        <canvas canvas-id="qrcode" class="qr-canvas"></canvas>
+        <image wx:if="{{qrcodeUrl}}" src="{{qrcodeUrl}}" class="qr-image" mode="aspectFit" />
+        <view wx:elif="{{qrLoading}}" class="qr-loading">
+          <text class="qr-loading-text">生成中...</text>
+        </view>
+        <view wx:else class="qr-fallback">
+          <text class="fallback-text">请使用下方核销码</text>
+        </view>
       </view>
       <view class="verify-row">
         <text class="verify-label">核销码</text>

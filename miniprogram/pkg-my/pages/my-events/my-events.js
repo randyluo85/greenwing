@@ -1,5 +1,6 @@
 const { callFunction } = require('../../../utils/cloud')
-const { formatDate } = require('../../../utils/util')
+const { formatDate, isPast } = require('../../../utils/util')
+const { generateQR } = require('../../../utils/qrcode')
 
 Page({
   data: {
@@ -17,6 +18,11 @@ Page({
     this.loadAllEvents()
   },
 
+  onUnload() {
+    this.stopPolling()
+    if (this._navTimer) clearTimeout(this._navTimer)
+  },
+
   onPullDownRefresh() {
     this.loadAllEvents().then(() => wx.stopPullDownRefresh())
   },
@@ -26,19 +32,22 @@ Page({
     this.setData({ loading: true })
 
     try {
-      // 获取全部报名记录
       const res = await callFunction('event', {
         action: 'myEvents',
         page: 1,
         pageSize: 100
       })
 
-      const now = new Date()
+      const nowMs = Date.now()
+      const todayStart = new Date(nowMs)
+      todayStart.setHours(0, 0, 0, 0)
+      const todayEnd = new Date(nowMs)
+      todayEnd.setHours(23, 59, 59, 999)
 
       const allItems = (res.data.list || []).map(item => {
-        const eventDate = item.event && item.event.event_time ? new Date(item.event.event_time) : null
-        const isToday = eventDate && eventDate.toDateString() === now.toDateString()
-        const isExpired = eventDate && eventDate < now
+        const eventTimeMs = item.event && item.event.event_time ? new Date(item.event.event_time).getTime() : 0
+        const isToday = eventTimeMs > 0 && eventTimeMs >= todayStart.getTime() && eventTimeMs <= todayEnd.getTime()
+        const isExpired = isPast(item.event && item.event.event_time)
         return {
           ...item,
           _isToday: isToday,
@@ -52,7 +61,6 @@ Page({
         }
       })
 
-      // 待参加：状态为pending/verified (如果不包括verified，那么待参加就是pending) 且活动未过期
       const pendingList = allItems.filter(i => {
         if (i.status === 'cancelled') return false
         if (i.status === 'verified') return false
@@ -60,11 +68,10 @@ Page({
         return true
       })
 
-      // 历史足迹：已核销，或活动已过期（已取消的不显示）
       const historyList = allItems.filter(i => {
-        if (i.status === 'verified') return true  // 只显示已核销的
-        if (i.status === 'pending' && i.event && i.event._isExpired) return true  // 过期未参加的
-        return false  // 不显示已取消的
+        if (i.status === 'verified') return true
+        if (i.status === 'pending' && i.event && i.event._isExpired) return true
+        return false
       })
 
       this.setData({
@@ -101,6 +108,8 @@ Page({
 
   showTicket(e) {
     const code = e.currentTarget.dataset.code
+    const regId = e.currentTarget.dataset.id
+    const eventId = e.currentTarget.dataset.event
     this.setData({
       showTicketModal: true,
       ticketCode: code || '',
@@ -108,42 +117,86 @@ Page({
       qrLoading: true
     })
     this.loadQRCode(code)
+    this.startPolling(regId, eventId)
   },
 
   async loadQRCode(verifyCode) {
+    console.log('[loadQRCode] 开始生成二维码, verifyCode:', verifyCode)
     try {
-      // 调试日志：显示传入的核销码
-      console.log('[二维码生成] 传入的核销码:', verifyCode)
-      console.log('[二维码生成] 核销码类型:', typeof verifyCode)
+      const query = wx.createSelectorQuery()
+      query.select('#qr-canvas').node()
+      const res = await new Promise(resolve => query.exec(resolve))
+      console.log('[loadQRCode] query result:', res)
 
-      const res = await callFunction('event', {
-        action: 'getQRCode',
-        verifyCode
-      })
-
-      // 调试日志：显示云函数返回的完整结果
-      console.log('[二维码生成] 云函数返回结果:', JSON.stringify(res))
-      console.log('[二维码生成] res.data:', res.data)
-      console.log('[二维码生成] res.data.qrcode_url:', res.data?.qrcode_url)
-
-      if (res.data && res.data.qrcode_url) {
-        this.setData({ qrcodeUrl: res.data.qrcode_url, qrLoading: false })
-      } else {
-        // 调试日志：没有返回二维码URL
-        console.log('[二维码生成] 未返回二维码URL，使用降级方案')
+      const canvasNode = res[0].node
+      if (!canvasNode) {
+        console.error('[loadQRCode] 未找到 canvas 节点')
         this.setData({ qrLoading: false })
+        return
       }
+
+      const dpr = wx.getSystemInfoSync().pixelRatio
+      const size = 200 * dpr
+      console.log('[loadQRCode] dpr:', dpr, 'size:', size)
+
+      canvasNode.width = size
+      canvasNode.height = size
+
+      console.log('[loadQRCode] 开始调用 generateQR')
+      const tempPath = await generateQR(verifyCode, canvasNode, size)
+      console.log('[loadQRCode] 生成成功, tempPath:', tempPath)
+
+      this.setData({ qrcodeUrl: tempPath, qrLoading: false })
     } catch (e) {
-      // 调试日志：捕获到异常
-      console.error('[二维码生成] 调用云函数异常:', e)
-      console.error('[二维码生成] 错误消息:', e.message)
+      console.error('[二维码生成] 失败:', e)
+      console.error('[二维码生成] 错误堆栈:', e.stack)
       this.setData({ qrLoading: false })
-      wx.showToast({ title: e.message || '生成二维码失败', icon: 'none', duration: 3000 })
     }
   },
 
   closeTicket() {
+    this.stopPolling()
     this.setData({ showTicketModal: false })
+  },
+
+  startPolling(regId, eventId) {
+    this.stopPolling()
+    if (!regId) return
+    this._pollingStopped = false
+    const poll = async () => {
+      if (this._pollingStopped || !this.data.showTicketModal) {
+        this.stopPolling()
+        return
+      }
+      try {
+        const res = await callFunction('event', { action: 'checkRegStatus', registrationId: regId })
+        if (res.data && res.data.status === 'verified') {
+          this.stopPolling()
+          this.setData({ showTicketModal: false })
+          wx.showToast({ title: '核销成功', icon: 'success', duration: 2000 })
+          if (eventId) {
+            this._navTimer = setTimeout(() => {
+              wx.navigateTo({ url: `/pkg-event/pages/event-detail/event-detail?id=${eventId}` })
+            }, 2000)
+          } else {
+            this._navTimer = setTimeout(() => { wx.navigateBack() }, 2000)
+          }
+        } else if (!this._pollingStopped) {
+          this._pollingTimer = setTimeout(poll, 3000)
+        }
+      } catch (e) {
+        if (!this._pollingStopped) this._pollingTimer = setTimeout(poll, 3000)
+      }
+    }
+    this._pollingTimer = setTimeout(poll, 3000)
+  },
+
+  stopPolling() {
+    this._pollingStopped = true
+    if (this._pollingTimer) {
+      clearTimeout(this._pollingTimer)
+      this._pollingTimer = null
+    }
   },
 
   goDetail(e) {

@@ -1,4 +1,5 @@
 const { formatDate } = require('../../../utils/util')
+const { callFunction } = require('../../../utils/cloud')
 
 Page({
   data: {
@@ -31,10 +32,11 @@ Page({
       
       // Mark as read just in case
       if (!message.is_read) {
-        db.collection('notifications').doc(id).update({
-          data: { is_read: true }
+        callFunction('user', {
+          action: 'markNotificationsRead',
+          notificationIds: [id]
         }).catch(e => {
-          // ignore
+          console.warn('[通知详情] 标记已读失败:', e.message)
         })
       }
     } catch (e) {
