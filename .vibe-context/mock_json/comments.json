@@ -1,5 +1,0 @@
-{"event_id":"EVENTS_DOC_ID_1","user_id":"USERS_DOC_ID","open_id":"MOCK_OPEN_ID","nickname":"QingQing","avatar_url":"","content":"期待这次活动！维吉尔的史诗太需要有人带着读了。","status":"visible","created_at":{"$date":"2026-04-05T14:20:00.000Z"}}
-{"event_id":"EVENTS_DOC_ID_1","user_id":"OTHER_USER_ID_1","open_id":"MOCK_OPEN_ID_2","nickname":"书虫小李","avatar_url":"","content":"王文博老师的课在复旦一座难求，这次能近距离交流太难得了！","status":"visible","created_at":{"$date":"2026-04-06T09:15:00.000Z"}}
-{"event_id":"EVENTS_DOC_ID_1","user_id":"OTHER_USER_ID_2","open_id":"MOCK_OPEN_ID_3","nickname":"南山读者","avatar_url":"","content":"飞花令环节太有意思了，上次参加就很喜欢。","status":"visible","created_at":{"$date":"2026-04-07T11:30:00.000Z"}}
-{"event_id":"EVENTS_DOC_ID_2","user_id":"USERS_DOC_ID","open_id":"MOCK_OPEN_ID","nickname":"QingQing","avatar_url":"","content":"博尔赫斯是永远读不完的迷宫。希望能和大家一起找到新的入口。","status":"visible","created_at":{"$date":"2026-03-25T20:00:00.000Z"}}
-{"event_id":"EVENTS_DOC_ID_2","user_id":"OTHER_USER_ID_3","open_id":"MOCK_OPEN_ID_4","nickname":"哲学猫","avatar_url":"","content":"时间分叉的概念让我想到平行宇宙，期待深入讨论。","status":"visible","created_at":{"$date":"2026-03-28T16:45:00.000Z"}}

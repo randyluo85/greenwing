@@ -1,2 +1,32 @@
 .DS_Store
 node_modules/
+
+# AI editor config & skills
+AGENTS.md
+.claude/
+.agents/
+CLAUDE.md
+
+# MCP config
+.mcp.json
+
+# Context & docs
+.vibe-context/
+.context/
+
+# Prototype
+prototype/
+
+# Tests
+tests/
+
+# Playwright
+.playwright-mcp/
+
+# Build output
+web-admin/dist/
+miniprogram/miniprogram_npm/
+
+# Env files with secrets
+.env.local
+.env.*.local

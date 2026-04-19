@@ -1,8 +1,7 @@
 import cloudbase from '@cloudbase/js-sdk'
 
-const app = cloudbase.init({
-  env: import.meta.env.VITE_CLOUD_ENV_ID
-})
+const envId = import.meta.env.VITE_CLOUD_ENV_ID
+const app = cloudbase.init(envId ? { env: envId } : {})
 
 const TOKEN_KEY = 'admin_token'
 
