@@ -36,10 +36,28 @@ Page({
 
       console.log('[通知] 查询结果数量:', res.data.length)
 
-      const messages = res.data.map(m => ({
-        ...m,
-        _timeAgo: m.created_at ? timeAgo(new Date(m.created_at)) : ''
-      }))
+      const messages = res.data.map(m => {
+        let _iconPath = '/images/icons/bell-white.svg'
+        let _bgColor = '#14b8a6' // default green
+        
+        if (m.type === 'points_reward') {
+          _iconPath = '/images/my-points-white.png'
+          _bgColor = '#eab308' // dark yellow
+        } else if (m.type === 'event_register' || m.title?.includes('核销') || m.title?.includes('活动') || m.title?.includes('报名')) {
+          _iconPath = '/images/my-verify-white.png'
+          _bgColor = '#3b82f6' // dark blue
+        } else if (m.type?.includes('refund') || m.title?.includes('退款')) {
+          _iconPath = '/images/my-receipt-white.png'
+          _bgColor = '#ef4444' // dark red
+        }
+
+        return {
+          ...m,
+          _timeAgo: m.created_at ? timeAgo(new Date(m.created_at)) : '',
+          _bgColor: _bgColor,
+          _iconPath
+        }
+      })
 
       const newMessages = messages.filter(m => !m.is_read)
       const oldMessages = messages.filter(m => m.is_read)

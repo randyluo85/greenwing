@@ -100,8 +100,26 @@
 }
 
 .btn-primary {
-  background: #14b8a6;
+  /* 渐变背景：从左上到右下，亮色到深色 */
+  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
   color: #fff;
+  /* 立体阴影：外部投影 + 内部高光 */
+  box-shadow:
+    0 6rpx 16rpx rgba(20, 184, 166, 0.4),
+    0 3rpx 6rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(0);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:active {
+  /* 按下时：渐变变暗、阴影缩小、轻微下沉 */
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+  box-shadow:
+    0 3rpx 8rpx rgba(20, 184, 166, 0.3),
+    0 1rpx 3rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 2rpx rgba(0, 0, 0, 0.1);
+  transform: translateY(2rpx);
 }
 
 .empty {

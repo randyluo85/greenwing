@@ -103,16 +103,16 @@
             编辑
           </el-button>
           <el-popconfirm
-            :title="`确认删除活动「${row.title}」？`"
+            :title="getDeleteConfirmTitle(row)"
             @confirm="onDelete(row)"
           >
             <template #reference>
               <el-button
                 link
-                type="danger"
+                :type="getDeleteButtonType(row)"
               >
-                <i class="fa-solid fa-trash"></i>
-                删除
+                <i :class="getDeleteButtonIcon(row)"></i>
+                {{ getDeleteButtonText(row) }}
               </el-button>
             </template>
           </el-popconfirm>
@@ -409,16 +409,55 @@ async function onDrawerSubmit(data) {
 // 处理删除
 async function onDelete(evt) {
   try {
-    await callFunction('admin', {
+    const res = await callFunction('admin', {
       action: 'manageEvent',
       method: 'delete',
       eventId: evt._id
     })
-    ElMessage.success('活动已删除')
+    ElMessage.success(res.message || '操作成功')
     loadEvents()
   } catch (err) {
-    ElMessage.error(err.message || '删除失败')
+    ElMessage.error(err.message || '操作失败')
   }
+}
+
+// 获取删除按钮类型
+function getDeleteButtonType(row) {
+  // 有报名记录的已发布活动用警告色
+  if (row.status === 'published' && (row.enrolled_count || 0) > 0) {
+    return 'warning'
+  }
+  return 'danger'
+}
+
+// 获取删除按钮图标
+function getDeleteButtonIcon(row) {
+  if (row.status === 'published' && (row.enrolled_count || 0) > 0) {
+    return 'fa-solid fa-arrow-down-from-line'
+  }
+  return 'fa-solid fa-trash'
+}
+
+// 获取删除按钮文字
+function getDeleteButtonText(row) {
+  if (row.status === 'draft') {
+    return '删除'
+  }
+  if ((row.enrolled_count || 0) > 0) {
+    return '下架'
+  }
+  return '删除'
+}
+
+// 获取删除确认标题
+function getDeleteConfirmTitle(row) {
+  if (row.status === 'draft') {
+    return `确认删除草稿「${row.title}」？删除后无法恢复。`
+  }
+  if ((row.enrolled_count || 0) > 0) {
+    return `活动「${row.title}」已有 ${row.enrolled_count} 人报名，确认下架？下架后转为草稿，报名记录保留。`
+  }
+  return `确认删除活动「${row.title}」？删除后无法恢复。`
 }
 
 onMounted(loadEvents)

@@ -63,10 +63,9 @@
   flex-shrink: 0;
 }
 
-.msg-icon-text {
-  color: #ffffff;
-  font-size: 32rpx;
-  font-weight: bold;
+.msg-icon-img {
+  width: 44rpx;
+  height: 44rpx;
 }
 
 .msg-body {

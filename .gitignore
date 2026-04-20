@@ -30,3 +30,5 @@ miniprogram/miniprogram_npm/
 # Env files with secrets
 .env.local
 .env.*.local
+
+qydsh.cqph.com/

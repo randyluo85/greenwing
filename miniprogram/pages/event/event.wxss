@@ -282,16 +282,39 @@
 
 .btn-enroll {
   padding: 10rpx 24rpx;
-  background: #1ab6a2;
+  /* 渐变背景：从左上到右下，亮色到深色 */
+  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
   color: #ffffff;
   border-radius: 8rpx;
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 2rpx;
+  /* 立体阴影：外部投影 + 内部高光 */
+  box-shadow:
+    0 4rpx 12rpx rgba(20, 184, 166, 0.4),
+    0 2rpx 4rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.3);
+  /* 轻微上移效果 */
+  transform: translateY(0);
+  transition: all 0.2s ease;
 }
 
-.btn-enroll:active { background: #0d9488; }
-.btn-enroll.disabled { background: #94a3b8; }
+.btn-enroll:active {
+  /* 按下时：渐变变暗、阴影缩小、轻微下沉 */
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+  box-shadow:
+    0 2rpx 6rpx rgba(20, 184, 166, 0.3),
+    0 1rpx 2rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 2rpx rgba(0, 0, 0, 0.1);
+  transform: translateY(2rpx);
+}
+
+.btn-enroll.disabled {
+  /* 禁用状态：灰色渐变 + 无立体感 */
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+  box-shadow: none;
+  transform: none;
+}
 
 .btn-cancel-rsvp {
   padding: 10rpx 24rpx;

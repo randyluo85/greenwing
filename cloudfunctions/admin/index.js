@@ -260,10 +260,23 @@ async function handleManageEvent(event) {
     }
 
     if (method === 'delete') {
-      await db.collection('events').doc(eventId).update({
-        data: { status: 'draft', updated_at: db.serverDate() }
-      })
-      return { success: true, message: '已下架' }
+      const evtRes = await db.collection('events').doc(eventId).get().catch(() => null)
+      if (!evtRes || !evtRes.data) {
+        return { success: false, message: '活动不存在' }
+      }
+
+      const evtData = evtRes.data
+      const enrolledCount = evtData.enrolled_count || 0
+      
+      if (evtData.status === 'published' && enrolledCount > 0) {
+        await db.collection('events').doc(eventId).update({
+          data: { status: 'draft', updated_at: db.serverDate() }
+        })
+        return { success: true, message: '已下架' }
+      } else {
+        await db.collection('events').doc(eventId).remove()
+        return { success: true, message: '已删除' }
+      }
     }
 
     return { success: false, message: '未知操作' }

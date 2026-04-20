@@ -81,7 +81,7 @@
 .info-row {
   display: flex;
   align-items: flex-start;
-  padding: 24rpx 0;
+  padding: 18rpx 0;
   border-bottom: 1rpx solid #f3f4f6;
 }
 
@@ -251,6 +251,7 @@
 .enroll-btn.disabled {
   background: var(--surface);
   color: #94A3B8;
+  box-shadow: none;
 }
 
 /* 弹窗 */

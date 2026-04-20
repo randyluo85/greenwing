@@ -12,8 +12,8 @@
     <view class="msg-item animate-fade-up {{index < 5 ? 'stagger-' + (index + 1) : ''}}"
       wx:for="{{newMessages}}" wx:key="_id"
       bindtap="onMsgTap" data-id="{{item._id}}" data-index="{{index}}">
-      <view class="msg-icon" style="background: {{item.icon_bg_color || '#14b8a6'}}">
-        <text class="msg-icon-text">{{item.icon_text || '!'}}</text>
+      <view class="msg-icon" style="background: {{item._bgColor}}">
+        <image src="{{item._iconPath}}" class="msg-icon-img" />
       </view>
       <view class="msg-body">
         <view class="msg-header">
@@ -37,8 +37,8 @@
     <view class="msg-item animate-fade-up {{index < 5 ? 'stagger-' + (index + 1) : ''}}"
       wx:for="{{oldMessages}}" wx:key="_id"
       bindtap="onMsgTap" data-id="{{item._id}}" data-index="{{index}}">
-      <view class="msg-icon" style="background: {{item.icon_bg_color || '#14b8a6'}}">
-        <text class="msg-icon-text">{{item.icon_text || '!'}}</text>
+      <view class="msg-icon" style="background: {{item._bgColor}}">
+        <image src="{{item._iconPath}}" class="msg-icon-img" />
       </view>
       <view class="msg-body">
         <view class="msg-header">

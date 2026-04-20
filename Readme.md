@@ -34,16 +34,6 @@
 4. 等待部署完成（首次约 1-2 分钟）
 5. **注意**：`event` 云函数的 `config.json` 声明了生成小程序码的权限，部署后需等待约 10 分钟生效
 
-### 4. 导入测试数据
-
-项目提供了 Mock 数据用于开发调试，位于 `.vibe-context/mock_data.js`。
-
-导入方式：
-1. 打开云开发控制台 -> 数据库
-2. 按需创建以下集合：`users`、`events`、`registrations`、`orders`、`point_logs`、`comments`、`banners`、`settings`、`books`、`notifications`
-3. 向各集合中导入 `.vibe-context/mock_json/` 目录下对应的 JSON 文件
-
-详细的数据库字段定义见 `.vibe-context/data_schema.md`。
 
 ---
 
@@ -114,7 +104,7 @@ npm run dev
 
 ### 登录
 
-管理员使用云开发邮箱密码登录。管理员账号需在云开发控制台预先创建。
+管理员使用账号密码登录。管理员账号需在云开发控制台预先创建。
 
 ### 功能模块
 

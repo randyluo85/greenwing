@@ -39,7 +39,7 @@ page {
 
 /* 主色按钮 */
 .btn-primary {
-  background: var(--primary);
+  background: linear-gradient(to bottom, var(--secondary) 0%, var(--primary-dark) 100%);
   color: #ffffff;
   border: none;
   border-radius: 999rpx;
@@ -47,6 +47,7 @@ page {
   font-weight: bold;
   padding: 20rpx 48rpx;
   text-align: center;
+  box-shadow: 0 8rpx 20rpx -6rpx rgba(20, 184, 166, 0.5);
 }
 
 .btn-primary::after {
