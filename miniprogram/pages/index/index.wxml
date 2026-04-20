@@ -9,7 +9,7 @@
       <text class="toolbar-search-text">活动搜索</text>
     </view>
     <view class="toolbar-bell" bindtap="goNotifications">
-      <image src="/images/icons/bell.svg" class="toolbar-bell-icon" />
+      <image src="/images/icons/bell-solid.svg" class="toolbar-bell-icon" />
       <view class="toolbar-dot" wx:if="{{unreadCount > 0}}"></view>
     </view>
   </view>
