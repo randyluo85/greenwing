@@ -36,7 +36,7 @@ Page({
     const kw = e.detail.value.trim()
     if (!kw) return
     this.setData({ keyword: kw })
-    
+
     // 保存历史
     let history = this.data.history.filter(item => item !== kw)
     history.unshift(kw)
@@ -61,17 +61,17 @@ Page({
     try {
       const res = await callFunction('event', { action: 'list', pageSize: 50 })
       let list = res.data.list || []
-      
+
       const kw = keyword.toLowerCase()
       list = list.filter(e => e.title && e.title.toLowerCase().includes(kw))
-      
+
       list = list.map(e => ({
         ...e,
         _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm')
       }))
-      
+
       await resolveCloudUrls(list, 'cover_image')
-      
+
       this.setData({ results: list })
     } catch (e) {
       wx.showToast({ title: '搜索失败', icon: 'none' })

@@ -247,7 +247,7 @@
               v-for="evt in events"
               :key="evt._id"
               :label="evt.title"
-              :value="'/pages/event-detail/event-detail?id=' + evt._id"
+              :value="'/pkg-event/pages/event-detail/event-detail?id=' + evt._id"
             />
           </el-select>
           <!-- 图书选择 -->
@@ -262,14 +262,14 @@
               v-for="book in books"
               :key="book._id"
               :label="book.title"
-              :value="'/pages/book-detail/book-detail?id=' + book._id"
+              :value="'/pkg-base/pages/book-detail/book-detail?id=' + book._id"
             />
           </el-select>
           <!-- 默认自定义输入 -->
           <el-input
             v-else
             v-model="bannerForm.redirect_url"
-            placeholder="/pages/event-detail/event-detail?id=xxx"
+            placeholder="/pkg-event/pages/event-detail/event-detail?id=xxx"
           />
         </el-form-item>
         <el-form-item label="排序">

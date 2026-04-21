@@ -230,7 +230,7 @@ async function handleManageEvent(event) {
     const { method, eventId, data } = event
 
     // 活动字段白名单
-    const EVENT_FIELDS = ['title', 'cover_image', 'category', 'speaker', 'event_time',
+    const EVENT_FIELDS = ['title', 'cover_image', 'category', 'speaker', 'event_time', 'event_end_time',
       'registration_deadline', 'location', 'description', 'quota', 'registration_mode',
       'points_cost', 'tier_threshold', 'price', 'refund_policy', 'reward_points', 'status']
     const pickFields = (src, fields) => {
@@ -267,7 +267,7 @@ async function handleManageEvent(event) {
 
       const evtData = evtRes.data
       const enrolledCount = evtData.enrolled_count || 0
-      
+
       if (evtData.status === 'published' && enrolledCount > 0) {
         await db.collection('events').doc(eventId).update({
           data: { status: 'draft', updated_at: db.serverDate() }
@@ -450,7 +450,7 @@ async function handleManageContent(event) {
             }
           }).catch(e => console.error('Failed to notify user', u.open_id, e))
         })
-        
+
         await Promise.all(promises)
         totalSent += users.length
         offset += MAX_USERS
@@ -506,19 +506,19 @@ async function handleGetDashboard(event) {
     try {
       const aggRes = await db.collection('orders')
         .aggregate()
-        .match({ 
-          status: _.in(['paid', 'refunding', 'refunded']) 
+        .match({
+          status: _.in(['paid', 'refunding', 'refunded'])
         })
-        .group({ 
-          _id: null, 
-          total: $.sum('$amount'), 
-          count: $.sum(1) 
+        .group({
+          _id: null,
+          total: $.sum('$amount'),
+          count: $.sum(1)
         })
         .end()
-      
+
       const list = aggRes.list || aggRes.data
       console.log('Revenue Aggregation Result:', JSON.stringify(list))
-      
+
       if (list && list.length > 0) {
         totalRevenue = list[0].total || 0
         totalOrders = list[0].count || 0
@@ -533,16 +533,16 @@ async function handleGetDashboard(event) {
       const refundAgg = await db.collection('orders')
         .aggregate()
         .match({ status: 'refunded' })
-        .group({ 
-          _id: null, 
-          total: $.sum('$amount'), 
-          count: $.sum(1) 
+        .group({
+          _id: null,
+          total: $.sum('$amount'),
+          count: $.sum(1)
         })
         .end()
-      
+
       const list = refundAgg.list || refundAgg.data
       console.log('Refund Aggregation Result:', JSON.stringify(list))
-      
+
       if (list && list.length > 0) {
         totalRefund = list[0].total || 0
         refundCount = list[0].count || 0
@@ -680,7 +680,7 @@ async function handleGetLevelDistribution(event) {
 async function handleGetRecentActivity(event) {
   try {
     const { limit = 10 } = event
-    
+
     // 1. 并发获取原始日志
     const [pointLogs, regs] = await Promise.all([
       db.collection('point_logs').orderBy('created_at', 'desc').limit(limit).get(),
@@ -690,7 +690,7 @@ async function handleGetRecentActivity(event) {
     // 2. 收集所有需要查询的 ID
     const userIds = new Set()
     const eventIds = new Set()
-    
+
     pointLogs.data.forEach(log => { if (log.user_id) userIds.add(log.user_id) })
     regs.data.forEach(reg => {
       if (reg.user_id) userIds.add(reg.user_id)
@@ -711,7 +711,7 @@ async function handleGetRecentActivity(event) {
 
     // 5. 组合结果
     const activities = []
-    
+
     // 处理积分日志
     pointLogs.data.forEach(log => {
       activities.push({

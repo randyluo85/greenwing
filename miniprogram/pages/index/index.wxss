@@ -267,14 +267,14 @@
 }
 
 .sign-btn {
-  background: #14b8a6;
+  background: linear-gradient(to bottom, var(--secondary) 0%, var(--primary-dark) 100%);
   color: #ffffff;
   font-size: 26rpx;
   font-weight: bold;
   padding: 12rpx 32rpx;
   border-radius: 999rpx;
   margin-bottom: 8rpx;
-  box-shadow: 0 4rpx 8rpx rgba(20, 184, 166, 0.3);
+  box-shadow: 0 8rpx 20rpx -6rpx rgba(20, 184, 166, 0.5);
 }
 
 .sign-btn.signed {

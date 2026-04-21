@@ -1,5 +1,5 @@
 const { callFunction } = require('../../utils/cloud')
-const { formatDate, isPast } = require('../../utils/util')
+const { formatDate, isPast, formatEventRange, formatEventParts } = require('../../utils/util')
 const { generateQR } = require('../../utils/qrcode')
 
 Page({
@@ -152,8 +152,8 @@ Page({
         return {
           ...e,
           _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
-          _formattedTime: formatDate(e.event_time, 'HH:mm'),
-          _isPast: isPast(e.event_time),
+          _formattedTime: formatEventParts(e.event_time, e.event_end_time).rangeStr,
+          _isPast: isPast(e.event_end_time || e.event_time),
           _isDeadlinePassed: isPast(e.registration_deadline),
           _enrolled: enrolledIds.indexOf(e._id) >= 0
         }
@@ -200,8 +200,8 @@ Page({
         return {
           ...e,
           _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
-          _formattedTime: formatDate(e.event_time, 'HH:mm'),
-          _isPast: isPast(e.event_time),
+          _formattedTime: formatEventParts(e.event_time, e.event_end_time).rangeStr,
+          _isPast: isPast(e.event_end_time || e.event_time),
           _isDeadlinePassed: isPast(e.registration_deadline),
           _enrolled: enrolledIds.indexOf(e._id) >= 0
         }
@@ -251,9 +251,9 @@ Page({
           event: item.event ? {
             ...item.event,
             _formattedDate: formatDate(item.event.event_time, 'YYYY年MM月DD日'),
-            _formattedTime: formatDate(item.event.event_time, 'HH:mm'),
+            _formattedTime: formatEventParts(item.event.event_time, item.event.event_end_time).rangeStr,
             _enrollDate: formatDate(item.created_at, 'YYYY.MM.DD'),
-            _isExpired: eventTimeMs > 0 && eventTimeMs < nowMs
+            _isExpired: item.event ? isPast(item.event.event_end_time || item.event.event_time) : true
           } : {}
         }
       })
@@ -398,5 +398,5 @@ Page({
     wx.navigateTo({ url: `/pkg-event/pages/event-detail/event-detail?id=${id}` })
   },
 
-  noop() {}
+  noop() { }
 })

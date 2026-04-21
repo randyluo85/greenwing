@@ -1,6 +1,6 @@
 const { callFunction, resolveCloudUrls } = require('../../../utils/cloud')
 const auth = require('../../../utils/auth')
-const { formatDate, formatMoney, timeAgo } = require('../../../utils/util')
+const { formatDate, formatMoney, timeAgo, formatEventRange, formatEventParts } = require('../../../utils/util')
 
 Page({
   data: {
@@ -97,14 +97,16 @@ Page({
       const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
       const tierMap = { bronze: '青铜会员', silver: '白银会员', gold: '黄金会员' }
 
-      const isEventPast = new Date(event.event_time) < new Date()
+      const isEventPast = new Date(event.event_end_time || event.event_time) < new Date()
 
+      const { dateStr, rangeStr } = formatEventParts(event.event_time, event.event_end_time)
+      
       this.setData({
         event,
         modeText: modeMap[event.registration_mode],
         priceText: event.price ? formatMoney(event.price) : '',
-        formattedTime: formatDate(event.event_time, 'YYYY年MM月DD日'),
-        formattedTimeSub: formatDate(event.event_time, 'HH:mm'),
+        formattedTime: dateStr,
+        formattedTimeSub: rangeStr,
         tierText: tierMap[event.tier_threshold] || '',
         isEventPast
       })

@@ -1,6 +1,6 @@
 const { callFunction, resolveCloudUrls } = require('../../utils/cloud')
 const auth = require('../../utils/auth')
-const { formatDate, getLevelName, isPast } = require('../../utils/util')
+const { formatDate, getLevelName, isPast, formatEventRange } = require('../../utils/util')
 
 Page({
   data: {
@@ -139,7 +139,7 @@ Page({
         enrolledIds = (myRes.data.list || [])
           .filter(i => i.status !== 'cancelled')
           .map(i => i.event_id)
-      } catch (e) {}
+      } catch (e) { }
 
       // 请求更多数据，确保有足够的选择
       const res = await callFunction('event', { action: 'list', page: 1, pageSize: 30 })
@@ -180,7 +180,7 @@ Page({
             _statusText,
             _statusPriority,
             _eventTimeMs: eventTimeMs,
-            _formattedTime: formatDate(e.event_time, 'MM/DD HH:mm'),
+            _formattedTime: formatEventRange(e.event_time, e.event_end_time),
             _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText,
           };
         })
@@ -209,8 +209,8 @@ Page({
     // 云端无数据或云函数未部署，使用本地默认活动
     this.setData({
       events: [
-        { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', event_time: '2099-04-18T15:30:00', _formattedTime: '04/18 15:30', _statusText: '报名中' },
-        { _id: 'e2', cover_image: '/images/event.jpg', title: '博尔赫斯的迷宫：《小径分岔的花园》', status: 'published', registration_mode: 'free', points_cost: 0, location: '青翼读书会·影音室', event_time: '2099-04-25T15:30:00', _formattedTime: '04/25 15:30', _statusText: '报名中' }
+        { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', event_time: '2099-04-18T15:30:00', event_end_time: '2099-04-18T17:30:00', _formattedTime: '2099-04-18 15:30 - 17:30', _statusText: '报名中' },
+        { _id: 'e2', cover_image: '/images/event.jpg', title: '博尔赫斯的迷宫：《小径分岔的花园》', status: 'published', registration_mode: 'free', points_cost: 0, location: '青翼读书会·影音室', event_time: '2099-04-25T15:30:00', event_end_time: '2099-04-25T17:30:00', _formattedTime: '2099-04-25 15:30 - 17:30', _statusText: '报名中' }
       ]
     })
   },

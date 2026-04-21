@@ -50,7 +50,7 @@
 
         <!-- 活动时间 -->
         <template #event_time="{ row }">
-          <span v-if="row.event_time">{{ formatDateTime(row.event_time) }}</span>
+          <span v-if="row.event_time">{{ formatEventTimeRange(row.event_time, row.event_end_time) }}</span>
           <span v-else class="text-muted">-</span>
         </template>
 
@@ -155,7 +155,7 @@ import StatusBadge from '@/components/StatusBadge.vue'
 import EventDrawer from '@/components/EventDrawer.vue'
 import RegistrationDrawer from '@/components/RegistrationDrawer.vue'
 import { callFunction } from '@/utils/cloud'
-import { formatDateTime, formatMoney } from '@/utils/format'
+import { formatDateTime, formatMoney, formatEventTimeRange } from '@/utils/format'
 
 // 状态管理
 const loading = ref(false)
@@ -218,7 +218,7 @@ const eventColumns = computed(() => [
   {
     prop: 'event_time',
     label: '活动时间',
-    width: 160,
+    minWidth: 280,
     slot: 'event_time'
   },
   {

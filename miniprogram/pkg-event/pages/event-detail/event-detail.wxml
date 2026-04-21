@@ -15,7 +15,7 @@
         <text class="cover-tag tag-closed" wx:elif="{{platformStatus === 'closed'}}">报名已结束</text>
         <!-- 报名模式 -->
         <text class="cover-tag tag-points" wx:if="{{event.registration_mode === 'points_only'}}">{{event.points_cost}}积分</text>
-        <text class="cover-tag tag-paid" wx:if="{{event.registration_mode === 'paid'}}">{{priceText}}元</text>
+        <text class="cover-tag tag-paid" wx:if="{{event.registration_mode === 'paid'}}">{{priceText}}</text>
         <text class="cover-tag tag-free" wx:if="{{event.registration_mode === 'free'}}">免费</text>
       </view>
     </view>
@@ -81,7 +81,7 @@
       </view>
       <view class="condition-item" wx:if="{{event.registration_mode === 'paid'}}">
         <text class="condition-text">报名费</text>
-        <text class="price-text">{{priceText}} 元</text>
+        <text class="price-text">{{priceText}}</text>
       </view>
     </view>
   </view>
@@ -151,7 +151,6 @@
       <view class="bottom-left">
         <view class="price-row" wx:if="{{event.registration_mode === 'paid'}}">
           <text class="price-value">{{priceText}}</text>
-          <text class="price-unit">元</text>
         </view>
         <view class="price-row" wx:elif="{{event.registration_mode === 'points_only'}}">
           <text class="price-value">{{event.points_cost}}</text>

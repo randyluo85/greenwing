@@ -1,5 +1,5 @@
 const { callFunction } = require('../../../utils/cloud')
-const { formatDate, isPast } = require('../../../utils/util')
+const { formatDate, isPast, formatEventRange, formatEventParts } = require('../../../utils/util')
 const { generateQR } = require('../../../utils/qrcode')
 
 Page({
@@ -47,14 +47,14 @@ Page({
       const allItems = (res.data.list || []).map(item => {
         const eventTimeMs = item.event && item.event.event_time ? new Date(item.event.event_time).getTime() : 0
         const isToday = eventTimeMs > 0 && eventTimeMs >= todayStart.getTime() && eventTimeMs <= todayEnd.getTime()
-        const isExpired = isPast(item.event && item.event.event_time)
+        const isExpired = item.event ? isPast(item.event.event_end_time || item.event.event_time) : true
         return {
           ...item,
           _isToday: isToday,
           event: item.event ? {
             ...item.event,
-            _formattedDate: formatDate(item.event.event_time, 'YYYY年MM月DD日'),
-            _formattedTime: formatDate(item.event.event_time, 'HH:mm'),
+            _formattedDate: formatDate(item.event.event_time, 'YYYY-MM-DD'),
+            _formattedTime: formatEventParts(item.event.event_time, item.event.event_end_time).rangeStr,
             _enrollDate: formatDate(item.created_at, 'YYYY.MM.DD'),
             _isExpired: isExpired
           } : {}
@@ -204,5 +204,5 @@ Page({
     wx.navigateTo({ url: `/pkg-event/pages/event-detail/event-detail?id=${id}` })
   },
 
-  noop() {}
+  noop() { }
 })

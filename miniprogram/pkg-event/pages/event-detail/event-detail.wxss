@@ -113,15 +113,17 @@
 }
 
 .info-primary {
-  font-size: 30rpx;
-  font-weight: 500;
+  font-size: 32rpx;
+  font-weight: bold;
   color: #1E293B;
+  line-height: 1.4;
 }
 
 .info-sub {
   font-size: 24rpx;
-  color: #94A3B8;
-  margin-top: 6rpx;
+  color: #64748B;
+  margin-top: 8rpx;
+  line-height: 1.2;
 }
 
 /* 卡片标签 */

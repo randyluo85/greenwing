@@ -49,10 +49,107 @@ const formatDate = (date, fmt = 'YYYY-MM-DD HH:mm') => {
 }
 
 /**
+ * 格式化活动时间范围 (小程序端简洁版)
+ * @param {string|Date} start 开始时间
+ * @param {string|Date} end 结束时间
+ * @returns {string} 格式化后的字符串
+ */
+const formatEventRange = (start, end) => {
+  if (!start) return ''
+  const sDate = safeParseDate(start)
+  if (!sDate) return ''
+  
+  const y = sDate.getFullYear()
+  const m = String(sDate.getMonth() + 1).padStart(2, '0')
+  const d = String(sDate.getDate()).padStart(2, '0')
+  const h = String(sDate.getHours()).padStart(2, '0')
+  const min = String(sDate.getMinutes()).padStart(2, '0')
+  
+  const startTimeStr = `${y}年${m}月${d}日 ${h}:${min}`
+  
+  if (!end) return startTimeStr
+  
+  const eDate = safeParseDate(end)
+  if (!eDate) return startTimeStr
+  
+  const ey = eDate.getFullYear()
+  const em = String(eDate.getMonth() + 1).padStart(2, '0')
+  const ed = String(eDate.getDate()).padStart(2, '0')
+  const eh = String(eDate.getHours()).padStart(2, '0')
+  const emin = String(eDate.getMinutes()).padStart(2, '0')
+  
+  // 是否同一年
+  const isSameYear = y === ey
+  // 是否同一天
+  const isSameDay = isSameYear && m === em && d === ed
+  
+  if (isSameDay) {
+    return `${startTimeStr} ～ ${eh}:${emin}`
+  } else if (isSameYear) {
+    // 同年不同日: 2023年10月01日 14:00 ～ 10月02日 16:00
+    return `${startTimeStr} ～ ${em}月${ed}日 ${eh}:${emin}`
+  } else {
+    // 不同年: 2023年12月31日 23:00 ～ 2024年01月01日 01:00
+    return `${startTimeStr} ～ ${ey}年${em}月${ed}日 ${eh}:${emin}`
+  }
+}
+
+/**
+ * 格式化活动时间分段 (用于详情页大字/小字布局)
+ * @param {string|Date} start 开始时间
+ * @param {string|Date} end 结束时间
+ * @returns {object} { dateStr, rangeStr }
+ */
+const formatEventParts = (start, end) => {
+  if (!start) return { dateStr: '', rangeStr: '' }
+  const sDate = safeParseDate(start)
+  if (!sDate) return { dateStr: '', rangeStr: '' }
+  
+  const y = sDate.getFullYear()
+  const m = String(sDate.getMonth() + 1).padStart(2, '0')
+  const d = String(sDate.getDate()).padStart(2, '0')
+  const h = String(sDate.getHours()).padStart(2, '0')
+  const min = String(sDate.getMinutes()).padStart(2, '0')
+  
+  const dateStr = `${y}年${m}月${d}日`
+  let rangeStr = `${h}:${min}`
+  
+  if (!end) return { dateStr, rangeStr }
+  
+  const eDate = safeParseDate(end)
+  if (!eDate) return { dateStr, rangeStr }
+  
+  const ey = eDate.getFullYear()
+  const em = String(eDate.getMonth() + 1).padStart(2, '0')
+  const ed = String(eDate.getDate()).padStart(2, '0')
+  const eh = String(eDate.getHours()).padStart(2, '0')
+  const emin = String(eDate.getMinutes()).padStart(2, '0')
+  
+  // 是否同年
+  const isSameYear = y === ey
+  // 是否同日
+  const isSameDay = isSameYear && m === em && d === ed
+  
+  rangeStr = ''
+  if (isSameDay) {
+    rangeStr = `${h}:${min} ～ ${eh}:${emin}`
+  } else if (isSameYear) {
+    rangeStr = `${m}月${d}日 ${h}:${min} ～ ${em}月${ed}日 ${eh}:${emin}`
+  } else {
+    rangeStr = `${y}年${m}月${d}日 ${h}:${min} ～ ${ey}年${em}月${ed}日 ${eh}:${emin}`
+  }
+  
+  return {
+    dateStr,
+    rangeStr: rangeStr
+  }
+}
+
+/**
  * 格式化金额 (分 -> 元)
  */
 const formatMoney = (amountInFen) => {
-  return (amountInFen / 100).toFixed(2)
+  return (amountInFen / 100).toFixed(2) + ' 元'
 }
 
 /**
@@ -150,6 +247,7 @@ const debounce = (fn, delay = 500) => {
 
 module.exports = {
   formatDate,
+  formatEventRange,
   formatMoney,
   timeAgo,
   generateVerifyCode,
@@ -158,5 +256,6 @@ module.exports = {
   getModeText,
   debounce,
   safeParseDate,
-  isPast
+  isPast,
+  formatEventParts
 }

@@ -19,11 +19,21 @@
           </el-form-item>
         </div>
         <div style="display:flex;gap:12px;">
-          <el-form-item label="活动时间" required style="flex:1;">
-            <el-date-picker v-model="form.event_time" type="datetime" style="width:100%;" />
+          <el-form-item label="活动时间 (开始 - 结束)" required style="flex:2;">
+            <el-date-picker
+              v-model="timeRange"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              format="YYYY-MM-DD HH:mm"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              :default-time="[new Date(2000, 1, 1, 14, 0, 0), new Date(2000, 1, 1, 16, 0, 0)]"
+              style="width:100%;"
+            />
           </el-form-item>
           <el-form-item label="报名截止" required style="flex:1;">
-            <el-date-picker v-model="form.registration_deadline" type="datetime" style="width:100%;" />
+            <el-date-picker v-model="form.registration_deadline" type="datetime" format="YYYY-MM-DD HH:mm" value-format="YYYY-MM-DD HH:mm:ss" style="width:100%;" />
           </el-form-item>
         </div>
         <div style="display:flex;gap:12px;">
@@ -98,13 +108,21 @@ const modes = [
   { key: 'paid', label: '付费报名' }
 ]
 
-const defaultForm = { title: '', category: '读书会', quota: 30, event_time: '', registration_deadline: '', location: '', speaker: '', description: '', cover_image: '', registration_mode: 'free', points_cost: 0, priceYuan: 0, reward_points: 20, status: 'draft' }
+const defaultForm = { title: '', category: '读书会', quota: 30, event_time: '', event_end_time: '', registration_deadline: '', location: '', speaker: '', description: '', cover_image: '', registration_mode: 'free', points_cost: 0, priceYuan: 0, reward_points: 20, status: 'draft' }
 const form = reactive({ ...defaultForm })
+const timeRange = ref([])
 const coverImageUrl = ref('')
 
 watch(() => props.event, async (e) => {
   if (e) {
     Object.assign(form, { ...defaultForm, ...e, priceYuan: (e.price || 0) / 100 })
+    // 初始化时间范围
+    if (e.event_time) {
+      timeRange.value = [e.event_time, e.event_end_time || '']
+    } else {
+      timeRange.value = []
+    }
+    
     const url = e.cover_image || ''
     if (url.startsWith('cloud://')) {
       const urls = await getTempFileURL([url])
@@ -114,6 +132,7 @@ watch(() => props.event, async (e) => {
     }
   } else {
     Object.assign(form, defaultForm)
+    timeRange.value = []
     coverImageUrl.value = ''
   }
 }, { immediate: true })
@@ -123,11 +142,18 @@ watch(() => props.modelValue, (newValue) => {
   if (newValue && !props.event) {
     // 抽屉打开且是创建模式时，确保表单被重置
     Object.assign(form, defaultForm)
+    timeRange.value = []
     coverImageUrl.value = ''
   }
 })
 
 function submit(status) {
+  // 从时间范围中拆分开始和结束时间
+  if (timeRange.value && timeRange.value.length === 2) {
+    form.event_time = timeRange.value[0]
+    form.event_end_time = timeRange.value[1]
+  }
+
   const data = { ...form, price: Math.round(form.priceYuan * 100), status }
   delete data.priceYuan
   emit('submit', data)
