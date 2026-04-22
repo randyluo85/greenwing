@@ -277,7 +277,8 @@ async function handleGetPointLogs(openid, event) {
       data: {
         list: listRes.data,
         total: countRes.total,
-        hasMore: page * pageSize < countRes.total
+        hasMore: page * pageSize < countRes.total,
+        currentPoints: userRes.data[0].current_points || 0
       }
     }
   } catch (err) {

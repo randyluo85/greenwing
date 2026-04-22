@@ -20,7 +20,7 @@
 
 .title {
   font-size: 36rpx;
-  font-weight: 600;
+  font-weight: 500;
   color: #1e293b;
   line-height: 1.4;
   margin-bottom: 16rpx;

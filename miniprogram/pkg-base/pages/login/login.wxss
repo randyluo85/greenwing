@@ -59,7 +59,7 @@
   border: 1rpx solid #f1f5f9;
   border-radius: 32rpx;
   font-size: 32rpx;
-  font-weight: 600;
+  font-weight: 500;
   color: #1f2937;
   box-shadow: 0 4rpx 20rpx -4rpx rgba(0,0,0,0.05);
 }
@@ -83,7 +83,7 @@
 .wx-icon-text {
   color: #ffffff;
   font-size: 24rpx;
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .terms-text {

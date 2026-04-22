@@ -75,7 +75,7 @@
   background: var(--accent);
   color: #ffffff;
   font-size: 20rpx;
-  font-weight: bold;
+  font-weight: 500;
   padding: 4rpx 12rpx;
   border-bottom-right-radius: 12rpx;
 }
@@ -90,7 +90,7 @@
 
 .book-title {
   font-size: 36rpx;
-  font-weight: bold;
+  font-weight: 500;
   color: var(--text-main);
   line-height: 1.4;
 }

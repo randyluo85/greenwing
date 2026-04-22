@@ -26,7 +26,7 @@
 
 .tab.active {
   color: #14b8a6;
-  font-weight: bold;
+  font-weight: 500;
   border-bottom-color: #14b8a6;
 }
 
@@ -52,7 +52,7 @@
 
 .section-title {
   font-size: 32rpx;
-  font-weight: bold;
+  font-weight: 500;
   color: #1E293B;
   letter-spacing: 4rpx;
 }
@@ -74,7 +74,7 @@
 
 .past-title {
   font-size: 28rpx;
-  font-weight: bold;
+  font-weight: 500;
   color: #64748B;
   margin-left: 16rpx;
 }
@@ -111,7 +111,7 @@
 
 .compact-title {
   font-size: 30rpx;
-  font-weight: bold;
+  font-weight: 500;
   color: #374151;
   letter-spacing: 4rpx;
   flex: 1;
@@ -198,7 +198,7 @@
   padding: 4rpx 16rpx;
   border-radius: 8rpx;
   font-size: 20rpx;
-  font-weight: bold;
+  font-weight: 500;
   flex-shrink: 0;
 }
 
@@ -286,7 +286,7 @@
   color: #ffffff;
   border-radius: 8rpx;
   font-size: 26rpx;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 2rpx;
   /* 立体阴影：外部投影 + 内部高光 */
   box-shadow:
@@ -437,7 +437,7 @@
   align-items: center;
 }
 
-.modal-title { font-size: 34rpx; font-weight: bold; color: #1E293B; margin-bottom: 32rpx; }
+.modal-title { font-size: 34rpx; font-weight: 500; color: #1E293B; margin-bottom: 32rpx; }
 
 .qr-area {
   width: 320rpx; height: 320rpx;
@@ -469,7 +469,7 @@
 
 .verify-code {
   font-size: 44rpx;
-  font-weight: bold;
+  font-weight: 500;
   letter-spacing: 8rpx;
   color: #1E293B;
   font-family: monospace;
@@ -495,7 +495,7 @@
 
 .modal-hint { text-align: center; display: flex; flex-direction: column; align-items: center; }
 .hint-text { font-size: 22rpx; color: #6b7280; font-weight: 500; letter-spacing: 2rpx; }
-.hint-highlight { font-size: 22rpx; color: #f59e0b; font-weight: bold; letter-spacing: 2rpx; margin-top: 8rpx; }
+.hint-highlight { font-size: 22rpx; color: #f59e0b; font-weight: 500; letter-spacing: 2rpx; margin-top: 8rpx; }
 
 .modal-close {
   margin-top: 48rpx;

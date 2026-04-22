@@ -61,7 +61,7 @@
 
 .text-price {
   color: #ef4444;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .text-red {

@@ -92,7 +92,7 @@
 
 .points-value {
   font-size: 110rpx;
-  font-weight: bold;
+  font-weight: 500;
   color: #000000;
   line-height: 1;
   letter-spacing: -2rpx;

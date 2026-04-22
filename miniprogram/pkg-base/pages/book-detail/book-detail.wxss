@@ -59,7 +59,7 @@
 
 .book-title {
   font-size: 38rpx;
-  font-weight: bold;
+  font-weight: 500;
   color: var(--text-main);
   line-height: 1.4;
 }
@@ -150,7 +150,7 @@
 
 .summary-title {
   font-size: 34rpx;
-  font-weight: bold;
+  font-weight: 500;
   color: var(--text-main);
   position: relative;
   padding-left: 8rpx;
