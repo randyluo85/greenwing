@@ -48,6 +48,10 @@
           <i class="fas fa-cog"></i>
           <template #title>系统设置</template>
         </el-menu-item>
+        <el-menu-item index="/guide">
+          <i class="fas fa-book"></i>
+          <template #title>使用指南</template>
+        </el-menu-item>
       </el-menu>
     </aside>
 
@@ -81,7 +85,7 @@
         >
           <el-menu-item index="/dashboard">
             <i class="fas fa-chart-line"></i>
-            <template #title>Dashboard</template>
+            <template #title>概览</template>
           </el-menu-item>
           <el-menu-item index="/users">
             <i class="fas fa-users"></i>
@@ -102,6 +106,10 @@
           <el-menu-item index="/settings">
             <i class="fas fa-cog"></i>
             <template #title>系统设置</template>
+          </el-menu-item>
+          <el-menu-item index="/guide">
+            <i class="fas fa-book"></i>
+            <template #title>使用指南</template>
           </el-menu-item>
         </el-menu>
       </div>
@@ -167,7 +175,7 @@ const showCollapseButton = computed(() => windowWidth.value >= 1024)
 const activeMenu = computed(() => route.path)
 
 // 页面标题
-const pageTitle = computed(() => route.name || 'Dashboard')
+const pageTitle = computed(() => route.meta.title || route.name || '概览')
 
 // 日期
 const today = formatDate(new Date())
@@ -175,7 +183,7 @@ const today = formatDate(new Date())
 // 管理员头像
 const adminInitial = computed(() => {
   const name = localStorage.getItem('admin_user')
-  return name ? name[0].toUpperCase() : 'A'
+  return name ? name[0].toUpperCase() : '管'
 })
 
 // 切换侧边栏折叠

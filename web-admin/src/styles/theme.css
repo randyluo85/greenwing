@@ -179,11 +179,18 @@
   --topbar-height: 48px;
 
   /* Container max widths */
-  --container-max-width: 1280px;
-  --container-max-width-sm: 640px;
-  --container-max-width-md: 960px;
-  --container-max-width-lg: 1280px;
   --container-max-width-xl: 1440px;
+
+  /* ============================================
+     PREMIUM EFFECTS - Glassmorphism & Gradients
+     ============================================ */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-blur: 12px;
+
+  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-700) 100%);
+  --gradient-teal: linear-gradient(135deg, #0d9488 0%, #134e4a 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
 }
 
 body {
@@ -674,3 +681,50 @@ Display 标题（非常少用，主要用于营销页面）:
     width: 100%;
   }
 }
+
+/* ============================================
+   PREMIUM UTILITIES
+   ============================================ */
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.gradient-bg {
+  background: var(--gradient-primary);
+  color: white !important;
+}
+
+.gradient-bg-teal {
+  background: var(--gradient-teal);
+  color: white !important;
+}
+
+.text-glow {
+  text-shadow: 0 0 15px rgba(20, 184, 166, 0.4);
+}
+
+.card-glow:hover {
+  box-shadow: 0 0 25px rgba(20, 184, 166, 0.2);
+}
+
+.modern-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.modern-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modern-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: var(--radius-full);
+}
+
+.modern-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-400);
+}
+

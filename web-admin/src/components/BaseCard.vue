@@ -6,6 +6,8 @@
       {
         'base-card--hoverable': hoverable,
         'base-card--bordered': bordered,
+        'base-card--glass': glass,
+        'base-card--gradient': gradient,
       }
     ]"
     :style="{ padding }"
@@ -72,6 +74,14 @@ defineProps({
   padding: {
     type: String,
     default: 'var(--sp-5)'
+  },
+  glass: {
+    type: Boolean,
+    default: false
+  },
+  gradient: {
+    type: String,
+    default: '' // 'primary' | 'teal' | ''
   }
 })
 </script>
@@ -128,9 +138,35 @@ defineProps({
   box-shadow: var(--shadow-xl);
 }
 
-/* Bordered variant */
 .base-card--bordered {
   border: 1px solid var(--color-border);
+}
+
+/* Glass effect */
+.base-card--glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+/* Gradient variants */
+.base-card--gradient {
+  color: white;
+}
+
+.base-card--gradient.base-card--gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.base-card--gradient.base-card--gradient-teal {
+  background: var(--gradient-teal);
+}
+
+.base-card--gradient :deep(.base-card__title),
+.base-card--gradient :deep(.base-card__subtitle),
+.base-card--gradient :deep(.base-card__body) {
+  color: white;
 }
 
 /* Card Header */
