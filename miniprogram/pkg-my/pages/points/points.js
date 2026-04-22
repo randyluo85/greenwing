@@ -11,9 +11,12 @@ Page({
     loading: false
   },
 
-  onLoad() {
-    const app = getApp()
-    this.setData({ currentPoints: (app.globalData.userInfo && app.globalData.userInfo.current_points) || 0 })
+  onShow() {
+    this.setData({ 
+      page: 1,
+      list: [],
+      hasMore: true
+    })
     this.loadList()
   },
 
@@ -40,6 +43,15 @@ Page({
         page: page + 1,
         loading: false
       })
+
+      if (res.data.currentPoints !== undefined) {
+        this.setData({ currentPoints: res.data.currentPoints })
+        const app = getApp()
+        if (app.globalData.userInfo) {
+          app.globalData.userInfo.current_points = res.data.currentPoints
+          wx.setStorage({ key: 'userInfo', data: app.globalData.userInfo })
+        }
+      }
     } catch (e) {
       this.setData({ loading: false })
     }

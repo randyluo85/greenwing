@@ -32,7 +32,7 @@
 
 .welcome-title {
   font-size: 44rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: var(--text-main);
   margin-bottom: 16rpx;
 }
@@ -51,7 +51,7 @@
   background: #07C160;
   border-radius: 999rpx;
   font-size: 32rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: #ffffff;
   border: none;
 }
@@ -74,7 +74,7 @@
 .wx-icon-text {
   color: #ffffff;
   font-size: 24rpx;
-  font-weight: bold;
+  font-weight: normal;
 }
 
 /* Step 2 */
@@ -93,7 +93,7 @@
 .form-title {
   display: block;
   font-size: 40rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: var(--text-main);
   margin-bottom: 12rpx;
 }
@@ -115,7 +115,7 @@
 .field-label {
   display: block;
   font-size: 24rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: var(--text-muted);
   margin-bottom: 12rpx;
   margin-left: 16rpx;
@@ -137,7 +137,7 @@
   color: #ffffff;
   border-radius: 999rpx;
   font-size: 32rpx;
-  font-weight: bold;
+  font-weight: normal;
   border: none;
 }
 

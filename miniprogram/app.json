@@ -2,8 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/event/event",
-    "pages/my/my",
-    "pages/shop/shop"
+    "pages/my/my"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -29,12 +28,6 @@
         "text": "活动",
         "iconPath": "images/tab-event.png",
         "selectedIconPath": "images/tab-event-active.png"
-      },
-      {
-        "pagePath": "pages/shop/shop",
-        "text": "商城",
-        "iconPath": "images/tab-shop.png",
-        "selectedIconPath": "images/tab-shop-active.png"
       },
       {
         "pagePath": "pages/my/my",

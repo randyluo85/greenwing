@@ -75,7 +75,7 @@
   background: var(--accent);
   color: #ffffff;
   font-size: 20rpx;
-  font-weight: bold;
+  font-weight: normal;
   padding: 4rpx 12rpx;
   border-bottom-right-radius: 12rpx;
 }
@@ -90,7 +90,7 @@
 
 .book-title {
   font-size: 36rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: var(--text-main);
   line-height: 1.4;
 }
@@ -108,7 +108,7 @@
 
 .rating-value {
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: var(--primary);
   margin-left: 8rpx;
 }
@@ -160,7 +160,7 @@
   background: #f3f4f6;
   color: var(--text-secondary);
   font-size: 20rpx;
-  font-weight: 500;
+  font-weight: normal;
   padding: 4rpx 16rpx;
   border-radius: 4rpx;
 }

@@ -32,7 +32,7 @@
   align-items: center;
   padding: 0 32rpx;
   font-size: 26rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: var(--text-main);
   border-bottom: 1rpx solid rgba(243,244,246,0.5);
 }
@@ -82,7 +82,7 @@
 
 .msg-title {
   font-size: 30rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: var(--text-main);
   letter-spacing: 1rpx;
 }
