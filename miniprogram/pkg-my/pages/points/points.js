@@ -11,9 +11,12 @@ Page({
     loading: false
   },
 
-  onLoad() {
-    const app = getApp()
-    this.setData({ currentPoints: (app.globalData.userInfo && app.globalData.userInfo.current_points) || 0 })
+  onShow() {
+    this.setData({ 
+      page: 1,
+      list: [],
+      hasMore: true
+    })
     this.loadList()
   },
 

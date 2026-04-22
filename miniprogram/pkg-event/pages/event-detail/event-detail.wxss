@@ -38,7 +38,7 @@
 
 .cover-title {
   font-size: 44rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #ffffff;
   line-height: 1.4;
   display: block;
@@ -55,7 +55,7 @@
 
 .cover-tag {
   font-size: 20rpx;
-  font-weight: 500;
+  font-weight: normal;
   padding: 4rpx 16rpx;
   border-radius: 4rpx;
 }
@@ -114,7 +114,7 @@
 
 .info-primary {
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #1E293B;
   line-height: 1.4;
 }
@@ -129,7 +129,7 @@
 /* 卡片标签 */
 .card-label {
   font-size: 30rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #1E293B;
   display: block;
   margin-bottom: 16rpx;
@@ -166,7 +166,7 @@
 
 .condition-status {
   font-size: 24rpx;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .condition-status.ok { color: #059669; }
@@ -174,7 +174,7 @@
 
 .price-text {
   font-size: 28rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #2563EB;
 }
 
@@ -223,7 +223,7 @@
 
 .price-value {
   font-size: 44rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #14b8a6;
   line-height: 1;
 }
@@ -247,7 +247,7 @@
 .enroll-btn {
   padding: 20rpx 56rpx;
   font-size: 28rpx;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .enroll-btn.disabled {
@@ -298,7 +298,7 @@
 
 .modal-title {
   font-size: 36rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #1E293B;
   margin-bottom: 16rpx;
 }
@@ -311,7 +311,7 @@
 .modal-hint-amber {
   font-size: 24rpx;
   color: #f59e0b;
-  font-weight: 500;
+  font-weight: normal;
   margin-top: 8rpx;
 }
 
@@ -345,7 +345,7 @@
 
 .name-modal-title {
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #1E293B;
   display: block;
 }
@@ -397,7 +397,7 @@
   align-items: center;
   justify-content: center;
   font-size: 28rpx;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .name-modal-btn-cancel {
@@ -452,7 +452,7 @@
 
 .comment-nickname {
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #1E293B;
 }
 
@@ -537,7 +537,7 @@
   border-radius: 999rpx;
   padding: 12rpx 32rpx;
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .comment-submit-btn.disabled {

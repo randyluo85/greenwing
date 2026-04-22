@@ -26,7 +26,7 @@
 
 .tab.active {
   color: #14b8a6;
-  font-weight: 500;
+  font-weight: normal;
   border-bottom-color: #14b8a6;
 }
 
@@ -52,7 +52,7 @@
 
 .section-title {
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #1E293B;
   letter-spacing: 4rpx;
 }
@@ -60,7 +60,7 @@
 .section-count {
   font-size: 24rpx;
   color: #9ca3af;
-  font-weight: 500;
+  font-weight: normal;
   margin-left: auto;
 }
 
@@ -74,7 +74,7 @@
 
 .past-title {
   font-size: 28rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #64748B;
   margin-left: 16rpx;
 }
@@ -111,7 +111,7 @@
 
 .compact-title {
   font-size: 30rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #374151;
   letter-spacing: 4rpx;
   flex: 1;
@@ -157,7 +157,7 @@
   color: #6b7280;
   border-radius: 8rpx;
   font-size: 24rpx;
-  font-weight: 500;
+  font-weight: normal;
   letter-spacing: 2rpx;
   white-space: nowrap;
 }
@@ -183,7 +183,7 @@
 
 .date-text {
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: normal;
   letter-spacing: 2rpx;
 }
 
@@ -198,7 +198,7 @@
   padding: 4rpx 16rpx;
   border-radius: 8rpx;
   font-size: 20rpx;
-  font-weight: 500;
+  font-weight: normal;
   flex-shrink: 0;
 }
 
@@ -209,7 +209,7 @@
 
 .card-title {
   font-size: 36rpx;
-  font-weight: 500;
+  font-weight: normal;
   line-height: 1.4;
   letter-spacing: 4rpx;
 }
@@ -273,7 +273,7 @@
   color: #6b7280;
   border-radius: 8rpx;
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
   letter-spacing: 2rpx;
 }
 
@@ -286,7 +286,7 @@
   color: #ffffff;
   border-radius: 8rpx;
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
   letter-spacing: 2rpx;
   /* 立体阴影：外部投影 + 内部高光 */
   box-shadow:
@@ -321,7 +321,7 @@
   color: #6b7280;
   border-radius: 8rpx;
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
   letter-spacing: 2rpx;
 }
 
@@ -334,7 +334,7 @@
   color: #ffffff;
   border-radius: 8rpx;
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
   display: flex;
   align-items: center;
   gap: 8rpx;
@@ -350,7 +350,7 @@
   color: #6b7280;
   border-radius: 8rpx;
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
   letter-spacing: 2rpx;
 }
 
@@ -397,7 +397,7 @@
 }
 
 .load-ended-btn .btn-text {
-  font-weight: 500;
+  font-weight: normal;
 }
 
 /* ========== 入场凭证弹窗 ========== */
@@ -437,7 +437,7 @@
   align-items: center;
 }
 
-.modal-title { font-size: 34rpx; font-weight: 500; color: #1E293B; margin-bottom: 32rpx; }
+.modal-title { font-size: 34rpx; font-weight: normal; color: #1E293B; margin-bottom: 32rpx; }
 
 .qr-area {
   width: 320rpx; height: 320rpx;
@@ -463,13 +463,13 @@
   margin-bottom: 36rpx;
 }
 
-.verify-label { font-size: 30rpx; color: #1E293B; font-weight: 500; margin-right: 16rpx; }
+.verify-label { font-size: 30rpx; color: #1E293B; font-weight: normal; margin-right: 16rpx; }
 
 .verify-code-box { background: #f3f4f6; padding: 8rpx 24rpx; border-radius: 8rpx; }
 
 .verify-code {
   font-size: 44rpx;
-  font-weight: 500;
+  font-weight: normal;
   letter-spacing: 8rpx;
   color: #1E293B;
   font-family: monospace;
@@ -494,8 +494,8 @@
 .circle-right { right: -56rpx; }
 
 .modal-hint { text-align: center; display: flex; flex-direction: column; align-items: center; }
-.hint-text { font-size: 22rpx; color: #6b7280; font-weight: 500; letter-spacing: 2rpx; }
-.hint-highlight { font-size: 22rpx; color: #f59e0b; font-weight: 500; letter-spacing: 2rpx; margin-top: 8rpx; }
+.hint-text { font-size: 22rpx; color: #6b7280; font-weight: normal; letter-spacing: 2rpx; }
+.hint-highlight { font-size: 22rpx; color: #f59e0b; font-weight: normal; letter-spacing: 2rpx; margin-top: 8rpx; }
 
 .modal-close {
   margin-top: 48rpx;

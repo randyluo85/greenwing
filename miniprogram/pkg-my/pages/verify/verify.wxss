@@ -8,7 +8,7 @@
   text-align: center;
 }
 
-.scan-title { font-size: 34rpx; font-weight: 500; color: #1E293B; margin-bottom: 12rpx; }
+.scan-title { font-size: 34rpx; font-weight: normal; color: #1E293B; margin-bottom: 12rpx; }
 
 .scan-desc { font-size: 26rpx; color: #64748B; margin-bottom: 32rpx; }
 
@@ -19,7 +19,7 @@
   margin-top: 20rpx;
 }
 
-.manual-title { font-size: 28rpx; font-weight: 500; color: #1E293B; margin-bottom: 16rpx; display: block; }
+.manual-title { font-size: 28rpx; font-weight: normal; color: #1E293B; margin-bottom: 16rpx; display: block; }
 
 .manual-input-wrap {
   display: flex;
@@ -58,14 +58,14 @@
   align-items: center;
   justify-content: center;
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: normal;
   margin-bottom: 20rpx;
 }
 
 .success .result-icon { background: #ECFDF5; color: #059669; }
 .fail .result-icon { background: #FEF2F2; color: #EF4444; }
 
-.result-title { font-size: 34rpx; font-weight: 500; color: #1E293B; margin-bottom: 8rpx; }
+.result-title { font-size: 34rpx; font-weight: normal; color: #1E293B; margin-bottom: 8rpx; }
 
 .result-desc { font-size: 26rpx; color: #64748B; }
 
@@ -95,5 +95,5 @@
 .info-value {
   font-size: 28rpx;
   color: #1E293B;
-  font-weight: 500;
+  font-weight: normal;
 }

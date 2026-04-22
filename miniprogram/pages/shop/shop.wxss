@@ -30,7 +30,7 @@
 
 .shop-title {
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: var(--text-main);
   margin-bottom: 12rpx;
 }

@@ -28,7 +28,7 @@
 
 .status {
   font-size: 26rpx;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .content {
@@ -61,7 +61,7 @@
 
 .text-price {
   color: #ef4444;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .text-red {

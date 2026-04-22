@@ -17,7 +17,7 @@
   border-bottom: 4rpx solid transparent;
 }
 
-.tab.active { color: var(--primary); font-weight: 500; border-bottom-color: var(--primary); }
+.tab.active { color: var(--primary); font-weight: normal; border-bottom-color: var(--primary); }
 
 .list { padding: 20rpx 24rpx; }
 
@@ -46,9 +46,9 @@
   margin-bottom: 8rpx;
 }
 
-.order-title { font-size: 28rpx; font-weight: 500; color: #1E293B; flex: 1; }
+.order-title { font-size: 28rpx; font-weight: normal; color: #1E293B; flex: 1; }
 
-.order-amount { font-size: 30rpx; font-weight: 500; color: var(--primary); }
+.order-amount { font-size: 30rpx; font-weight: normal; color: var(--primary); }
 
 .order-meta { font-size: 22rpx; color: #94A3B8; margin-bottom: 12rpx; }
 

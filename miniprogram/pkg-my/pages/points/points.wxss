@@ -36,7 +36,7 @@
   align-items: center;
   font-size: 28rpx;
   color: #78350f;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .star-icon-wrap {
@@ -62,7 +62,7 @@
   font-size: 24rpx;
   padding: 8rpx 24rpx;
   border-radius: 999rpx;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 /* 大数字展示 */
@@ -92,7 +92,7 @@
 
 .points-value {
   font-size: 110rpx;
-  font-weight: 500;
+  font-weight: normal;
   color: #000000;
   line-height: 1;
   letter-spacing: -2rpx;
