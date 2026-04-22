@@ -46,7 +46,7 @@
           <view class="summary-bar-deco"></view>
           <text class="summary-title">内容简介</text>
         </view>
-        <text class="summary-text">{{book.description || '暂无简介'}}</text>
+        <rich-text class="summary-text" nodes="{{book.description || '暂无简介'}}" />
       </view>
     </view>
   </view>

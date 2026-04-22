@@ -12,7 +12,7 @@
           <span class="tab-label">{{ tab.label }}</span>
           <StatusBadge
             :type="getTabBadgeType(tab.key)"
-            :text="tab.count.toString()"
+            :text="String(tab.count ?? 0)"
             size="small"
           />
         </div>
@@ -142,7 +142,7 @@
                 </div>
               </div>
               <div class="book-author">{{ book.author }}</div>
-              <div class="book-description">{{ book.description }}</div>
+              <div class="book-description">{{ book.description?.replace(/<[^>]+>/g, '') }}</div>
             </div>
             <div class="book-actions">
               <StatusBadge
@@ -299,7 +299,7 @@
     <el-drawer
       v-model="bookDrawerVisible"
       :title="editingBook ? '编辑图书' : '添加图书'"
-      size="420px"
+      size="600px"
     >
       <el-form :model="bookForm" label-width="80px">
         <el-form-item label="书名" required>
@@ -309,11 +309,10 @@
           <el-input v-model="bookForm.author" placeholder="作者" />
         </el-form-item>
         <el-form-item label="简介">
-          <el-input
+          <RichTextEditor
             v-model="bookForm.description"
-            type="textarea"
-            :rows="4"
-            placeholder="图书简介"
+            placeholder="请输入图书简介..."
+            height="300px"
           />
         </el-form-item>
         <el-form-item label="封面">
@@ -413,7 +412,8 @@ import { ElMessage } from 'element-plus'
 import BaseCard from '@/components/BaseCard.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import { callFunction, uploadFile, getTempFileURL } from '@/utils/cloud'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+import { callFunction, uploadFile, getTempFileURL, compressImage, IMAGE_CONFIG } from '@/utils/cloud'
 
 // Tab 状态
 const activeTab = ref('banners')
@@ -483,7 +483,7 @@ function getRedirectTypeColor(type) {
 // 获取跳转类型标签
 function redirectTypeLabel(type) {
   const labels = { event: '活动', book: '图书', article: '文章', page: '页面' }
-  return labels[type] || type || ''
+  return labels[type] || '未知'
 }
 
 // 加载用作选项的活动列表
@@ -684,9 +684,19 @@ function handleImageUpload() {
     const file = e.target.files[0]
     if (!file) return
     try {
-      const safeName = file.name.replace(/[^\w.\-]/g, '_')
+      // 压缩图片
+      let fileToUpload = file
+      if (file.size > IMAGE_CONFIG.MAX_SIZE_BYTES) {
+        try {
+          fileToUpload = await compressImage(file)
+        } catch (e) {
+          console.warn('图片压缩失败', e)
+        }
+      }
+
+      const safeName = fileToUpload.name.replace(/[^\w.\-]/g, '_')
       const cloudPath = `banners/${Date.now()}_${safeName}`
-      const fileID = await uploadFile(cloudPath, file)
+      const fileID = await uploadFile(cloudPath, fileToUpload)
       bannerForm.image_url = fileID
       const urls = await getTempFileURL([fileID])
       bannerFormImageUrl.value = urls[0]?.tempFileURL || fileID
@@ -741,9 +751,19 @@ function handleBookCoverUpload() {
     const file = e.target.files[0]
     if (!file) return
     try {
-      const safeName = file.name.replace(/[^\w.\-]/g, '_')
+      // 压缩图片
+      let fileToUpload = file
+      if (file.size > IMAGE_CONFIG.MAX_SIZE_BYTES) {
+        try {
+          fileToUpload = await compressImage(file)
+        } catch (e) {
+          console.warn('图片压缩失败', e)
+        }
+      }
+
+      const safeName = fileToUpload.name.replace(/[^\w.\-]/g, '_')
       const cloudPath = `books/${Date.now()}_${safeName}`
-      const fileID = await uploadFile(cloudPath, file)
+      const fileID = await uploadFile(cloudPath, fileToUpload)
       bookForm.cover_image = fileID
       const urls = await getTempFileURL([fileID])
       bookFormImageUrl.value = urls[0]?.tempFileURL || fileID

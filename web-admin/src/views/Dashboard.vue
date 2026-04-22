@@ -50,7 +50,7 @@
                 <span class="progress-title">{{ evt.title }}</span>
                 <StatusBadge
                   :type="getProgressType(evt)"
-                  :text="`${evt.enrolled_count}/${evt.quota}`"
+                  :text="`${evt.enrolled_count || 0}/${evt.quota || '-'}`"
                   size="small"
                 />
               </div>

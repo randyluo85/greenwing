@@ -7,11 +7,13 @@
     ]"
   >
     <i v-if="icon" :class="icon" class="status-badge__icon"></i>
-    <span class="status-badge__text">{{ text }}</span>
+    <span class="status-badge__text">{{ displayValue }}</span>
   </span>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 /**
  * StatusBadge - 统一状态徽章组件
  *
@@ -22,7 +24,7 @@
  * - 圆角和阴影统一
  */
 
-defineProps({
+const props = defineProps({
   type: {
     type: String,
     required: true,
@@ -34,13 +36,20 @@ defineProps({
     validator: (value) => ['small', 'medium', 'large'].includes(value)
   },
   text: {
-    type: String,
-    required: true
+    type: [String, Number],
+    default: ''
   },
   icon: {
     type: String,
     default: ''
   }
+})
+
+const displayValue = computed(() => {
+  if (props.text === undefined || props.text === null || props.text === '') {
+    return '未知'
+  }
+  return String(props.text)
 })
 </script>
 

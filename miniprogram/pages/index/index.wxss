@@ -203,6 +203,7 @@
 /* Main sign-in card */
 .action-card-main {
   grid-row: 1 / 3;
+  padding-top: 40rpx;
   background: linear-gradient(to bottom, #70DFCB, #DBFCE5);
 }
 
@@ -285,7 +286,7 @@
 
 .action-deco {
   position: absolute;
-  top: 8rpx;
+  top: 34rpx;
   right: 4rpx;
   width: 128rpx;
   height: 128rpx;

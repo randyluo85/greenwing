@@ -13,7 +13,7 @@
             <span class="tab-label">{{ tab.label }}</span>
             <StatusBadge
               :type="getTabBadgeType(tab.key)"
-              :text="tab.count.toString()"
+              :text="tab.count !== undefined ? tab.count.toString() : '0'"
               size="small"
             />
           </div>
@@ -312,12 +312,13 @@ function getTabBadgeType(key) {
 
 // 获取状态标签
 function getStatusLabel(status) {
+  if (!status) return '未知'
   const labels = {
     published: '已发布',
     draft: '草稿',
     ended: '已结束'
   }
-  return labels[status] || status
+  return labels[status] || '未知'
 }
 
 // 获取报名模式类型

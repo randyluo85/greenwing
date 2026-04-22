@@ -370,7 +370,8 @@ function getLevelLabel(level) {
     silver: '白银',
     gold: '黄金'
   }
-  return labels[level] || level
+  if (!level) return '未知'
+  return labels[level] || String(level)
 }
 
 // 获取角色类型
@@ -390,7 +391,8 @@ function getRoleLabel(role) {
     verifier: '核销员',
     user: '普通用户'
   }
-  return labels[role] || role
+  if (!role) return '未知'
+  return labels[role] || String(role)
 }
 
 // 打开积分调整对话框

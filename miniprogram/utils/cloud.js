@@ -66,30 +66,66 @@ const queryPage = async (collection, where = {}, options = {}) => {
  */
 const resolveCloudUrls = async (items, field = 'cover_image') => {
   const cloudIds = items.filter(i => i[field] && i[field].startsWith('cloud://')).map(i => i[field])
-  console.log('[resolveCloudUrls] input cloudIds:', cloudIds.length, cloudIds)
   if (!cloudIds.length) return
   try {
     const res = await wx.cloud.getTempFileURL({ fileList: cloudIds })
-    console.log('[resolveCloudUrls] getTempFileURL response:', JSON.stringify(res.fileList))
-
-    // 空值检查：防止 res.fileList 为 null/undefined 导致运行时错误
-    if (!res.fileList || !Array.isArray(res.fileList)) {
-      console.warn('[resolveCloudUrls] fileList 不是有效数组:', res.fileList)
-      return
-    }
+    if (!res.fileList || !Array.isArray(res.fileList)) return
 
     const map = {}
     res.fileList.forEach(f => {
-      console.log('[resolveCloudUrls] fileID:', f.fileID, '-> tempFileURL:', f.tempFileURL, 'status:', f.status)
       if (f.tempFileURL) map[f.fileID] = f.tempFileURL
     })
-    let matched = 0
     items.forEach(i => {
-      if (i[field] && map[i[field]]) { i[field] = map[i[field]]; matched++ }
+      if (i[field] && map[i[field]]) { i[field] = map[i[field]] }
     })
-    console.log('[resolveCloudUrls] matched:', matched, '/', cloudIds.length)
   } catch (e) {
     console.warn('[resolveCloudUrls] getTempFileURL 失败:', e)
+  }
+}
+
+/**
+ * 将 rich text HTML 中的 cloud:// fileID 转为 HTTPS 临时链接
+ * @param {string} html 富文本字符串
+ * @returns {Promise<string>} 转换后的 HTML 字符串
+ */
+const resolveRichTextCloudUrls = async (html) => {
+  if (!html || typeof html !== 'string') return html
+
+  // 1. 适配图片宽度：注入 style 确保图片不超出屏幕
+  let resolvedHtml = html.replace(/<img([\s\S]*?)(\/?)>/gi, (match, p1, p2) => {
+    // 注入响应式样式
+    if (/style\s*=\s*"/i.test(p1)) {
+      return `<img${p1.replace(/style\s*=\s*"/i, 'style="max-width:100%;height:auto;display:block;margin:10px 0;')}${p2}>`
+    } else {
+      return `<img style="max-width:100%;height:auto;display:block;margin:10px 0;"${p1}${p2}>`
+    }
+  })
+  
+  // 匹配 cloud:// 格式的 URL
+  const cloudIdRegex = /cloud:\/\/[\w\.\-\/]+/g
+  const cloudIds = resolvedHtml.match(cloudIdRegex)
+  
+  if (!cloudIds || !cloudIds.length) return resolvedHtml
+  
+  // 去重
+  const uniqueIds = [...new Set(cloudIds)]
+  
+  try {
+    const res = await wx.cloud.getTempFileURL({ fileList: uniqueIds })
+    if (!res.fileList || !Array.isArray(res.fileList)) return resolvedHtml
+    
+    res.fileList.forEach(f => {
+      if (f.tempFileURL) {
+        // 全量替换该 ID 为临时链接
+        const escapedId = f.fileID.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const regex = new RegExp(escapedId, 'g')
+        resolvedHtml = resolvedHtml.replace(regex, f.tempFileURL)
+      }
+    })
+    return resolvedHtml
+  } catch (e) {
+    console.warn('[resolveRichTextCloudUrls] 失败:', e)
+    return resolvedHtml
   }
 }
 
@@ -97,5 +133,6 @@ module.exports = {
   callFunction,
   getDatabase,
   queryPage,
-  resolveCloudUrls
+  resolveCloudUrls,
+  resolveRichTextCloudUrls
 }

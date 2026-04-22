@@ -1,4 +1,4 @@
-const { callFunction, resolveCloudUrls } = require('../../../utils/cloud')
+const { callFunction, resolveCloudUrls, resolveRichTextCloudUrls } = require('../../../utils/cloud')
 const auth = require('../../../utils/auth')
 const { formatDate, formatMoney, timeAgo, formatEventRange, formatEventParts } = require('../../../utils/util')
 
@@ -93,6 +93,7 @@ Page({
       console.log('[DEBUG] formatMoney 后:', formatMoney(event.price), '(元)')
 
       await resolveCloudUrls([event], 'cover_image')
+      event.description = await resolveRichTextCloudUrls(event.description)
 
       const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
       const tierMap = { bronze: '青铜会员', silver: '白银会员', gold: '黄金会员' }

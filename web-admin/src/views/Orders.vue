@@ -359,7 +359,8 @@ function getStatusLabel(status) {
     refunded: '已退款',
     closed: '已关闭'
   }
-  return labels[status] || status
+  if (!status) return '未知'
+  return labels[status] || String(status)
 }
 
 // 掩盖用户 ID（只显示后6位）

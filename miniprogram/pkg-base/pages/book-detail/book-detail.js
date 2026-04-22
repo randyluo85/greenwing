@@ -1,4 +1,4 @@
-const { resolveCloudUrls } = require('../../../utils/cloud')
+const { resolveCloudUrls, resolveRichTextCloudUrls } = require('../../../utils/cloud')
 
 Page({
   data: {
@@ -24,6 +24,8 @@ Page({
 
       // 转换 cloud:// URL
       await resolveCloudUrls([book], 'cover_image')
+      // 转换富文本中的图片
+      book.description = await resolveRichTextCloudUrls(book.description)
       // 转换失败则使用默认图
       if (book.cover_image && book.cover_image.startsWith('cloud://')) {
         console.warn('[book-detail] 封面转换失败，使用默认图')

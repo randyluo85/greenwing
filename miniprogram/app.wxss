@@ -260,3 +260,11 @@ page {
   height: 0;
   color: transparent;
 }
+
+/* 富文本图片响应式 */
+rich-text img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10rpx 0;
+}

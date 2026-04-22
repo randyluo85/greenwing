@@ -1,5 +1,5 @@
 <template>
-  <el-drawer :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" :title="event ? '编辑活动' : '创建活动'" size="520px" direction="rtl">
+  <el-drawer :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" :title="event ? '编辑活动' : '创建活动'" size="600px" direction="rtl">
     <div style="padding:0 4px;">
       <div class="section-title">基本信息</div>
       <el-form label-position="top" size="default">
@@ -52,7 +52,7 @@
           <div class="upload-tip">建议尺寸为 4:5 (800x1000)</div>
         </el-form-item>
         <el-form-item label="活动详情">
-          <el-input v-model="form.description" type="textarea" :rows="4" placeholder="活动详情描述" />
+          <RichTextEditor v-model="form.description" placeholder="请输入活动详情描述..." height="300px" />
         </el-form-item>
       </el-form>
 
@@ -96,7 +96,8 @@
 
 <script setup>
 import { reactive, ref, watch } from 'vue'
-import { uploadFile, getTempFileURL } from '../utils/cloud'
+import RichTextEditor from './RichTextEditor.vue'
+import { uploadFile, getTempFileURL, compressImage, IMAGE_CONFIG } from '../utils/cloud'
 import { ElMessage } from 'element-plus'
 
 const props = defineProps({ modelValue: Boolean, event: Object })
@@ -167,9 +168,19 @@ function handleCoverUpload() {
     const file = e.target.files[0]
     if (!file) return
     try {
-      const safeName = file.name.replace(/[^\w.\-]/g, '_')
+      // 1. 压缩图片 (如果不是 GIF 且超过阈值)
+      let fileToUpload = file
+      if (file.size > IMAGE_CONFIG.MAX_SIZE_BYTES) {
+        try {
+          fileToUpload = await compressImage(file)
+        } catch (e) {
+          console.warn('图片压缩失败，使用原图', e)
+        }
+      }
+
+      const safeName = fileToUpload.name.replace(/[^\w.\-]/g, '_')
       const cloudPath = `events/${Date.now()}_${safeName}`
-      const fileID = await uploadFile(cloudPath, file)
+      const fileID = await uploadFile(cloudPath, fileToUpload)
       form.cover_image = fileID
       const urls = await getTempFileURL([fileID])
       coverImageUrl.value = urls[0]?.tempFileURL || fileID
