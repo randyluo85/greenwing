@@ -1,6 +1,7 @@
 const { callFunction } = require('../../utils/cloud')
 const { formatDate, isPast, formatEventRange, formatEventParts } = require('../../utils/util')
 const { generateQR } = require('../../utils/qrcode')
+const { getCache, setCache, removeCache } = require('../../utils/cache')
 
 Page({
 
@@ -224,11 +225,20 @@ Page({
 
   async _getEnrolledIds() {
     if (this._enrolledIds) return this._enrolledIds
+    
+    const cachedIds = getCache('enrolled_event_ids')
+    if (cachedIds) {
+      this._enrolledIds = cachedIds
+      return this._enrolledIds
+    }
+    
     try {
       const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
       this._enrolledIds = (myRes.data.list || [])
         .filter(i => i.status !== 'cancelled')
         .map(i => i.event_id)
+      
+      setCache('enrolled_event_ids', this._enrolledIds, 300)
     } catch (e) {
       console.warn('[_getEnrolledIds] 获取已报名活动失败:', e.message)
       this._enrolledIds = []
@@ -296,6 +306,7 @@ Page({
             await callFunction('event', { action: 'cancelEnroll', registrationId: id })
             const cancelledIds = [...this.data.cancelledIds, id]
             this._enrolledIds = null
+            removeCache('enrolled_event_ids')
             this.setData({ cancelledIds })
             getApp().globalData.lastEnrollTime = Date.now()
             wx.showToast({ title: '报名已取消，积分将退回账户', icon: 'none' })

@@ -1,6 +1,7 @@
 const { callFunction, resolveCloudUrls } = require('../../utils/cloud')
 const auth = require('../../utils/auth')
 const { formatDate, getLevelName, isPast, formatEventRange } = require('../../utils/util')
+const { getCache, setCache } = require('../../utils/cache')
 
 Page({
   data: {
@@ -133,16 +134,44 @@ Page({
   async loadEvents() {
     this.setData({ _lastLoadTime: Date.now() })
     try {
-      let enrolledIds = []
-      try {
-        const myRes = await callFunction('event', { action: 'myEvents', page: 1, pageSize: 100 })
-        enrolledIds = (myRes.data.list || [])
-          .filter(i => i.status !== 'cancelled')
-          .map(i => i.event_id)
-      } catch (e) { }
-
       // 请求更多数据，确保有足够的选择
       const res = await callFunction('event', { action: 'list', page: 1, pageSize: 30 })
+
+      let enrolledIds = []
+      try {
+        const openid = getApp().globalData.openid || wx.getStorageSync('userInfo')?.open_id
+        if (openid && res.data.list && res.data.list.length > 0) {
+          const cachedIds = getCache('enrolled_event_ids')
+          if (cachedIds) {
+            enrolledIds = cachedIds
+          } else {
+            const eventIds = res.data.list.map(e => e._id)
+            const db = wx.cloud.database()
+            const _ = db.command
+            
+            // 查询当前用户在这些活动中的报名记录
+            const MAX_LIMIT = 20
+            let promises = []
+            for (let i = 0; i < eventIds.length; i += MAX_LIMIT) {
+               const batchIds = eventIds.slice(i, i + MAX_LIMIT)
+               promises.push(db.collection('registrations').where({
+                 open_id: openid,
+                 event_id: _.in(batchIds),
+                 status: _.neq('cancelled')
+               }).get())
+            }
+            const regResArr = await Promise.all(promises)
+            regResArr.forEach(regRes => {
+              enrolledIds = enrolledIds.concat(regRes.data.map(r => r.event_id))
+            })
+            
+            // 写入缓存，存活 5 分钟
+            setCache('enrolled_event_ids', enrolledIds, 300)
+          }
+        }
+      } catch (e) {
+        console.error('获取报名状态失败', e)
+      }
 
       console.log('[loadEvents] 云函数返回活动数量:', res.data.list?.length || 0)
 

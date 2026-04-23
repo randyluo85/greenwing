@@ -1,6 +1,7 @@
 const { callFunction } = require('../../../utils/cloud')
 const { formatDate, isPast, formatEventRange, formatEventParts } = require('../../../utils/util')
 const { generateQR } = require('../../../utils/qrcode')
+const { removeCache } = require('../../../utils/cache')
 
 Page({
   data: {
@@ -94,6 +95,10 @@ Page({
         if (res.confirm) {
           try {
             await callFunction('event', { action: 'cancelEnroll', registrationId: id })
+            
+            // Invalidate the enrolled events cache since user cancelled enrollment
+            removeCache('enrolled_event_ids')
+
             const cancelledIds = [...this.data.cancelledIds, id]
             this.setData({ cancelledIds })
             getApp().globalData.lastEnrollTime = Date.now()

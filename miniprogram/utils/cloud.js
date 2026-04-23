@@ -100,20 +100,20 @@ const resolveRichTextCloudUrls = async (html) => {
       return `<img style="max-width:100%;height:auto;display:block;margin:10px 0;"${p1}${p2}>`
     }
   })
-  
+
   // 匹配 cloud:// 格式的 URL
   const cloudIdRegex = /cloud:\/\/[\w\.\-\/]+/g
   const cloudIds = resolvedHtml.match(cloudIdRegex)
-  
+
   if (!cloudIds || !cloudIds.length) return resolvedHtml
-  
+
   // 去重
   const uniqueIds = [...new Set(cloudIds)]
-  
+
   try {
     const res = await wx.cloud.getTempFileURL({ fileList: uniqueIds })
     if (!res.fileList || !Array.isArray(res.fileList)) return resolvedHtml
-    
+
     res.fileList.forEach(f => {
       if (f.tempFileURL) {
         // 全量替换该 ID 为临时链接

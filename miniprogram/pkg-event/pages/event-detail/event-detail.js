@@ -1,6 +1,7 @@
 const { callFunction, resolveCloudUrls, resolveRichTextCloudUrls } = require('../../../utils/cloud')
 const auth = require('../../../utils/auth')
 const { formatDate, formatMoney, timeAgo, formatEventRange, formatEventParts } = require('../../../utils/util')
+const { removeCache } = require('../../../utils/cache')
 
 Page({
   data: {
@@ -209,6 +210,9 @@ Page({
 
       const res = await callFunction('event', { action, ...params })
       wx.hideLoading()
+      
+      // Invalidate the enrolled events cache since user just enrolled
+      removeCache('enrolled_event_ids')
 
       // Update local userInfo cache
       const app = getApp()
