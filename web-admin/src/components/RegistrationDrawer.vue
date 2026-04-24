@@ -1,7 +1,14 @@
 <template>
   <el-drawer :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" :title="'报名名单 - ' + (event?.title || '')" size="520px" direction="rtl">
     <template #header>
-      <span style="font-weight:600;color: var(--color-text-primary);font-size: var(--fs-lg);">报名名单 - {{ event?.title }}</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:600;color:var(--color-text-primary);font-size:var(--fs-lg);">
+          报名名单 - {{ event?.title }}
+        </span>
+        <el-button type="primary" :loading="exporting" @click="handleExport" :disabled="!registrations.length">
+          <i class="fa-solid fa-download"></i> 导出CSV
+        </el-button>
+      </div>
     </template>
     <div v-loading="loading">
       <div class="stats-row">
@@ -44,6 +51,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 import { callFunction } from '../utils/cloud'
 import { formatDateTime } from '../utils/format'
 
@@ -51,6 +59,7 @@ const props = defineProps({ modelValue: Boolean, event: Object })
 defineEmits(['update:modelValue'])
 
 const loading = ref(false)
+const exporting = ref(false)
 const registrations = ref([])
 
 const stats = computed(() => {
@@ -92,6 +101,31 @@ async function loadRegistrations() {
 watch(() => props.modelValue, (val) => {
   if (val) loadRegistrations()
 })
+
+async function handleExport() {
+  if (!props.event?._id) return
+  exporting.value = true
+  try {
+    const res = await callFunction('admin', { action: 'exportRegistrations', eventId: props.event._id })
+    if (!res.success) throw new Error(res.message)
+
+    // 添加BOM头确保Excel正确识别UTF-8
+    const blob = new Blob(['﻿' + res.data.csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    // 文件名格式: 报名名单_活动标题_日期.csv
+    const safeTitle = (props.event.title || '').replace(/[^\w一-龥]/g, '_')
+    a.download = `报名名单_${safeTitle}_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    ElMessage.success(`已导出 ${res.data.total} 条记录`)
+  } catch (e) {
+    ElMessage.error('导出失败: ' + e.message)
+  } finally {
+    exporting.value = false
+  }
+}
 </script>
 
 <style scoped>

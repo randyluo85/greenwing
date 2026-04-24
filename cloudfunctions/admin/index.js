@@ -80,6 +80,8 @@ exports.main = async (event, context) => {
       return handleCancelOrder(event)
     case 'getRegistrations':
       return handleGetRegistrations(event)
+    case 'exportRegistrations':
+      return handleExportRegistrations(event)
     case 'manageContent':
       return handleManageContent(event)
     case 'getDashboard':
@@ -737,4 +739,79 @@ async function handleGetRecentActivity(event) {
     console.error('handleGetRecentActivity failed:', err)
     return { success: false, message: err.message }
   }
+}
+
+// 导出报名名单（全量，支持分批获取）
+async function handleExportRegistrations(event) {
+  try {
+    const { eventId } = event
+    if (!eventId) return { success: false, message: '活动ID不能为空' }
+
+    const where = { event_id: eventId }
+    const pageSize = 100 // 云数据库单次查询最大限制
+
+    // 先获取总数
+    const countRes = await db.collection('registrations').where(where).count()
+    const total = countRes.total
+    const pages = Math.ceil(total / pageSize)
+
+    // 分批获取所有报名记录
+    const allRegistrations = []
+    for (let page = 1; page <= pages; page++) {
+      const listRes = await db.collection('registrations')
+        .where(where)
+        .orderBy('created_at', 'desc')
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .get()
+      allRegistrations.push(...listRes.data)
+    }
+
+    // 批量获取用户信息（去重）
+    const userIds = [...new Set(allRegistrations.map(r => r.user_id).filter(id => id))]
+    const userMap = {}
+    if (userIds.length > 0) {
+      // 用户表也分批查询（限制100）
+      for (let i = 0; i < userIds.length; i += 100) {
+        const batch = userIds.slice(i, i + 100)
+        const userRes = await db.collection('users')
+          .where({ _id: _.in(batch) })
+          .get()
+        userRes.data.forEach(u => {
+          userMap[u._id] = {
+            nickname: u.nickname || '',
+            phone: u.phone || '',
+            real_name: u.real_name || ''
+          }
+        })
+      }
+    }
+
+    // 组合数据并格式化为CSV行
+    const statusMap = { pending: '待核销', verified: '已核销', cancelled: '已取消' }
+    const rows = allRegistrations.map(r => {
+      const u = userMap[r.user_id] || {}
+      return [
+        r.real_name || u.real_name || '',
+        r.contact_phone || u.phone || '',
+        u.nickname || '',
+        statusMap[r.status] || r.status,
+        r.created_at ? formatDateTimeCSV(r.created_at) : ''
+      ].map(v => `"${v}"`).join(',') // CSV字段加引号处理逗号
+    })
+
+    const headers = ['姓名,手机号,昵称,状态,报名时间']
+    const csv = headers.concat(rows).join('\n')
+
+    return { success: true, data: { csv, total } }
+  } catch (err) {
+    return { success: false, message: err.message }
+  }
+}
+
+// CSV日期格式化
+function formatDateTimeCSV(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return d.toISOString().slice(0, 19).replace('T', ' ')
 }
