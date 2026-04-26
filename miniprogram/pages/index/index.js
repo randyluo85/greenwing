@@ -134,21 +134,30 @@ Page({
   async loadEvents() {
     this.setData({ _lastLoadTime: Date.now() })
     try {
-      // 请求更多数据，确保有足够的选择
-      const res = await callFunction('event', { action: 'list', page: 1, pageSize: 30 })
+      // 同时请求未结束和已结束活动
+      const [activeRes, endedRes] = await Promise.all([
+        callFunction('event', { action: 'list', page: 1, pageSize: 20, includeEnded: false }),
+        callFunction('event', { action: 'list', page: 1, pageSize: 20, includeEnded: true })
+      ])
+
+      // 合并列表
+      const allEventData = [
+        ...(activeRes.data.list || []),
+        ...(endedRes.data.list || [])
+      ]
 
       let enrolledIds = []
       try {
         const openid = getApp().globalData.openid || wx.getStorageSync('userInfo')?.open_id
-        if (openid && res.data.list && res.data.list.length > 0) {
+        if (openid && allEventData.length > 0) {
           const cachedIds = getCache('enrolled_event_ids')
           if (cachedIds) {
             enrolledIds = cachedIds
           } else {
-            const eventIds = res.data.list.map(e => e._id)
+            const eventIds = allEventData.map(e => e._id)
             const db = wx.cloud.database()
             const _ = db.command
-            
+
             // 查询当前用户在这些活动中的报名记录
             const MAX_LIMIT = 20
             let promises = []
@@ -164,7 +173,7 @@ Page({
             regResArr.forEach(regRes => {
               enrolledIds = enrolledIds.concat(regRes.data.map(r => r.event_id))
             })
-            
+
             // 写入缓存，存活 5 分钟
             setCache('enrolled_event_ids', enrolledIds, 300)
           }
@@ -173,59 +182,57 @@ Page({
         console.error('获取报名状态失败', e)
       }
 
-      console.log('[loadEvents] 云函数返回活动数量:', res.data.list?.length || 0)
+      console.log('[loadEvents] 云函数返回活动数量:', allEventData.length)
 
-      // 过滤并计算状态
-      const events = res.data.list
-        .map(e => {
-          const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
-          const eventTimeMs = e.event_time ? new Date(e.event_time).getTime() : 0
+      // 计算活动状态和优先级，然后排序
+      const allEvents = allEventData.map(e => {
+        const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
 
-          const _isEnded = e.status === 'ended' || isPast(e.event_time)
-          const _isClosed = isPast(e.registration_deadline)
-          const _enrolled = enrolledIds.includes(e._id)
-          const isFull = e.quota && e.enrolled_count >= e.quota
+        // 使用 event_end_time 判断活动是否已结束
+        const _isEnded = e.status === 'ended' || isPast(e.event_end_time);
+        const _isClosed = isPast(e.registration_deadline);
+        const _enrolled = enrolledIds.includes(e._id);
+        const isFull = e.quota && e.enrolled_count >= e.quota;
 
-          let _statusPriority = 1
-          let _statusText = '报名中'
+        // 计算状态文本
+        let _statusText = '报名中';
+        if (_isEnded) _statusText = '已结束';
+        else if (_isClosed) _statusText = '报名截止';
+        else if (isFull) _statusText = '名额已满';
+        else if (_enrolled) _statusText = '已报名';
 
-          if (_isEnded) {
-            _statusPriority = 5
-            _statusText = '已结束'
-          } else if (_isClosed) {
-            _statusPriority = 4
-            _statusText = '报名截止'
-          } else if (_enrolled) {
-            _statusPriority = 2
-            _statusText = '已报名'
-          } else if (isFull) {
-            _statusPriority = 3
-            _statusText = '名额已满'
-          }
+        // 排序优先级：报名中=1（优先显示），其他=2（后显示）
+        const _statusPriority = (_isEnded || _isClosed || isFull) ? 2 : 1;
 
-          return {
-            ...e,
-            _enrolled,
-            _statusText,
-            _statusPriority,
-            _eventTimeMs: eventTimeMs,
-            _formattedTime: formatEventRange(e.event_time, e.event_end_time),
-            _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText,
-          };
-        })
-        // 排序：优先级高的在前，同优先级内即将开始的在前
-        .sort((a, b) => {
-          if (a._statusPriority !== b._statusPriority) {
-            return a._statusPriority - b._statusPriority
-          }
-          // 同优先级内，按时间升序（即将开始的在前）
-          return a._eventTimeMs - b._eventTimeMs
-        })
-        // 首页只显示未结束的活动，最多 3 个
-        .filter(e => e._statusPriority < 5)
-        .slice(0, 3)
+        return {
+          ...e,
+          _enrolled,
+          _statusText,
+          _statusPriority,
+          _formattedTime: formatEventRange(e.event_time, e.event_end_time),
+          _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText,
+        };
+      }).sort((a, b) => {
+        // 先按状态优先级排序（报名中优先）
+        if (a._statusPriority !== b._statusPriority) {
+          return a._statusPriority - b._statusPriority;
+        }
+        // 报名中活动：按开始时间从近到远（升序，早的开始在前）
+        if (a._statusPriority === 1) {
+          const timeA = new Date(a.event_time).getTime();
+          const timeB = new Date(b.event_time).getTime();
+          return timeA - timeB;
+        }
+        // 已结束活动：按结束时间从近到远（降序，最近结束的在前）
+        const timeA = new Date(a.event_end_time).getTime();
+        const timeB = new Date(b.event_end_time).getTime();
+        return timeB - timeA;
+      });
 
-      console.log('[loadEvents] 首页显示活动数量:', events.length, events.map(e => ({ id: e._id, title: e.title, status: e._statusText })))
+      // 首页最多显示 3 个活动
+      const events = allEvents.slice(0, 3)
+
+      console.log('[loadEvents] 总活动数:', allEvents.length, '首页显示:', events.length, events.map(e => ({ id: e._id, title: e.title, status: e._statusText })))
 
       if (events.length > 0) {
         await resolveCloudUrls(events, 'cover_image')
@@ -235,13 +242,7 @@ Page({
     } catch (e) {
       console.error('[loadEvents] 云函数调用失败:', e.message)
     }
-    // 云端无数据或云函数未部署，使用本地默认活动
-    this.setData({
-      events: [
-        { _id: 'e1', cover_image: '/images/event.jpg', title: '古典主义回响：维吉尔《埃涅阿斯纪》精读营', status: 'published', registration_mode: 'points_only', points_cost: 100, location: '青翼读书会·主茶室', event_time: '2099-04-18T15:30:00', event_end_time: '2099-04-18T17:30:00', _formattedTime: '2099-04-18 15:30 - 17:30', _statusText: '报名中' },
-        { _id: 'e2', cover_image: '/images/event.jpg', title: '博尔赫斯的迷宫：《小径分岔的花园》', status: 'published', registration_mode: 'free', points_cost: 0, location: '青翼读书会·影音室', event_time: '2099-04-25T15:30:00', event_end_time: '2099-04-25T17:30:00', _formattedTime: '2099-04-25 15:30 - 17:30', _statusText: '报名中' }
-      ]
-    })
+    // 不再设置默认活动数据，空数据时显示空状态
   },
 
   async loadBooks() {

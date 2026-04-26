@@ -24,6 +24,17 @@ async function generateUniqueVerifyCode(collection) {
   return generateVerifyCode() + Date.now().toString(36).slice(-3)
 }
 
+// 生成与数据库格式一致的时间字符串: YYYY-MM-DD HH:mm:ss
+function formatDateTimeForDB(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
+
 exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
   const { action } = event
@@ -53,6 +64,15 @@ exports.main = async (event, context) => {
       return handleAddComment(OPENID, event)
     case 'checkRegStatus':
       return handleCheckRegStatus(OPENID, event)
+    case 'serverTime':
+      return {
+        success: true,
+        data: {
+          iso: new Date().toISOString(),
+          dbFormat: formatDateTimeForDB(new Date()),
+          timestamp: Date.now()
+        }
+      }
     default:
       return { success: false, message: '未知操作' }
   }
@@ -64,9 +84,8 @@ async function handleList(event) {
     const { page = 1, pageSize = 10, category, includeEnded = false } = event
     const safePageSize = Math.min(Math.max(1, pageSize), 100)
 
-    // 使用 ISO 字符串进行时间比较，确保在不同环境下一致
-    const now = new Date()
-    const nowISO = now.toISOString()
+    // 使用 ISO 格式的时间字符串进行比较，兼容数据库中各种时间格式
+    const nowISO = new Date().toISOString()
 
     const $ = _.aggregate
 
@@ -74,34 +93,27 @@ async function handleList(event) {
     const baseWhere = { status: _.in(['published', 'full']) }
     if (category) baseWhere.category = category
 
-    // 根据是否包含已结束活动，构建不同的查询条件
-    let where, countRes, listRes
+    // 根据是否包含已结束活动，构建数据库查询条件
+    // 使用 event_end_time 判断，如果未设置则回退到 event_time
+    // 构建查询条件
+    const baseConditions = [
+      { status: _.in(['published', 'full']) }
+    ]
+    if (category) baseConditions.push({ category })
 
-    if (includeEnded) {
-      // 只查询已结束活动：event_time < 当前时间
-      where = { ...baseWhere, event_time: _.lt(nowISO) }
-      countRes = await db.collection('events').where(where).count()
+    const timeCondition = includeEnded ? { event_end_time: _.lt(nowISO) } : { event_end_time: _.gte(nowISO) }
 
-      listRes = await db.collection('events').where(where)
-        .orderBy('event_time', 'desc')
-        .skip((page - 1) * safePageSize)
-        .limit(safePageSize)
-        .get()
-    } else {
-      // 只查询未结束的活动：event_time >= 当前时间
-      // 使用字符串比较，ISO 格式可按字典序比较
-      where = {
-        ...baseWhere,
-        event_time: _.gte(nowISO)
-      }
-      countRes = await db.collection('events').where(where).count()
+    const where = _.and([...baseConditions, timeCondition])
 
-      listRes = await db.collection('events').where(where)
-        .orderBy('event_time', 'asc')
-        .skip((page - 1) * safePageSize)
-        .limit(safePageSize)
-        .get()
-    }
+    const countRes = await db.collection('events').where(where).count()
+    // 已结束活动按结束时间倒序（近→远），未结束按开始时间升序（近→远）
+    const orderBy = includeEnded ? 'event_end_time' : 'event_time'
+    const order = includeEnded ? 'desc' : 'asc'
+    const listRes = await db.collection('events').where(where)
+      .orderBy(orderBy, order)
+      .skip((page - 1) * safePageSize)
+      .limit(safePageSize)
+      .get()
 
     return {
       success: true,

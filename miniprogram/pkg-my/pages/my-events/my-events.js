@@ -67,12 +67,24 @@ Page({
         if (i.status === 'verified') return false
         if (i.event && i.event._isExpired) return false
         return true
+      }).sort((a, b) => {
+        // 待参加活动按时间从近到远排序（升序：早开始的在前）
+        const timeA = a.event?.event_time ? new Date(a.event.event_time).getTime() : 0
+        const timeB = b.event?.event_time ? new Date(b.event.event_time).getTime() : 0
+        return timeA - timeB
       })
 
       const historyList = allItems.filter(i => {
         if (i.status === 'verified') return true
         if (i.status === 'pending' && i.event && i.event._isExpired) return true
         return false
+      }).sort((a, b) => {
+        // 历史活动按时间从近到远排序（降序：最近结束的在前）
+        const timeA = a.event?.event_end_time || a.event?.event_time
+        const timeB = b.event?.event_end_time || b.event?.event_time
+        const msA = timeA ? new Date(timeA).getTime() : 0
+        const msB = timeB ? new Date(timeB).getTime() : 0
+        return msB - msA
       })
 
       this.setData({

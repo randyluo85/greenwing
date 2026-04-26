@@ -149,29 +149,78 @@ Page({
       // 查询当前用户已报名的活动ID集合（页面级缓存）
       const enrolledIds = await this._getEnrolledIds()
 
-      const newList = res.data.list.map(e => {
-        return {
-          ...e,
-          _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
-          _formattedTime: formatEventParts(e.event_time, e.event_end_time).rangeStr,
-          _isPast: isPast(e.event_end_time || e.event_time),
-          _isDeadlinePassed: isPast(e.registration_deadline),
-          _enrolled: enrolledIds.indexOf(e._id) >= 0
-        }
-      })
+      const newList = res.data.list
+        .map(e => {
+          const eventTimeMs = e.event_time ? new Date(e.event_time).getTime() : 0;
+          const hasEndTime = e.event_end_time && e.event_end_time.toString().trim().length > 0;
+          const endTimeMs = hasEndTime ? new Date(e.event_end_time).getTime() : eventTimeMs;
+          const _isEnded = isPast(e.event_end_time || e.event_time);
+          const _isClosed = isPast(e.registration_deadline);
+          const _isFull = e.quota && e.enrolled_count >= e.quota;
+          const _enrolled = enrolledIds.indexOf(e._id) >= 0;
+
+          // 新优先级：报名中=1, 名额已满=2, 已结束/报名截止=3
+          let _statusPriority = 1;
+          let _statusText = '报名中';
+
+          if (_isEnded || _isClosed) {
+            _statusPriority = 3;
+            _statusText = _isEnded ? '已结束' : '报名截止';
+          } else if (_isFull) {
+            _statusPriority = 2;
+            _statusText = '名额已满';
+          } else if (_enrolled) {
+            _statusPriority = 1;
+            _statusText = '已报名';
+          }
+
+          return {
+            ...e,
+            _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
+            _formattedTime: formatEventParts(e.event_time, e.event_end_time).rangeStr,
+            _isPast: _isEnded,
+            _isDeadlinePassed: _isClosed,
+            _enrolled,
+            _statusPriority,
+            _statusText,
+            _eventTimeMs: eventTimeMs,
+            _endTimeMs: endTimeMs
+          };
+        })
+        // 排序：优先级低的在前（报名中优先），同优先级内按时间排序
+        // 已结束活动按结束时间近→远排序（降序），其他按开始时间近→远排序（升序）
+        .sort((a, b) => {
+          if (a._statusPriority !== b._statusPriority) {
+            return a._statusPriority - b._statusPriority;
+          }
+          // 已结束活动（优先级3）按结束时间近→远排序（降序：最近结束的在前）
+          if (a._statusPriority === 3) {
+            return (b._endTimeMs || b._eventTimeMs) - (a._endTimeMs || a._eventTimeMs);
+          }
+          // 报名中活动按开始时间近→远排序（升序：早开始的在前）
+          return a._eventTimeMs - b._eventTimeMs;
+        })
+
+      // 过滤：已结束的活动不显示在 activeEvents 中
+      const activeList = newList.filter(e => !e._isPast)
 
       const activeHasMore = res.data.hasMore
-      const showLoadEndedBtn = !activeHasMore
 
       this.setData({
-        activeEvents: activePage === 1 ? newList : [...this.data.activeEvents, ...newList],
+        activeEvents: activePage === 1 ? activeList : [...this.data.activeEvents, ...activeList],
         activeHasMore,
         activePage: activePage + 1,
-        showLoadEndedBtn,
-        loading: false
+        loading: activeHasMore // 保持 loading 状态，如果还有未结束活动
       })
 
       console.log('[loadEvents] 未结束活动数量:', this.data.activeEvents.length, 'hasMore:', activeHasMore)
+
+      // 未结束活动加载完毕后，自动加载已结束活动
+      if (!activeHasMore) {
+        await this.loadEndedEvents()
+      } else {
+        this.setData({ loading: false })
+      }
     } catch (e) {
       console.error('[loadEvents] 加载失败:', e.message)
       this.setData({ loading: false })
@@ -197,19 +246,63 @@ Page({
 
       const enrolledIds = await this._getEnrolledIds()
 
-      const newList = res.data.list.map(e => {
-        return {
-          ...e,
-          _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
-          _formattedTime: formatEventParts(e.event_time, e.event_end_time).rangeStr,
-          _isPast: isPast(e.event_end_time || e.event_time),
-          _isDeadlinePassed: isPast(e.registration_deadline),
-          _enrolled: enrolledIds.indexOf(e._id) >= 0
-        }
-      })
+      const newList = res.data.list
+        .map(e => {
+          const eventTimeMs = e.event_time ? new Date(e.event_time).getTime() : 0;
+          const hasEndTime = e.event_end_time && e.event_end_time.toString().trim().length > 0;
+          const endTimeMs = hasEndTime ? new Date(e.event_end_time).getTime() : eventTimeMs;
+          const _isEnded = isPast(e.event_end_time || e.event_time);
+          const _isClosed = isPast(e.registration_deadline);
+          const _isFull = e.quota && e.enrolled_count >= e.quota;
+          const _enrolled = enrolledIds.indexOf(e._id) >= 0;
+
+          // 新优先级：报名中=1, 名额已满=2, 已结束/报名截止=3
+          let _statusPriority = 1;
+          let _statusText = '报名中';
+
+          if (_isEnded || _isClosed) {
+            _statusPriority = 3;
+            _statusText = _isEnded ? '已结束' : '报名截止';
+          } else if (_isFull) {
+            _statusPriority = 2;
+            _statusText = '名额已满';
+          } else if (_enrolled) {
+            _statusPriority = 1;
+            _statusText = '已报名';
+          }
+
+          return {
+            ...e,
+            _formattedDate: formatDate(e.event_time, 'YYYY年MM月DD日'),
+            _formattedTime: formatEventParts(e.event_time, e.event_end_time).rangeStr,
+            _isPast: _isEnded,
+            _isDeadlinePassed: _isClosed,
+            _enrolled,
+            _statusPriority,
+            _statusText,
+            _eventTimeMs: eventTimeMs,
+            _endTimeMs: endTimeMs
+          };
+        })
+        // 排序：优先级低的在前（报名中优先），同优先级内按时间排序
+        // 已结束活动按结束时间近→远排序（降序），其他按开始时间近→远排序（升序）
+        .sort((a, b) => {
+          if (a._statusPriority !== b._statusPriority) {
+            return a._statusPriority - b._statusPriority;
+          }
+          // 已结束活动（优先级3）按结束时间近→远排序（降序：最近结束的在前）
+          if (a._statusPriority === 3) {
+            return (b._endTimeMs || b._eventTimeMs) - (a._endTimeMs || a._eventTimeMs);
+          }
+          // 报名中活动按开始时间近→远排序（升序：早开始的在前）
+          return a._eventTimeMs - b._eventTimeMs;
+        })
+
+      // 过滤：只显示真正已结束的活动
+      const endedList = newList.filter(e => e._isPast)
 
       this.setData({
-        endedEvents: [...this.data.endedEvents, ...newList],
+        endedEvents: [...this.data.endedEvents, ...endedList],
         endedPage: page,
         endedHasMore: res.data.hasMore,
         loading: false

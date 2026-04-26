@@ -19,6 +19,10 @@
           </div>
         </div>
       </div>
+      <el-button type="warning" @click="runDataMigration">
+        <i class="fa-solid fa-wrench"></i>
+        修复旧数据 (结束时间)
+      </el-button>
       <el-button type="primary" @click="openCreate">
         <i class="fa-solid fa-plus"></i>
         创建活动
@@ -177,9 +181,9 @@ watch(drawerVisible, (newValue) => {
 
 // 获取活动的计算状态 (根据时间自动判断已结束)
 function getComputedStatus(evt) {
-  if (evt.status === 'published' && evt.event_time) {
-    const eventTime = new Date(evt.event_time).getTime()
-    if (Date.now() > eventTime) {
+  if (evt.status === 'published' && evt.event_end_time) {
+    const endTime = new Date(evt.event_end_time).getTime()
+    if (Date.now() > endTime) {
       return 'ended'
     }
   }
@@ -271,8 +275,8 @@ const filteredEvents = computed(() => {
 
     // 已结束活动按时间降序（最近的在前）
     ended.sort((a, b) => {
-      const timeA = a.event_time ? new Date(a.event_time).getTime() : 0
-      const timeB = b.event_time ? new Date(b.event_time).getTime() : 0
+      const timeA = a.event_end_time ? new Date(a.event_end_time).getTime() : 0
+      const timeB = b.event_end_time ? new Date(b.event_end_time).getTime() : 0
       return timeB - timeA
     })
 
@@ -372,6 +376,55 @@ function openCreate() {
   selectedEvent.value = undefined
   drawerVisible.value = true
 }
+
+// 数据修复: 为历史活动回填结束时间
+async function runDataMigration() {
+  try {
+    loading.value = true
+    let totalFixed = 0
+    let page = 1
+    const pageSize = 50
+    let hasMore = true
+    
+    while(hasMore) {
+      const res = await callFunction('admin', {
+        action: 'getEvents',
+        page,
+        pageSize
+      })
+      const events = res.data.list || []
+      hasMore = res.data.hasMore
+      
+      for (const evt of events) {
+        if (!evt.event_end_time && evt.event_time) {
+          const startDate = new Date(evt.event_time)
+          const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000)
+          const pad = (n) => n < 10 ? '0' + n : n
+          const endStr = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())} ${pad(endDate.getHours())}:${pad(endDate.getMinutes())}:00`
+          
+          await callFunction('admin', {
+            action: 'manageEvent',
+            method: 'update',
+            eventId: evt._id,
+            data: {
+              ...evt,
+              event_end_time: endStr
+            }
+          })
+          totalFixed++
+        }
+      }
+      page++
+    }
+    ElMessage.success(`修复完成，共更新 ${totalFixed} 条数据！`)
+    loadEvents()
+  } catch (err) {
+    ElMessage.error(err.message || '修复失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 
 // 打开编辑活动
 function openEdit(evt) {

@@ -99,7 +99,7 @@ Page({
       const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
       const tierMap = { bronze: '青铜会员', silver: '白银会员', gold: '黄金会员' }
 
-      const isEventPast = new Date(event.event_end_time || event.event_time) < new Date()
+      const isEventPast = new Date(event.event_end_time) < new Date()
 
       const { dateStr, rangeStr } = formatEventParts(event.event_time, event.event_end_time)
       
