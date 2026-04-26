@@ -6,6 +6,7 @@
       searchPlaceholder="搜索会员号 / 昵称 / 手机号"
       :showResultCount="true"
       :resultCount="total"
+      :search-value="search"
       @filter-change="handleFilterChange"
       @search="handleSearch"
       @clear-all="handleClearAll"

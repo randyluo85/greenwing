@@ -98,6 +98,8 @@ exports.main = async (event, context) => {
       return handleGetLevelDistribution(event)
     case 'getRecentActivity':
       return handleGetRecentActivity(event)
+    case 'migrateEventEndTime':
+      return handleMigrateEventEndTime(event)
     default:
       return { success: false, message: '未知操作' }
   }
@@ -126,18 +128,39 @@ async function handleLogin(event) {
 async function handleGetUsers(event) {
   try {
     const { page = 1, pageSize = 20, keyword, level, role } = event
-    const where = {}
+    let where = {}
 
+    // 构建基础查询条件（level 和 role）
+    const baseConditions = {}
+    if (level) baseConditions.level = level
+    if (role) baseConditions.role = role
+
+    // 处理关键词搜索
     if (keyword) {
       const safeKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      where[_.or] = [
+
+      // 使用 _.or 构建搜索条件
+      const searchConditions = [
         { nickname: db.RegExp({ regexp: safeKeyword, options: 'i' }) },
         { member_no: db.RegExp({ regexp: safeKeyword, options: 'i' }) },
         { phone: db.RegExp({ regexp: safeKeyword, options: 'i' }) }
       ]
+
+      // 如果有其他筛选条件，需要与搜索条件组合
+      if (Object.keys(baseConditions).length > 0) {
+        // 搜索条件 AND 其他条件
+        where = _.and([
+          _.or(searchConditions),
+          baseConditions
+        ])
+      } else {
+        // 只有搜索条件
+        where = _.or(searchConditions)
+      }
+    } else {
+      // 没有关键词，只有基础筛选条件
+      where = baseConditions
     }
-    if (level) where.level = level
-    if (role) where.role = role
 
     const countRes = await db.collection('users').where(where).count()
     const listRes = await db.collection('users')
@@ -152,6 +175,7 @@ async function handleGetUsers(event) {
       data: { list: listRes.data, total: countRes.total, hasMore: page * pageSize < countRes.total }
     }
   } catch (err) {
+    console.error('[getUsers] error:', err)
     return { success: false, message: err.message }
   }
 }
@@ -737,6 +761,49 @@ async function handleGetRecentActivity(event) {
     return { success: true, data: activities.slice(0, limit) }
   } catch (err) {
     console.error('handleGetRecentActivity failed:', err)
+    return { success: false, message: err.message }
+  }
+}
+
+// 修复数据：为缺失 event_end_time 的历史活动回填结束时间
+async function handleMigrateEventEndTime(event) {
+  try {
+    const $ = db.command.aggregate
+
+    // 找出 event_end_time 不存在或者为空字符串的活动
+    const res = await db.collection('events').where(_.or([
+      { event_end_time: _.exists(false) },
+      { event_end_time: '' }
+    ])).limit(100).get()
+
+    const eventsToFix = res.data
+    if (eventsToFix.length === 0) {
+      return { success: true, message: '没有需要修复的数据' }
+    }
+
+    let fixCount = 0
+    for (const evt of eventsToFix) {
+      if (evt.event_time) {
+        // 结束时间默认设置为开始时间 + 2 小时
+        const startDate = new Date(evt.event_time)
+        const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000)
+        
+        // 补零辅助函数
+        const pad = (n) => n < 10 ? '0' + n : n
+        const endStr = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())} ${pad(endDate.getHours())}:${pad(endDate.getMinutes())}:00`
+
+        await db.collection('events').doc(evt._id).update({
+          data: {
+            event_end_time: endStr,
+            updated_at: db.serverDate()
+          }
+        })
+        fixCount++
+      }
+    }
+
+    return { success: true, message: `成功修复了 ${fixCount} 条记录` }
+  } catch (err) {
     return { success: false, message: err.message }
   }
 }

@@ -149,10 +149,21 @@ watch(() => props.modelValue, (newValue) => {
 })
 
 function submit(status) {
+  if (!form.title || !form.title.trim()) {
+    return ElMessage.warning('请填写活动标题')
+  }
+
   // 从时间范围中拆分开始和结束时间
-  if (timeRange.value && timeRange.value.length === 2) {
+  if (timeRange.value && timeRange.value.length === 2 && timeRange.value[0] && timeRange.value[1]) {
     form.event_time = timeRange.value[0]
     form.event_end_time = timeRange.value[1]
+  } else {
+    form.event_time = ''
+    form.event_end_time = ''
+  }
+
+  if (!form.event_time || !form.event_end_time) {
+    return ElMessage.warning('请完整选择活动的开始和结束时间')
   }
 
   const data = { ...form, price: Math.round(form.priceYuan * 100), status }

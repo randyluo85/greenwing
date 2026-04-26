@@ -25,6 +25,7 @@
       searchPlaceholder="搜索订单号"
       :showResultCount="true"
       :resultCount="total"
+      :search-value="search"
       @filter-change="handleFilterChange"
       @search="handleSearch"
       @clear-all="handleClearAll"

@@ -9,6 +9,17 @@
  */
 const safeParseDate = (date) => {
   if (!date) return null
+
+  // 如果是字符串且包含空格（iOS 不兼容的格式），转换为 ISO 8601 格式
+  if (typeof date === 'string' && date.includes(' ')) {
+    // 将 "2026-04-26 16:20:00" 转换为 "2026-04-26T16:20:00"
+    const isoDate = date.replace(' ', 'T')
+    const d = new Date(isoDate)
+    if (!isNaN(d.getTime())) {
+      return d
+    }
+  }
+
   const d = new Date(date)
   return isNaN(d.getTime()) ? null : d
 }
