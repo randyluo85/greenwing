@@ -3,25 +3,30 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 
-// 内联工具函数
-function generateVerifyCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
-}
+// P1-18: 从共享模块导入
+const { generateUniqueVerifyCode } = require('./common/utils')
 
-// 带唯一性校验的核销码生成
-async function generateUniqueVerifyCode(collection) {
-  for (let i = 0; i < 3; i++) {
-    const code = generateVerifyCode()
-    const exist = await collection.where({ verify_code: code }).count()
-    if (exist.total === 0) return code
+// 回填用户资料（真实姓名和手机号）
+async function _backfillUserProfile(transaction, user, realName, contactPhone) {
+  const userUpdateData = {}
+  let needUpdateUser = false
+  if (realName && user.real_name !== realName) {
+    userUpdateData.real_name = realName
+    needUpdateUser = true
+    if (user.nickname === '书友') {
+      userUpdateData.nickname = realName
+    }
   }
-  // 3次都碰撞，用时间戳后缀保底
-  return generateVerifyCode() + Date.now().toString(36).slice(-3)
+  if (contactPhone && user.phone !== contactPhone) {
+    userUpdateData.phone = contactPhone
+    needUpdateUser = true
+  }
+  if (needUpdateUser) {
+    userUpdateData.updated_at = db.serverDate()
+    await transaction.collection('users').doc(user._id).update({
+      data: userUpdateData
+    })
+  }
 }
 
 // 生成与数据库格式一致的时间字符串: YYYY-MM-DD HH:mm:ss
@@ -41,7 +46,7 @@ exports.main = async (event, context) => {
 
   switch (action) {
     case 'list':
-      return handleList(event)
+      return handleList(OPENID, event)
     case 'detail':
       return handleDetail(event)
     case 'enrollFree':
@@ -79,29 +84,25 @@ exports.main = async (event, context) => {
 }
 
 // 获取活动列表（用户端）
-async function handleList(event) {
+async function handleList(OPENID, event) {
   try {
-    const { page = 1, pageSize = 10, category, includeEnded = false } = event
+    const { page = 1, pageSize = 10, category, includeEnded = false, withEnrollment = false } = event
     const safePageSize = Math.min(Math.max(1, pageSize), 100)
 
-    // 使用 ISO 格式的时间字符串进行比较，兼容数据库中各种时间格式
-    const nowISO = new Date().toISOString()
-
+    // P1-19: 使用 db.serverDate() 确保时间比较一致
+    // 移除 nowISO，统一使用 db.serverDate()
     const $ = _.aggregate
 
-    // 基础筛选条件
-    const baseWhere = { status: _.in(['published', 'full']) }
-    if (category) baseWhere.category = category
-
-    // 根据是否包含已结束活动，构建数据库查询条件
-    // 使用 event_end_time 判断，如果未设置则回退到 event_time
     // 构建查询条件
     const baseConditions = [
       { status: _.in(['published', 'full']) }
     ]
     if (category) baseConditions.push({ category })
 
-    const timeCondition = includeEnded ? { event_end_time: _.lt(nowISO) } : { event_end_time: _.gte(nowISO) }
+    // P1-19: 使用 db.serverDate() 确保时间比较一致
+    const timeCondition = includeEnded
+      ? { event_end_time: _.lt(db.serverDate()) }
+      : { event_end_time: _.gte(db.serverDate()) }
 
     const where = _.and([...baseConditions, timeCondition])
 
@@ -115,10 +116,30 @@ async function handleList(event) {
       .limit(safePageSize)
       .get()
 
+    let list = listRes.list || listRes.data
+
+    // P1-2: 如果请求报名状态，查询当前用户的报名记录
+    if (withEnrollment && OPENID && list.length > 0) {
+      const eventIds = list.map(e => e._id)
+      const regRes = await db.collection('registrations')
+        .where({
+          open_id: OPENID,
+          event_id: _.in(eventIds),
+          status: _.in(['confirmed', 'checked_in'])
+        })
+        .field({ event_id: true })
+        .get()
+      const enrolledIds = new Set((regRes.list || regRes.data || []).map(r => r.event_id))
+      list = list.map(e => ({
+        ...e,
+        _enrolled: enrolledIds.has(e._id)
+      }))
+    }
+
     return {
       success: true,
       data: {
-        list: listRes.list || listRes.data,
+        list: list,
         total: countRes.total,
         hasMore: page * safePageSize < countRes.total,
         includeEnded: includeEnded
@@ -231,26 +252,7 @@ async function handleEnrollFree(openid, event) {
     })
 
     // 更新用户表资料（回填真实姓名和手机号到用户资料）
-    const userUpdateData = {}
-    let needUpdateUser = false
-    if (realName && user.real_name !== realName) {
-      userUpdateData.real_name = realName
-      needUpdateUser = true
-      // 如果当前昵称是默认值“书友”，则同步更新昵称
-      if (user.nickname === '书友') {
-        userUpdateData.nickname = realName
-      }
-    }
-    if (contactPhone && user.phone !== contactPhone) {
-      userUpdateData.phone = contactPhone
-      needUpdateUser = true
-    }
-    if (needUpdateUser) {
-      userUpdateData.updated_at = db.serverDate()
-      await transaction.collection('users').doc(user._id).update({
-        data: userUpdateData
-      })
-    }
+    _backfillUserProfile(transaction, user, realName, contactPhone)
 
     await transaction.commit()
     return { success: true, data: { verify_code: verifyCode } }
@@ -367,26 +369,7 @@ async function handleEnrollPoints(openid, event) {
     })
 
     // 更新用户表资料（回填真实姓名和手机号）
-    const userUpdateData = {}
-    let needUpdateUser = false
-    if (realName && user.real_name !== realName) {
-      userUpdateData.real_name = realName
-      needUpdateUser = true
-      // 如果当前昵称是默认值“书友”，则同步更新昵称
-      if (user.nickname === '书友') {
-        userUpdateData.nickname = realName
-      }
-    }
-    if (contactPhone && user.phone !== contactPhone) {
-      userUpdateData.phone = contactPhone
-      needUpdateUser = true
-    }
-    if (needUpdateUser) {
-      userUpdateData.updated_at = db.serverDate()
-      await transaction.collection('users').doc(user._id).update({
-        data: userUpdateData
-      })
-    }
+    _backfillUserProfile(transaction, user, realName, contactPhone)
 
     // 下发报名成功通知
     await transaction.collection('notifications').add({

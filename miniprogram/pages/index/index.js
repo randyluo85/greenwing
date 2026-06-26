@@ -134,74 +134,25 @@ Page({
   async loadEvents() {
     this.setData({ _lastLoadTime: Date.now() })
     try {
-      // 同时请求未结束和已结束活动
-      const [activeRes, endedRes] = await Promise.all([
-        callFunction('event', { action: 'list', page: 1, pageSize: 20, includeEnded: false }),
-        callFunction('event', { action: 'list', page: 1, pageSize: 20, includeEnded: true })
-      ])
+      // P1-1/P1-2: 单次请求，由云函数返回报名状态
+      const res = await callFunction('event', { action: 'list', page: 1, pageSize: 10, includeEnded: false, withEnrollment: true })
 
-      // 合并列表
-      const allEventData = [
-        ...(activeRes.data.list || []),
-        ...(endedRes.data.list || [])
-      ]
-
-      let enrolledIds = []
-      try {
-        const openid = getApp().globalData.openid || wx.getStorageSync('userInfo')?.open_id
-        if (openid && allEventData.length > 0) {
-          const cachedIds = getCache('enrolled_event_ids')
-          if (cachedIds) {
-            enrolledIds = cachedIds
-          } else {
-            const eventIds = allEventData.map(e => e._id)
-            const db = wx.cloud.database()
-            const _ = db.command
-
-            // 查询当前用户在这些活动中的报名记录
-            const MAX_LIMIT = 20
-            let promises = []
-            for (let i = 0; i < eventIds.length; i += MAX_LIMIT) {
-               const batchIds = eventIds.slice(i, i + MAX_LIMIT)
-               promises.push(db.collection('registrations').where({
-                 open_id: openid,
-                 event_id: _.in(batchIds),
-                 status: _.neq('cancelled')
-               }).get())
-            }
-            const regResArr = await Promise.all(promises)
-            regResArr.forEach(regRes => {
-              enrolledIds = enrolledIds.concat(regRes.data.map(r => r.event_id))
-            })
-
-            // 写入缓存，存活 5 分钟
-            setCache('enrolled_event_ids', enrolledIds, 300)
-          }
-        }
-      } catch (e) {
-        console.error('获取报名状态失败', e)
-      }
-
-      console.log('[loadEvents] 云函数返回活动数量:', allEventData.length)
+      const allEventData = res.data.list || []
 
       // 计算活动状态和优先级，然后排序
       const allEvents = allEventData.map(e => {
         const plainText = (e.description || '').replace(/<[^>]+>/g, '').trim();
-
-        // 使用 event_end_time 判断活动是否已结束
         const _isEnded = e.status === 'ended' || isPast(e.event_end_time);
         const _isClosed = isPast(e.registration_deadline);
-        const _enrolled = enrolledIds.includes(e._id);
+        const _enrolled = !!e._enrolled;
         const isFull = e.quota && e.enrolled_count >= e.quota;
 
-        // 计算状态文本
         let _statusText = '报名中';
         if (_isEnded) _statusText = '已结束';
         else if (_isClosed) _statusText = '报名截止';
         else if (isFull) _statusText = '名额已满';
         else if (_enrolled) _statusText = '已报名';
 
-        // 排序优先级：报名中=1（优先显示），其他=2（后显示）
         const _statusPriority = (_isEnded || _isClosed || isFull) ? 2 : 1;
 
         return {
@@ -213,17 +164,14 @@ Page({
           _excerpt: plainText.length > 30 ? plainText.substring(0, 30) + '...' : plainText,
         };
       }).sort((a, b) => {
-        // 先按状态优先级排序（报名中优先）
         if (a._statusPriority !== b._statusPriority) {
           return a._statusPriority - b._statusPriority;
         }
-        // 报名中活动：按开始时间从近到远（升序，早的开始在前）
         if (a._statusPriority === 1) {
           const timeA = new Date(a.event_time).getTime();
           const timeB = new Date(b.event_time).getTime();
           return timeA - timeB;
         }
-        // 已结束活动：按结束时间从近到远（降序，最近结束的在前）
         const timeA = new Date(a.event_end_time).getTime();
         const timeB = new Date(b.event_end_time).getTime();
         return timeB - timeA;
@@ -231,8 +179,6 @@ Page({
 
       // 首页最多显示 3 个活动
       const events = allEvents.slice(0, 3)
-
-      console.log('[loadEvents] 总活动数:', allEvents.length, '首页显示:', events.length, events.map(e => ({ id: e._id, title: e.title, status: e._statusText })))
 
       if (events.length > 0) {
         await resolveCloudUrls(events, 'cover_image')
@@ -347,7 +293,16 @@ Page({
   },
 
   onBannerChange(e) {
-    this.setData({ bannerCurrent: e.detail.current })
+    const next = e.detail.current
+    if (this.data.bannerCurrent !== next) {
+      this.setData({ bannerCurrent: next })
+    }
+  },
+
+  onBannerImgError(e) {
+    const idx = e.currentTarget.dataset.index
+    const key = `banners[${idx}].image_url`
+    this.setData({ [key]: '/images/banner.jpg' })
   },
 
   onBookTap(e) {

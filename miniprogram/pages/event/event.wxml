@@ -136,9 +136,9 @@
           <view class="card-footer">
             <text class="footer-time">{{item.event._enrollDate || ''}}</text>
             <view class="footer-actions">
-              <view class="btn-cancel-rsvp {{cancelledIds.indexOf(item._id) >= 0 ? 'disabled' : ''}}"
+              <view class="btn-cancel-rsvp {{cancelledSet[item._id] ? 'disabled' : ''}}"
                 bindtap="cancelEnroll" data-id="{{item._id}}">
-                <text>{{cancelledIds.indexOf(item._id) >= 0 ? '已取消' : '取消报名'}}</text>
+                <text>{{cancelledSet[item._id] ? '已取消' : '取消报名'}}</text>
               </view>
               <view class="btn-ticket" bindtap="showTicket" data-code="{{item.verify_code}}" data-id="{{item._id}}" data-event="{{item.event_id}}">
                 <text class="qr-icon">#</text>
@@ -160,7 +160,7 @@
         <text class="section-title">历史足迹</text>
       </view>
       <view class="event-list" wx:if="{{historyList.length}}">
-        <view class="event-card card-history card-compact" wx:for="{{historyList}}" wx:key="_id">
+        <view class="event-card card-history card-compact" wx:for="{{historyList}}" wx:key="_id" wx:if="{{item.event}}">
           <view class="compact-header">
             <text class="compact-title">{{item.event.title || '活动'}}</text>
             <view class="status-badge badge-ended" wx:if="{{item.status === 'cancelled'}}">已取消</view>

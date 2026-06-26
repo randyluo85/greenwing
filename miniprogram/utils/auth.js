@@ -32,17 +32,22 @@ const ensureLogin = async () => {
 
   const cached = wx.getStorageSync('userInfo')
   if (cached) {
+    // P1-16: 先渲染缓存 UI，并行发云函数请求更新数据
     app.globalData.userInfo = cached
-    try {
-      const res = await cloud.callFunction('user', { action: 'getProfile' })
-      app.globalData.userInfo = res.data
-      app.globalData.openid = res.data.open_id
-      wx.setStorageSync('userInfo', res.data)
-      wx.setStorageSync('openid', res.data.open_id)
-      return res.data
-    } catch (e) {
-      app.globalData.userInfo = null
-    }
+    app.globalData.openid = cached.open_id
+    // 并行发起云函数请求，但不阻塞返回缓存数据
+    cloud.callFunction('user', { action: 'getProfile' })
+      .then(res => {
+        app.globalData.userInfo = res.data
+        app.globalData.openid = res.data.open_id
+        wx.setStorageSync('userInfo', res.data)
+        wx.setStorageSync('openid', res.data.open_id)
+      })
+      .catch(() => {
+        // 云函数失败，继续使用缓存
+        app.globalData.userInfo = null
+      })
+    return cached
   }
 
   return login()

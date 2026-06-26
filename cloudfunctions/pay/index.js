@@ -25,24 +25,9 @@ function generateOrderNo() {
   const rand = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
   return `QY${y}${m}${d}${h}${min}${s}${rand}`
 }
-function generateVerifyCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
-}
 
-// 带唯一性校验的核销码生成
-async function generateUniqueVerifyCode(collection) {
-  for (let i = 0; i < 3; i++) {
-    const code = generateVerifyCode()
-    const exist = await collection.where({ verify_code: code }).count()
-    if (exist.total === 0) return code
-  }
-  return generateVerifyCode() + Date.now().toString(36).slice(-3)
-}
+// P1-18: 从共享模块导入
+const { generateUniqueVerifyCode } = require('./common/utils')
 
 // 创建订单 + 统一下单
 async function handleCreateOrder(openid, event) {
@@ -493,7 +478,7 @@ async function syncRefundedOrder(order) {
 
     if (needsDecrement) {
       await transaction.collection('events').doc(order.event_id).update({
-        data: { enrolled_count: db.command.inc(-1) }
+        data: { enrolled_count: _.inc(-1) }
       })
     }
     

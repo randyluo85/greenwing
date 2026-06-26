@@ -16,10 +16,10 @@
 
   <!-- Banner 轮播 -->
   <view class="banner-wrap">
-    <swiper class="banner" autoplay circular current="{{bannerCurrent}}" bindchange="onBannerChange">
+    <swiper class="banner" autoplay circular interval="4000" duration="350" easing-function="easeInOut" bindchange="onBannerChange">
       <swiper-item wx:for="{{banners}}" wx:key="_id" bindtap="onBannerTap" data-item="{{item}}">
         <view class="banner-slide">
-          <image src="{{item.image_url}}" mode="aspectFill" class="banner-img" />
+          <image src="{{item.image_url}}" mode="aspectFill" class="banner-img" lazy-load binderror="onBannerImgError" data-index="{{index}}" />
           <view class="banner-overlay"></view>
           <view class="banner-text" wx:if="{{item.title || item.subtitle}}">
             <text class="banner-title ellipsis-2" wx:if="{{item.title}}">{{item.title}}</text>
@@ -110,7 +110,7 @@
           wx:for="{{events}}" wx:key="_id"
           bindtap="goEventDetail" data-id="{{item._id}}">
           <view class="event-cover-wrap">
-            <image src="{{item.cover_image || '/images/event.jpg'}}" mode="aspectFill" class="event-cover" />
+            <image src="{{item.cover_image || '/images/event.jpg'}}" mode="aspectFill" class="event-cover" lazy-load />
           </view>
           <view class="event-info">
             <text class="event-title ellipsis-2">{{item.title}}</text>
@@ -146,7 +146,7 @@
         <view class="book-scroll-inner">
           <view class="book-item" wx:for="{{books}}" wx:key="_id" bindtap="onBookTap" data-id="{{item._id}}">
             <view class="book-cover-wrap">
-              <image src="{{item.cover_image || '/images/book1.png'}}" mode="aspectFill" class="book-cover" />
+              <image src="{{item.cover_image || '/images/book1.png'}}" mode="aspectFill" class="book-cover" lazy-load />
               <view class="book-rating" wx:if="{{item.rating}}">
                 <text>{{item.rating}}</text>
               </view>

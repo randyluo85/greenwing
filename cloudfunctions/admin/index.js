@@ -462,22 +462,28 @@ async function handleManageContent(event) {
         const users = usersRes.data
         if (users.length === 0) break
 
-        const promises = users.map(u => {
-          return db.collection('notifications').add({
-            data: {
-              open_id: u.open_id,
-              title,
-              body,
-              icon_bg_color: '#f05232',
-              icon_text: '系',
-              is_read: false,
-              type: 'system_broadcast',
-              created_at: db.serverDate()
-            }
-          }).catch(e => console.error('Failed to notify user', u.open_id, e))
-        })
-
-        await Promise.all(promises)
+        const BATCH_SIZE = 50
+        const BATCH_DELAY = 200
+        for (let i = 0; i < users.length; i += BATCH_SIZE) {
+          const batch = users.slice(i, i + BATCH_SIZE)
+          await Promise.all(batch.map(u => {
+            return db.collection('notifications').add({
+              data: {
+                open_id: u.open_id,
+                title,
+                body,
+                icon_bg_color: '#f05232',
+                icon_text: '系',
+                is_read: false,
+                type: 'system_broadcast',
+                created_at: db.serverDate()
+              }
+            }).catch(e => console.error('Failed to notify user', u.open_id, e))
+          }))
+          if (i + BATCH_SIZE < users.length) {
+            await new Promise(r => setTimeout(r, BATCH_DELAY))
+          }
+        }
         totalSent += users.length
         offset += MAX_USERS
         if (users.length < MAX_USERS) break

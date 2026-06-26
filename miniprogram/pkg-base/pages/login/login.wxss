@@ -94,6 +94,64 @@
   line-height: 1.6;
 }
 
+/* 协议勾选 */
+.agreement-row {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 32rpx;
+  padding: 0 12rpx;
+}
+
+.checkbox-wrap {
+  flex-shrink: 0;
+  margin-right: 16rpx;
+  margin-top: 2rpx;
+}
+
+.checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #d1d5db;
+  border-radius: 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.checkbox.checked {
+  background: #07C160;
+  border-color: #07C160;
+}
+
+.checkbox-tick {
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.agreement-text {
+  font-size: 24rpx;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.agreement-text .link {
+  color: #07C160;
+}
+
+.wx-login-btn.btn-disabled {
+  opacity: 0.5;
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.wx-login-btn.btn-disabled .wx-icon-wrap {
+  background: #9ca3af;
+  box-shadow: none;
+}
+
 .security-divider {
   display: flex;
   align-items: center;

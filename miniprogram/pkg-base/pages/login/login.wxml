@@ -6,12 +6,19 @@
   </view>
 
   <view class="login-actions">
-    <button class="wx-login-btn btn-active" bindtap="onWxLogin" loading="{{loading}}">
+    <view class="agreement-row" bindtap="toggleAgreement">
+      <view class="checkbox-wrap">
+        <view class="checkbox {{agreed ? 'checked' : ''}}">
+          <text wx:if="{{agreed}}" class="checkbox-tick">✓</text>
+        </view>
+      </view>
+      <text class="agreement-text">我已阅读并同意《<text class="link" bindtap="goUserAgreement">用户协议</text>》和《<text class="link" bindtap="goPrivacyPolicy">隐私政策</text>》</text>
+    </view>
+    <button class="wx-login-btn {{agreed ? 'btn-active' : 'btn-disabled'}}" bindtap="onWxLogin" loading="{{loading}}" disabled="{{!agreed}}">
       <view class="wx-icon-wrap">
         <text class="wx-icon-text">W</text>
       </view>
       <text>微信授权登录</text>
     </button>
-    <text class="terms-text">登录即代表同意《用户协议》和《隐私政策》</text>
   </view>
 </view>

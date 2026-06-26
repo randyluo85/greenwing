@@ -24,32 +24,6 @@ Page({
       this.setData({ eventId: options.eventId })
       this.loadEvent(options.eventId)
     }
-
-    // 调试：如果从 URL 参数中传入了 orderId，直接查询该订单状态
-    if (options.orderId) {
-      console.log('[调试] URL 中包含 orderId，查询订单状态:', options.orderId)
-      this.queryOrderStatus(options.orderId)
-    }
-  },
-
-  // 调试：手动查询订单状态
-  async queryOrderStatus(orderId) {
-    try {
-      wx.showLoading({ title: '查询中...' })
-      const res = await callFunction('pay', { action: 'queryOrder', orderId })
-      const order = res.data
-      wx.hideLoading()
-      console.log('[调试] 订单状态查询结果:', order)
-      wx.showModal({
-        title: '订单状态',
-        content: `订单号: ${order.order_no}\n状态: ${order.status}\n金额: ${order.amount}分`,
-        showCancel: false
-      })
-    } catch (e) {
-      wx.hideLoading()
-      console.error('[调试] 查询订单状态失败:', e)
-      wx.showToast({ title: '查询失败: ' + e.message, icon: 'none' })
-    }
   },
 
   onUnload() {
@@ -90,9 +64,7 @@ Page({
       })
 
       const { orderId, payment, expireAt } = orderRes.data
-      console.log('[支付调试] orderRes:', JSON.stringify(orderRes))
-      console.log('[支付调试] payment:', JSON.stringify(payment))
-      console.log('[支付调试] payment keys:', payment ? Object.keys(payment) : 'payment is null/undefined')
+
       this.setData({ orderId })
 
       // 开始倒计时

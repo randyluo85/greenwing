@@ -38,7 +38,7 @@ Page({
   onLoad(options) {
     if (options.id) {
       this.setData({ eventId: options.id })
-      this.loadEvent(options.id)
+      this._loadEvent(options.id)
       this.loadUserInfo().then(() => this.checkEnrollment())
     }
   },
@@ -49,10 +49,14 @@ Page({
       this.getTabBar().setData({ selected: 1 })
     }
 
-    // 重新加载活动数据，确保数据是最新的
+    // P1-9: 30秒内不重复请求
     if (this.data.eventId) {
-      this.loadEvent(this.data.eventId)
-      this.loadUserInfo().then(() => this.checkEnrollment())
+      const now = Date.now()
+      const lastTime = this._lastFetchTime || 0
+      if (now - lastTime > 30000) {
+        this._loadEvent(this.data.eventId)
+        this.loadUserInfo().then(() => this.checkEnrollment())
+      }
     }
   },
 
@@ -81,17 +85,12 @@ Page({
     }
   },
 
-  async loadEvent(id) {
+  async _loadEvent(id) {
     try {
       wx.showLoading({ title: '加载中...' })
 
-      // 调试日志：显示活动ID和原始数据
-      console.log('[DEBUG] 加载活动详情，eventId:', id)
       const res = await callFunction('event', { action: 'detail', eventId: id })
       const event = res.data
-      console.log('[DEBUG] 从服务器获取的原始数据:', event)
-      console.log('[DEBUG] event.price 原始值:', event.price, '(分)')
-      console.log('[DEBUG] formatMoney 后:', formatMoney(event.price), '(元)')
 
       await resolveCloudUrls([event], 'cover_image')
       event.description = await resolveRichTextCloudUrls(event.description)
@@ -99,7 +98,12 @@ Page({
       const modeMap = { free: '免费报名', points_only: '积分兑换', paid: '付费报名' }
       const tierMap = { bronze: '青铜会员', silver: '白银会员', gold: '黄金会员' }
 
-      const isEventPast = new Date(event.event_end_time) < new Date()
+      // P1-11: 使用 safeParseDate 替代 new Date() 直接解析
+      const { safeParseDate } = require('../../../utils/util')
+      const isEventPast = (() => {
+        const d = safeParseDate(event.event_end_time)
+        return d ? d.getTime() < Date.now() : false
+      })()
 
       const { dateStr, rangeStr } = formatEventParts(event.event_time, event.event_end_time)
       
@@ -112,6 +116,8 @@ Page({
         tierText: tierMap[event.tier_threshold] || '',
         isEventPast
       })
+
+      this._lastFetchTime = Date.now()
 
       this.updateUIState()
 
@@ -368,7 +374,11 @@ Page({
 
     // 平台状态
     const isEnded = event.status === 'ended'
-    const isPastDeadline = event.registration_deadline && new Date() > new Date(event.registration_deadline)
+    // P1-12: 使用 safeParseDate；P1-13: registration_deadline 回退到 event_time
+    const deadlineStr = event.registration_deadline || event.event_time
+    const { safeParseDate } = require('../../../utils/util')
+    const deadlineDate = safeParseDate(deadlineStr)
+    const isPastDeadline = deadlineDate ? deadlineDate.getTime() < Date.now() : false
     const isFull = event.quota && event.enrolled_count >= event.quota
 
     let platformStatus = 'open'
