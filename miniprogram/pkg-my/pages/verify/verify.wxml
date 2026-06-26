@@ -19,6 +19,10 @@
         </view>
       </view>
     </view>
+
+    <view class="records-entry" bindtap="goRecords">
+      <text class="records-entry-text">查看我的核销记录 ›</text>
+    </view>
   </view>
 
   <!-- 核销结果 -->

@@ -84,5 +84,9 @@ Page({
 
   resetVerify() {
     this.setData({ result: null, verifiedInfo: null, manualCode: '' })
+  },
+
+  goRecords() {
+    wx.navigateTo({ url: './verify-records' })
   }
 })

@@ -78,6 +78,8 @@ exports.main = async (event, context) => {
           timestamp: Date.now()
         }
       }
+    case 'getMyVerifications':
+      return handleGetMyVerifications(OPENID, event)
     default:
       return { success: false, message: '未知操作' }
   }
@@ -821,6 +823,62 @@ async function handleCheckRegStatus(OPENID, event) {
       data: { status: reg.status, event_id: reg.event_id || '' }
     }
   } catch (err) {
+    return { success: false, message: err.message }
+  }
+}
+
+// 核销员查看自己的核销记录
+async function handleGetMyVerifications(OPENID, event) {
+  try {
+    const { page = 1, pageSize = 20 } = event
+
+    // 查询当前核销员的所有已核销记录（按核销时间倒序）
+    const where = { verified_by: OPENID, status: 'verified' }
+
+    const countRes = await db.collection('registrations').where(where).count()
+    const listRes = await db.collection('registrations')
+      .where(where)
+      .orderBy('verified_at', 'desc')
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .get()
+
+    const list = listRes.data
+
+    // 批量获取用户信息和活动信息
+    const userIds = [...new Set(list.map(r => r.user_id).filter(id => id))]
+    const eventIds = [...new Set(list.map(r => r.event_id).filter(id => id))]
+
+    const [usersRes, eventsRes] = await Promise.all([
+      userIds.length > 0 ? db.collection('users').where({ _id: _.in(userIds) }).get() : { data: [] },
+      eventIds.length > 0 ? db.collection('events').where({ _id: _.in(eventIds) }).get() : { data: [] }
+    ])
+
+    const userMap = {}
+    usersRes.data.forEach(u => { userMap[u._id] = { nickname: u.nickname, real_name: u.real_name, phone: u.phone, avatar_url: u.avatar_url } })
+
+    const eventMap = {}
+    eventsRes.data.forEach(e => { eventMap[e._id] = { title: e.title, event_time: e.event_time } })
+
+    const result = list.map(r => ({
+      registration_id: r._id,
+      user_id: r.user_id,
+      event_id: r.event_id,
+      real_name: r.real_name || userMap[r.user_id]?.real_name || '',
+      contact_phone: r.contact_phone || userMap[r.user_id]?.phone || '',
+      nickname: userMap[r.user_id]?.nickname || '未知',
+      avatar_url: userMap[r.user_id]?.avatar_url || '',
+      event_title: eventMap[r.event_id]?.title || '未知活动',
+      event_time: eventMap[r.event_id]?.event_time || '',
+      verified_at: r.verified_at || ''
+    }))
+
+    return {
+      success: true,
+      data: { list: result, total: countRes.total, hasMore: page * pageSize < countRes.total }
+    }
+  } catch (err) {
+    console.error('[getMyVerifications] error:', err)
     return { success: false, message: err.message }
   }
 }

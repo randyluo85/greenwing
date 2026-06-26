@@ -37,6 +37,16 @@
 
 .manual-btn { padding: 16rpx 32rpx; flex-shrink: 0; }
 
+.records-entry {
+  margin-top: 32rpx;
+  text-align: center;
+  padding: 24rpx;
+}
+.records-entry-text {
+  font-size: 28rpx;
+  color: #14b8a6;
+}
+
 .result-area { display: flex; flex-direction: column; align-items: center; }
 
 .result-card {

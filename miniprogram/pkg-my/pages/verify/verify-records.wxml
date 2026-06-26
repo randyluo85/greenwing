@@ -1,0 +1,45 @@
+<!--pages/verify/verify-records.wxml-->
+<view class="page">
+
+  <!-- 统计头部 -->
+  <view class="stats-bar">
+    <text class="stats-text">共核销 <text class="stats-num">{{total}}</text> 人次</text>
+  </view>
+
+  <!-- 列表 -->
+  <view class="list">
+    <view
+      class="record-item"
+      wx:for="{{list}}"
+      wx:key="registration_id"
+    >
+      <view class="item-top">
+        <view class="user-avatar" wx:if="{{item.avatar_url}}">
+          <image src="{{item.avatar_url}}" class="avatar-img" />
+        </view>
+        <view class="user-avatar avatar-placeholder" wx:else>
+          <text class="avatar-text">{{item.nickname ? item.nickname[0] : '?'}}</text>
+        </view>
+        <view class="user-info">
+          <text class="user-name">{{item.real_name || item.nickname || '未知用户'}}</text>
+          <text class="user-phone">{{item.contact_phone || '未留电话'}}</text>
+        </view>
+      </view>
+      <view class="item-bottom">
+        <text class="event-name">活动：{{item.event_title}}</text>
+        <text class="verify-time">核销时间：{{formatTime(item.verified_at)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && list.length === 0}}">
+    <text class="empty-text">暂无核销记录</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="load-more" wx:if="{{loadingMore}}">
+    <text class="load-text">加载中...</text>
+  </view>
+
+</view>
