@@ -868,14 +868,30 @@ async function handleGetMyVerifications(OPENID, event) {
       contact_phone: r.contact_phone || userMap[r.user_id]?.phone || '',
       nickname: userMap[r.user_id]?.nickname || '未知',
       avatar_url: userMap[r.user_id]?.avatar_url || '',
-      event_title: eventMap[r.event_id]?.title || '未知活动',
-      event_time: eventMap[r.event_id]?.event_time || '',
-      verified_at: r.verified_at || ''
+      verified_at: r.verified_at ? formatDateTimeForDB(new Date(r.verified_at)) : ''
     }))
+
+    // 按活动分组，保持按最新核销时间排序
+    const groupMap = {}
+    const groupOrder = []
+    result.forEach(r => {
+      if (!groupMap[r.event_id]) {
+        const evt = eventMap[r.event_id] || {}
+        groupMap[r.event_id] = {
+          event_id: r.event_id,
+          event_title: evt.title || '未知活动',
+          event_time: evt.event_time || '',
+          records: []
+        }
+        groupOrder.push(r.event_id)
+      }
+      groupMap[r.event_id].records.push(r)
+    })
+    const groups = groupOrder.map(eid => groupMap[eid])
 
     return {
       success: true,
-      data: { list: result, total: countRes.total, hasMore: page * pageSize < countRes.total }
+      data: { groups, total: countRes.total, hasMore: page * pageSize < countRes.total }
     }
   } catch (err) {
     console.error('[getMyVerifications] error:', err)
