@@ -65,6 +65,7 @@
         "pages/my-orders/my-orders",
         "pages/points/points",
         "pages/verify/verify",
+        "pages/verify/verify-records",
         "pages/notifications/notifications",
         "pages/notification-detail/notification-detail",
         "pages/profile-edit/profile-edit",

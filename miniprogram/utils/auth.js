@@ -45,7 +45,6 @@ const ensureLogin = async () => {
       })
       .catch(() => {
         // 云函数失败，继续使用缓存
-        app.globalData.userInfo = null
       })
     return cached
   }

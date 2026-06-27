@@ -1,0 +1,59 @@
+<!--pages/verify/verify-records.wxml-->
+<view class="page">
+
+  <!-- 统计头部 -->
+  <view class="stats-bar">
+    <text class="stats-text">共核销 <text class="stats-num">{{total}}</text> 人次</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && groups.length === 0}}">
+    <text class="empty-text">暂无核销记录</text>
+  </view>
+
+  <!-- 分组列表 -->
+  <block wx:for="{{groups}}" wx:key="event_id">
+    <view class="group-section">
+      <!-- 分组头 -->
+      <view class="group-header">
+        <view class="group-header-left">
+          <text class="group-title">{{item.event_title}}</text>
+          <text class="group-time" wx:if="{{item.event_time}}">{{item.event_time}}</text>
+        </view>
+        <text class="group-count">{{item.records.length}}人</text>
+      </view>
+
+      <!-- 分组内的记录 -->
+      <view class="group-records">
+        <view
+          class="record-item"
+          wx:for="{{item.records}}"
+          wx:for-item="rec"
+          wx:key="registration_id"
+        >
+          <view class="item-top">
+            <view class="user-avatar" wx:if="{{rec.avatar_url}}">
+              <image src="{{rec.avatar_url}}" class="avatar-img" />
+            </view>
+            <view class="user-avatar avatar-placeholder" wx:else>
+              <text class="avatar-text">{{rec.nickname ? rec.nickname[0] : '?'}}</text>
+            </view>
+            <view class="user-info">
+              <text class="user-name">{{rec.real_name || rec.nickname || '未知用户'}}</text>
+              <text class="user-phone">{{rec.contact_phone || '未留电话'}}</text>
+            </view>
+          </view>
+          <view class="item-bottom">
+            <text class="verify-time">核销时间：{{rec.verified_at || '--'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 加载中 -->
+  <view class="load-more" wx:if="{{loadingMore}}">
+    <text class="load-text">加载中...</text>
+  </view>
+
+</view>

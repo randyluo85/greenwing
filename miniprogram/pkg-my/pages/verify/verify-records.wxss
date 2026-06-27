@@ -1,0 +1,150 @@
+.page {
+  background: #f5f6f8;
+  min-height: 100vh;
+  padding-bottom: 24rpx;
+}
+
+/* 统计头部 */
+.stats-bar {
+  padding: 24rpx 24rpx 8rpx;
+}
+.stats-text {
+  font-size: 26rpx;
+  color: #64748B;
+}
+.stats-num {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #14b8a6;
+}
+
+/* 分组 */
+.group-section {
+  margin: 16rpx 20rpx 0;
+}
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 12rpx 12rpx;
+}
+.group-header-left {
+  flex: 1;
+}
+.group-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1E293B;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-time {
+  font-size: 24rpx;
+  color: #94a3b8;
+  margin-top: 4rpx;
+  display: block;
+}
+.group-count {
+  font-size: 24rpx;
+  color: #14b8a6;
+  background: #f0fdfa;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+/* 分组内记录 */
+.group-records {
+  /* no extra padding, record-item handles it */
+}
+
+/* 列表项 */
+.record-item {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 12rpx;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.item-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.user-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+.avatar-placeholder {
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-text {
+  font-size: 28rpx;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.user-info {
+  margin-left: 20rpx;
+  flex: 1;
+}
+.user-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #1E293B;
+  display: block;
+}
+.user-phone {
+  font-size: 26rpx;
+  color: #64748B;
+  margin-top: 4rpx;
+  display: block;
+  font-family: 'SF Mono', monospace;
+}
+
+.item-bottom {
+  border-top: 1rpx solid #f1f5f9;
+  padding-top: 12rpx;
+}
+.verify-time {
+  font-size: 24rpx;
+  color: #94a3b8;
+  display: block;
+  font-family: 'SF Mono', monospace;
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+.empty-text {
+  color: #94a3b8;
+  font-size: 28rpx;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 24rpx;
+}
+.load-text {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
