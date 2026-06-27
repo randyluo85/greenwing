@@ -3,7 +3,7 @@ const auth = require('../../../utils/auth')
 
 Page({
   data: {
-    list: [],
+    groups: [],
     page: 1,
     pageSize: 20,
     total: 0,
@@ -38,10 +38,28 @@ Page({
       })
 
       const data = res.data || {}
-      const newList = data.list || []
+      const newGroups = data.groups || []
+
+      // 合并分组：刷新时替换，加载更多时追加同 event_id 的 records
+      let mergedGroups
+      if (refresh) {
+        mergedGroups = newGroups
+      } else {
+        const existingMap = {}
+        this.data.groups.forEach(g => { existingMap[g.event_id] = g })
+        newGroups.forEach(g => {
+          if (existingMap[g.event_id]) {
+            existingMap[g.event_id].records.push(...g.records)
+          } else {
+            existingMap[g.event_id] = g
+            this.data.groups.push(g)
+          }
+        })
+        mergedGroups = this.data.groups.map(g => existingMap[g.event_id] || g)
+      }
 
       this.setData({
-        list: refresh ? newList : [...this.data.list, ...newList],
+        groups: mergedGroups,
         page,
         total: data.total || 0,
         hasMore: data.hasMore !== false,
@@ -49,7 +67,8 @@ Page({
       })
     } catch (e) {
       this.setData({ [loadingKey]: false })
-      wx.showToast({ title: '加载失败', icon: 'none' })
+      wx.showToast({ title: e.message || '加载失败', icon: 'none', duration: 3000 })
+      console.error('[verify-records] 加载核销记录失败:', e)
     }
   },
 
@@ -63,13 +82,5 @@ Page({
     this.loadList(true).then(() => {
       wx.stopPullDownRefresh()
     })
-  },
-
-  formatTime(dateStr) {
-    if (!dateStr) return ''
-    const d = new Date(dateStr)
-    if (isNaN(d.getTime())) return dateStr
-    const pad = n => n < 10 ? '0' + n : n
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
   }
 })

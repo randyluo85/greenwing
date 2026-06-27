@@ -6,7 +6,7 @@
 
 /* 统计头部 */
 .stats-bar {
-  padding: 24rpx 24rpx 0;
+  padding: 24rpx 24rpx 8rpx;
 }
 .stats-text {
   font-size: 26rpx;
@@ -18,15 +18,55 @@
   color: #14b8a6;
 }
 
-/* 列表项 */
-.list {
-  padding: 16rpx 20rpx;
+/* 分组 */
+.group-section {
+  margin: 16rpx 20rpx 0;
 }
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 12rpx 12rpx;
+}
+.group-header-left {
+  flex: 1;
+}
+.group-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1E293B;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-time {
+  font-size: 24rpx;
+  color: #94a3b8;
+  margin-top: 4rpx;
+  display: block;
+}
+.group-count {
+  font-size: 24rpx;
+  color: #14b8a6;
+  background: #f0fdfa;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+/* 分组内记录 */
+.group-records {
+  /* no extra padding, record-item handles it */
+}
+
+/* 列表项 */
 .record-item {
   background: #fff;
   border-radius: 16rpx;
   padding: 24rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
@@ -81,18 +121,9 @@
   border-top: 1rpx solid #f1f5f9;
   padding-top: 12rpx;
 }
-.event-name {
-  font-size: 24rpx;
-  color: #64748B;
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .verify-time {
   font-size: 24rpx;
   color: #94a3b8;
-  margin-top: 4rpx;
   display: block;
   font-family: 'SF Mono', monospace;
 }
